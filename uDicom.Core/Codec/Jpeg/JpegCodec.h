@@ -1,3 +1,16 @@
+////////////////////////////////////////////////////////////////////////
+/// Copyright, (c) Shanghai United Imaging Healthcare Inc
+/// All rights reserved. 
+/// 
+/// *@author: qiuyang.cao@united-imaging.com
+///
+/// @file: JpegCodec.h
+///
+/// @brief:
+///
+///
+/// @date: 2014/08/19
+/////////////////////////////////////////////////////////////////////////
 #pragma region License
 
 // Copyright (c) 2012, ClearCanvas Inc.
@@ -57,13 +70,12 @@ using namespace System;
 using namespace System::IO;
 using namespace System::Threading;
 
-using namespace ClearCanvas::Common;
-using namespace ClearCanvas::Dicom::Codec;
-using namespace ClearCanvas::Dicom;
+using namespace UIH::Dicom::Codec;
+using namespace UIH::Dicom;
 
 #include "DicomJpegParameters.h"
 
-namespace ClearCanvas {
+namespace UIH { 
 namespace Dicom {
 namespace Codec {
 namespace Jpeg {
@@ -127,6 +139,6 @@ internal:
 } // Jpeg
 } // Codec
 } // Dicom
-} // ClearCanvas
+}// UIH
 
 #endif

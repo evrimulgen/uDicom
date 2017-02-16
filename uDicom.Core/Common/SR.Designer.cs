@@ -223,7 +223,7 @@ namespace UIH.Dicom.Common {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to We&apos;re sorry, but an error has occurred that ClearCanvas Workstation cannot recover from.  Please check the log and restart..
+        ///   Looks up a localized string similar to We&apos;re sorry, but an error has occurred that UIH Workstation cannot recover from.  Please check the log and restart..
         /// </summary>
         internal static string ExceptionFatalApplicationError {
             get {

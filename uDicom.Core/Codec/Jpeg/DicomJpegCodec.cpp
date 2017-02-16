@@ -1,3 +1,16 @@
+////////////////////////////////////////////////////////////////////////
+/// Copyright, (c) Shanghai United Imaging Healthcare Inc
+/// All rights reserved. 
+/// 
+/// *@author: qiuyang.cao@united-imaging.com
+///
+/// @file: DicomJpegCodec.cpp
+///
+/// @brief:
+///
+///
+/// @date: 2014/08/19
+/////////////////////////////////////////////////////////////////////////
 #pragma region License
 
 // Copyright (c) 2012, ClearCanvas Inc.
@@ -76,14 +89,14 @@
 using namespace System;
 using namespace System::IO;
 
-using namespace ClearCanvas::Dicom::Codec;
-using namespace ClearCanvas::Dicom;
-using namespace ClearCanvas::Common;
+using namespace UIH::Dicom::Codec;
+using namespace UIH::Dicom;
+using namespace UIH::Dicom::Log;
 
 #include "JpegCodec.h"
 #include "DicomJpegParameters.h"
 
-namespace ClearCanvas {
+namespace UIH { 
 namespace Dicom {
 namespace Codec {
 namespace Jpeg {
@@ -92,37 +105,37 @@ namespace Jpeg {
 	{ 
 		return nullptr;
 	}
-	ClearCanvas::Dicom::TransferSyntax^ DicomJpegCodec::CodecTransferSyntax::get()
+	UIH::Dicom::TransferSyntax^ DicomJpegCodec::CodecTransferSyntax::get()
 	{ 
 		return nullptr;
 	}
 	
-	ClearCanvas::Dicom::TransferSyntax^ DicomJpegProcess1Codec::CodecTransferSyntax::get()  {
-		return ClearCanvas::Dicom::TransferSyntax::JpegBaselineProcess1;
+	UIH::Dicom::TransferSyntax^ DicomJpegProcess1Codec::CodecTransferSyntax::get()  {
+		return UIH::Dicom::TransferSyntax::JpegBaselineProcess1;
 	}
 	String^ DicomJpegProcess1Codec::Name::get()  {
-		return ClearCanvas::Dicom::TransferSyntax::JpegBaselineProcess1->Name;	
+		return UIH::Dicom::TransferSyntax::JpegBaselineProcess1->Name;	
 	}
 
     TransferSyntax^ DicomJpegProcess24Codec::CodecTransferSyntax::get()  {
 		return TransferSyntax::JpegExtendedProcess24;
 	}
 	String^ DicomJpegProcess24Codec::Name::get()  {
-		return ClearCanvas::Dicom::TransferSyntax::JpegExtendedProcess24->Name;	
+		return UIH::Dicom::TransferSyntax::JpegExtendedProcess24->Name;	
 	}
 
 	TransferSyntax^ DicomJpegLossless14Codec::CodecTransferSyntax::get()  {
 		return TransferSyntax::JpegLosslessNonHierarchicalProcess14;
 	}
 	String^ DicomJpegLossless14Codec::Name::get()  {
-		return ClearCanvas::Dicom::TransferSyntax::JpegLosslessNonHierarchicalProcess14->Name;	
+		return UIH::Dicom::TransferSyntax::JpegLosslessNonHierarchicalProcess14->Name;	
 	}
 
-    ClearCanvas::Dicom::TransferSyntax^ DicomJpegLossless14SV1Codec::CodecTransferSyntax::get()  {
-		return ClearCanvas::Dicom::TransferSyntax::JpegLosslessNonHierarchicalFirstOrderPredictionProcess14SelectionValue1;
+    UIH::Dicom::TransferSyntax^ DicomJpegLossless14SV1Codec::CodecTransferSyntax::get()  {
+		return UIH::Dicom::TransferSyntax::JpegLosslessNonHierarchicalFirstOrderPredictionProcess14SelectionValue1;
 	}
 	String^ DicomJpegLossless14SV1Codec::Name::get()  {
-		return ClearCanvas::Dicom::TransferSyntax::JpegLosslessNonHierarchicalFirstOrderPredictionProcess14SelectionValue1->Name;	
+		return UIH::Dicom::TransferSyntax::JpegLosslessNonHierarchicalFirstOrderPredictionProcess14SelectionValue1->Name;	
 	}
 	
 	
@@ -196,7 +209,7 @@ void DicomJpegCodec::Decode(DicomCompressedPixelData^ oldPixelData, DicomUncompr
 	
 		unsigned char bitsStored = GetJpegBitDepth(jpegPtr,jpegData->Length);
 		if (bitsStored != oldPixelData->BitsStored)
-			Platform::Log(LogLevel::Warn,"Bit depth in jpeg data ({0}) doesn't match DICOM header bit depth ({1}).",
+			LogAdapter::Logger->WarnWithFormat("Bit depth in jpeg data ({0}) doesn't match DICOM header bit depth ({1}).",
 							bitsStored, oldPixelData->BitsStored);
 
 		IJpegCodec^ codec = GetCodec(bitsStored, jparams);
@@ -226,7 +239,7 @@ void DicomJpegCodec::DecodeFrame(int frame, DicomCompressedPixelData^ oldPixelDa
 
 	unsigned char bitsStored = GetJpegBitDepth(jpegPtr,jpegData->Length);
 	if (bitsStored != oldPixelData->BitsStored)
-		Platform::Log(LogLevel::Warn,"Bit depth in jpeg data ({0}) doesn't match DICOM header bit depth ({1}).",
+		LogAdapter::Logger->WarnWithFormat("Bit depth in jpeg data ({0}) doesn't match DICOM header bit depth ({1}).",
 						bitsStored, oldPixelData->BitsStored);
 
 	IJpegCodec^ codec = GetCodec(bitsStored, jparams);
@@ -389,4 +402,4 @@ unsigned char DicomJpegCodec::GetJpegBitDepth(
 } // Jpeg
 } // Codec
 } // Dicom
-} // ClearCanvas
+}// UIH

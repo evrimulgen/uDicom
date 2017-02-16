@@ -24,9 +24,6 @@
     <ClCompile Include="DicomJpegCodecFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DicomJpegCodecTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Jpeg12Codec.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

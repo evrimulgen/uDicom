@@ -1,3 +1,16 @@
+////////////////////////////////////////////////////////////////////////
+/// Copyright, (c) Shanghai United Imaging Healthcare Inc
+/// All rights reserved. 
+/// 
+/// *@author: qiuyang.cao@united-imaging.com
+///
+/// @file: DicomJpeg2000Codec.cpp
+///
+/// @brief:
+///
+///
+/// @date: 2014/08/19
+/////////////////////////////////////////////////////////////////////////
 #pragma region License
 
 // Copyright (c) 2012, ClearCanvas Inc.
@@ -58,27 +71,28 @@ using namespace System;
 using namespace System::IO;
 using namespace System::Runtime::InteropServices;
 
-using namespace ClearCanvas::Common;
-using namespace ClearCanvas::Dicom;
-using namespace ClearCanvas::Dicom::Codec;
+using namespace UIH::Dicom;
+using namespace UIH::Dicom::Codec;
+using namespace UIH::Dicom::Log;
 
 extern "C" {
 #include "OpenJPEG/openjpeg.h"
 #include "OpenJPEG/j2k.h"
 
 	void opj_error_callback(const char *msg, void *usr) {
-		Platform::Log(LogLevel::Error, "OpenJPEG: {0}", gcnew String(msg));
+		LogAdapter::Logger->Log(LogLevel::Error, "OpenJPEG: {0}", gcnew String(msg));
 	}
 
 	void opj_warning_callback(const char *msg, void *) {
-		Platform::Log(LogLevel::Warn, "OpenJPEG Warning: {0}", gcnew String(msg));
+		LogAdapter::Logger->Log(LogLevel::Warning, "OpenJPEG Warning: {0}", gcnew String(msg));
 	}
 
 	void opj_info_callback(const char *msg, void *) {
-		Platform::Log(LogLevel::Info, "OpenJPEG: {0}", gcnew String(msg));
+		LogAdapter::Logger->Log(LogLevel::Info, "OpenJPEG: {0}", gcnew String(msg));
 	}
 }
-namespace ClearCanvas {
+
+namespace UIH {
 namespace Dicom {
 namespace Codec {
 namespace Jpeg2000 {
@@ -100,18 +114,18 @@ OPJ_COLOR_SPACE getOpenJpegColorSpace(String^ photometricInterpretation) {
 	{ 
 		return nullptr;
 	}
-	ClearCanvas::Dicom::TransferSyntax^ DicomJpeg2000Codec::CodecTransferSyntax::get()
+	UIH::Dicom::TransferSyntax^ DicomJpeg2000Codec::CodecTransferSyntax::get()
 	{ 
 		return nullptr;
 	}
 	
-	ClearCanvas::Dicom::TransferSyntax^ DicomJpeg2000LossyCodec::CodecTransferSyntax::get()  {
+	UIH::Dicom::TransferSyntax^ DicomJpeg2000LossyCodec::CodecTransferSyntax::get()  {
 		return TransferSyntax::Jpeg2000ImageCompression;
 	}
 	String^ DicomJpeg2000LossyCodec::Name::get()  {
 		return TransferSyntax::Jpeg2000ImageCompression->Name;	
 	}
-	ClearCanvas::Dicom::TransferSyntax^ DicomJpeg2000LosslessCodec::CodecTransferSyntax::get()  {
+	UIH::Dicom::TransferSyntax^ DicomJpeg2000LosslessCodec::CodecTransferSyntax::get()  {
 		return TransferSyntax::Jpeg2000ImageCompressionLosslessOnly;
 	}
 	String^ DicomJpeg2000LosslessCodec::Name::get()  {
@@ -195,7 +209,7 @@ void DicomJpeg2000Codec::Encode(DicomUncompressedPixelData^ oldPixelData, DicomC
 			+ (jparams->EnableErterm ? 16 : 0) + (jparams->EnableSegmark ? 32 : 0);
 
 		// Comment
-		eparams.cp_comment = "ClearCanvas DICOM OpenJPEG";
+		eparams.cp_comment = "UIH DICOM OpenJPEG";
 
 		if (newPixelData->TransferSyntax->Equals(TransferSyntax::Jpeg2000ImageCompression) && jparams->Irreversible) {
 			eparams.irreversible = 1;
@@ -489,4 +503,4 @@ void DicomJpeg2000Codec::Decode(DicomCompressedPixelData^ oldPixelData, DicomUnc
 } // Jpeg2000
 } // Codec
 } // Dicom
-} // ClearCanvas
+}// UIH

@@ -98,7 +98,7 @@ namespace UIH.Dicom.Iod
 				{
                     //var xmlDocument = new XmlDocument();
                     //xmlDocument.Load(xmlStream);
-                    //var docRootNode = CollectionUtils.FirstElement(xmlDocument.GetElementsByTagName("ClearCanvasColorPaletteDefinition")) as XmlElement;
+                    //var docRootNode = CollectionUtils.FirstElement(xmlDocument.GetElementsByTagName("UIHColorPaletteDefinition")) as XmlElement;
                     //if (docRootNode != null)
                     //{
                     //    var instanceNode = CollectionUtils.FirstElement(docRootNode.GetElementsByTagName("Instance")) as XmlElement;

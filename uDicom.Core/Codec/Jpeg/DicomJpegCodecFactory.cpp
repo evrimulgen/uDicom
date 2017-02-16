@@ -1,3 +1,16 @@
+////////////////////////////////////////////////////////////////////////
+/// Copyright, (c) Shanghai United Imaging Healthcare Inc
+/// All rights reserved. 
+/// 
+/// *@author: qiuyang.cao@united-imaging.com
+///
+/// @file: DicomJpegCodecFactory.cpp
+///
+/// @brief:
+///
+///
+/// @date: 2014/08/19
+/////////////////////////////////////////////////////////////////////////
 #pragma region License
 
 // Copyright (c) 2012, ClearCanvas Inc.
@@ -56,27 +69,27 @@ using namespace System;
 using namespace System::IO;
 using namespace System::Xml;
 
-using namespace ClearCanvas::Dicom::Codec;
-using namespace ClearCanvas::Dicom;
+using namespace UIH::Dicom::Codec;
+using namespace UIH::Dicom;
 
 #include "DicomJpegParameters.h"
 
-namespace ClearCanvas {
+namespace UIH { 
 namespace Dicom {
 namespace Codec {
 namespace Jpeg {
 	
 	//DicomJpegProcess1CodecFactory
-	ClearCanvas::Dicom::TransferSyntax^ DicomJpegProcess1CodecFactory::CodecTransferSyntax::get()  {
-		return ClearCanvas::Dicom::TransferSyntax::JpegBaselineProcess1;
+	UIH::Dicom::TransferSyntax^ DicomJpegProcess1CodecFactory::CodecTransferSyntax::get()  {
+		return UIH::Dicom::TransferSyntax::JpegBaselineProcess1;
 	}
 	String^ DicomJpegProcess1CodecFactory::Name::get()  {
-		return ClearCanvas::Dicom::TransferSyntax::JpegBaselineProcess1->Name;	
+		return UIH::Dicom::TransferSyntax::JpegBaselineProcess1->Name;	
 	}
 	bool DicomJpegProcess1CodecFactory::Enabled::get()  {
 		return true;
 	}
-	DicomCodecParameters^ DicomJpegProcess1CodecFactory::GetCodecParameters(DicomAttributeCollection^ dataSet) 
+	DicomCodecParameters^ DicomJpegProcess1CodecFactory::GetCodecParameters(DicomDataset^ dataSet) 
 	{
 		DicomJpegParameters^ codecParms = gcnew DicomJpegParameters();
 		codecParms->ConvertPaletteToRGB = true;
@@ -119,12 +132,12 @@ namespace Jpeg {
 		return TransferSyntax::JpegExtendedProcess24;
 	}
 	String^ DicomJpegProcess24CodecFactory::Name::get()  {
-		return ClearCanvas::Dicom::TransferSyntax::JpegExtendedProcess24->Name;	
+		return UIH::Dicom::TransferSyntax::JpegExtendedProcess24->Name;	
 	}
 	bool DicomJpegProcess24CodecFactory::Enabled::get()  {
 		return true;
 	}
-	DicomCodecParameters^ DicomJpegProcess24CodecFactory::GetCodecParameters(DicomAttributeCollection^ dataSet) {
+	DicomCodecParameters^ DicomJpegProcess24CodecFactory::GetCodecParameters(DicomDataset^ dataSet) {
 		DicomJpegParameters^ codecParms = gcnew DicomJpegParameters();
 		codecParms->ConvertPaletteToRGB = true;
 		return codecParms;
@@ -164,12 +177,12 @@ namespace Jpeg {
 		return TransferSyntax::JpegLosslessNonHierarchicalProcess14;
 	}
 	String^ DicomJpegLossless14CodecFactory::Name::get()  {
-		return ClearCanvas::Dicom::TransferSyntax::JpegLosslessNonHierarchicalProcess14->Name;	
+		return UIH::Dicom::TransferSyntax::JpegLosslessNonHierarchicalProcess14->Name;	
 	}
 	bool DicomJpegLossless14CodecFactory::Enabled::get()  {
 		return true;
 	}
-	DicomCodecParameters^ DicomJpegLossless14CodecFactory::GetCodecParameters(DicomAttributeCollection^ dataSet)
+	DicomCodecParameters^ DicomJpegLossless14CodecFactory::GetCodecParameters(DicomDataset^ dataSet)
 	{
 		DicomJpegParameters^ codecParms = gcnew DicomJpegParameters();
 
@@ -205,16 +218,16 @@ namespace Jpeg {
 	}
 
 	//DicomJpegLossless14SV1CodecFactory
-    ClearCanvas::Dicom::TransferSyntax^ DicomJpegLossless14SV1CodecFactory::CodecTransferSyntax::get()  {
-		return ClearCanvas::Dicom::TransferSyntax::JpegLosslessNonHierarchicalFirstOrderPredictionProcess14SelectionValue1;
+    UIH::Dicom::TransferSyntax^ DicomJpegLossless14SV1CodecFactory::CodecTransferSyntax::get()  {
+		return UIH::Dicom::TransferSyntax::JpegLosslessNonHierarchicalFirstOrderPredictionProcess14SelectionValue1;
 	}
 	String^ DicomJpegLossless14SV1CodecFactory::Name::get()  {
-		return ClearCanvas::Dicom::TransferSyntax::JpegLosslessNonHierarchicalFirstOrderPredictionProcess14SelectionValue1->Name;	
+		return UIH::Dicom::TransferSyntax::JpegLosslessNonHierarchicalFirstOrderPredictionProcess14SelectionValue1->Name;	
 	}
 	bool DicomJpegLossless14SV1CodecFactory::Enabled::get()  {
 		return true;
 	}
-	DicomCodecParameters^ DicomJpegLossless14SV1CodecFactory::GetCodecParameters(DicomAttributeCollection^ dataSet)
+	DicomCodecParameters^ DicomJpegLossless14SV1CodecFactory::GetCodecParameters(DicomDataset^ dataSet)
 	{
 		DicomJpegParameters^ codecParms = gcnew DicomJpegParameters();
 
@@ -253,4 +266,4 @@ namespace Jpeg {
 } // Jpeg
 } // Codec
 } // Dicom
-} // ClearCanvas
+}// UIH

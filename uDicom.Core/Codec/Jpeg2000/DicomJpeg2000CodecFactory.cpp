@@ -1,3 +1,16 @@
+////////////////////////////////////////////////////////////////////////
+/// Copyright, (c) Shanghai United Imaging Healthcare Inc
+/// All rights reserved. 
+/// 
+/// *@author: qiuyang.cao@united-imaging.com
+///
+/// @file: DicomJpeg2000CodecFactory.cpp
+///
+/// @brief:
+///
+///
+/// @date: 2014/08/19
+/////////////////////////////////////////////////////////////////////////
 #pragma region License
 
 // Copyright (c) 2012, ClearCanvas Inc.
@@ -55,25 +68,25 @@
 using namespace System;
 using namespace System::IO;
 
-using namespace ClearCanvas::Dicom::Codec;
-using namespace ClearCanvas::Dicom;
+using namespace UIH::Dicom::Codec;
+using namespace UIH::Dicom;
 
-namespace ClearCanvas {
+namespace UIH {
 namespace Dicom {
 namespace Codec {
 namespace Jpeg2000 {
 	
 	//DicomJpeg2000LosslessCodecFactory
-	ClearCanvas::Dicom::TransferSyntax^ DicomJpeg2000LosslessCodecFactory::CodecTransferSyntax::get()  {
-		return ClearCanvas::Dicom::TransferSyntax::Jpeg2000ImageCompressionLosslessOnly;
+	UIH::Dicom::TransferSyntax^ DicomJpeg2000LosslessCodecFactory::CodecTransferSyntax::get()  {
+		return UIH::Dicom::TransferSyntax::Jpeg2000ImageCompressionLosslessOnly;
 	}
 	String^ DicomJpeg2000LosslessCodecFactory::Name::get()  {
-		return ClearCanvas::Dicom::TransferSyntax::Jpeg2000ImageCompressionLosslessOnly->Name;	
+		return UIH::Dicom::TransferSyntax::Jpeg2000ImageCompressionLosslessOnly->Name;	
 	}
 	bool DicomJpeg2000LosslessCodecFactory::Enabled::get()  {
 		return true;
 	}
-	DicomCodecParameters^ DicomJpeg2000LosslessCodecFactory::GetCodecParameters(DicomAttributeCollection^ dataSet) {
+	DicomCodecParameters^ DicomJpeg2000LosslessCodecFactory::GetCodecParameters(DicomDataset^ dataSet) {
 		return gcnew DicomJpeg2000Parameters();
 	}
 	DicomCodecParameters^ DicomJpeg2000LosslessCodecFactory::GetCodecParameters(XmlDocument^ parms)
@@ -107,14 +120,14 @@ namespace Jpeg2000 {
 	}
 
 	String^ DicomJpeg2000LossyCodecFactory::Name::get()  {
-		return ClearCanvas::Dicom::TransferSyntax::Jpeg2000ImageCompression->Name;	
+		return UIH::Dicom::TransferSyntax::Jpeg2000ImageCompression->Name;	
 	}
 
 	bool DicomJpeg2000LossyCodecFactory::Enabled::get()  {
 		return true;
 	}
 
-	DicomCodecParameters^ DicomJpeg2000LossyCodecFactory::GetCodecParameters(DicomAttributeCollection^ dataSet) {
+	DicomCodecParameters^ DicomJpeg2000LossyCodecFactory::GetCodecParameters(DicomDataset^ dataSet) {
 		DicomJpeg2000Parameters^ codecParms = gcnew DicomJpeg2000Parameters();
 
 		codecParms->Irreversible = true;
@@ -159,4 +172,4 @@ namespace Jpeg2000 {
 } // Jpeg2000
 } // Codec
 } // Dicom
-} // ClearCanvas
+}// UIH

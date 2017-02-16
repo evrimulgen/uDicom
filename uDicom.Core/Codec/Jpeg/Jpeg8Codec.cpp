@@ -1,3 +1,16 @@
+////////////////////////////////////////////////////////////////////////
+/// Copyright, (c) Shanghai United Imaging Healthcare Inc
+/// All rights reserved. 
+/// 
+/// *@author: qiuyang.cao@united-imaging.com
+///
+/// @file: Jpeg8Codec.cpp
+///
+/// @brief:
+///
+///
+/// @date: 2014/08/19
+/////////////////////////////////////////////////////////////////////////
 #pragma region License
 
 // Copyright (c) 2012, ClearCanvas Inc.
@@ -56,15 +69,15 @@ using namespace System;
 using namespace System::IO;
 using namespace System::Runtime::InteropServices;
 
-using namespace ClearCanvas::Dicom;
-using namespace ClearCanvas::Dicom::Iod;
+using namespace UIH::Dicom;
+using namespace UIH::Dicom::Iod;
 
 #include "JpegCodec.h"
 
 #define IJGVERS IJG8
 #define JPEGCODEC Jpeg8Codec
 
-namespace ClearCanvas {
+namespace UIH { 
 namespace Dicom {
 namespace Codec {
 namespace Jpeg {
@@ -90,4 +103,4 @@ extern "C" {
 } // Jpeg
 } // Codec
 } // Dicom
-} // ClearCanvas
+}// UIH

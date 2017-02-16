@@ -1,3 +1,16 @@
+////////////////////////////////////////////////////////////////////////
+/// Copyright, (c) Shanghai United Imaging Healthcare Inc
+/// All rights reserved. 
+/// 
+/// *@author: qiuyang.cao@united-imaging.com
+///
+/// @file: DicomJpeg2000Codec.h
+///
+/// @brief:
+///
+///
+/// @date: 2014/08/19
+/////////////////////////////////////////////////////////////////////////
 #pragma region License
 
 // Copyright (c) 2012, ClearCanvas Inc.
@@ -56,10 +69,10 @@
 
 using namespace System;
 
-using namespace ClearCanvas::Dicom;
-using namespace ClearCanvas::Dicom::Codec;
+using namespace UIH::Dicom;
+using namespace UIH::Dicom::Codec;
 
-namespace ClearCanvas {
+namespace UIH {
 namespace Dicom {
 namespace Codec {
 namespace Jpeg2000 {
@@ -166,7 +179,7 @@ namespace Jpeg2000 {
 	{
 	public:
 		virtual property String^ Name { String^ get(); };
-		virtual property ClearCanvas::Dicom::TransferSyntax^ CodecTransferSyntax { ClearCanvas::Dicom::TransferSyntax^ get(); };
+		virtual property UIH::Dicom::TransferSyntax^ CodecTransferSyntax { UIH::Dicom::TransferSyntax^ get(); };
 
 		virtual DicomCodecParameters^ GetDefaultParameters() {
 			return gcnew DicomJpeg2000Parameters();
@@ -181,19 +194,19 @@ namespace Jpeg2000 {
 	{
 	public:
 	    property String^ Name { virtual String^ get() override;}
-	    property ClearCanvas::Dicom::TransferSyntax^ CodecTransferSyntax { virtual ClearCanvas::Dicom::TransferSyntax^ get() override; };
+	    property UIH::Dicom::TransferSyntax^ CodecTransferSyntax { virtual UIH::Dicom::TransferSyntax^ get() override; };
 	};
 
 	public ref class DicomJpeg2000LosslessCodec : public DicomJpeg2000Codec
 	{
 	public:
 	    property String^ Name { virtual String^ get() override;}
-	    property ClearCanvas::Dicom::TransferSyntax^ CodecTransferSyntax { virtual ClearCanvas::Dicom::TransferSyntax^ get() override; };
+	    property UIH::Dicom::TransferSyntax^ CodecTransferSyntax { virtual UIH::Dicom::TransferSyntax^ get() override; };
 	};
 
 } // Jpeg2000
 } // Codec
 } // Dicom
-} // ClearCanvas
+ }// UIH
 
 #endif

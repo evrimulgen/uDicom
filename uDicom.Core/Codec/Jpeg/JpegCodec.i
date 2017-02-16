@@ -13,7 +13,7 @@ namespace IJGVERS {
 		ErrorStruct *myerr = (ErrorStruct *)cinfo->err;
 		char buffer[JMSG_LENGTH_MAX];
 		(*cinfo->err->format_message)((jpeg_common_struct *)cinfo, buffer); /* Create the message */
-		Platform::Log(LogLevel::Error, "IJG: {0}", gcnew String(buffer));
+		//Platform::Log(LogLevel::Error, "IJG: {0}", gcnew String(buffer));
 		throw gcnew DicomCodecException(gcnew String(buffer));
 	}
 
@@ -23,7 +23,7 @@ namespace IJGVERS {
 		char buffer[JMSG_LENGTH_MAX];
 		(*cinfo->err->format_message)((jpeg_common_struct *)cinfo, buffer); /* Create the message */
 		//Console::WriteLine(gcnew String(buffer));
-		Platform::Log(LogLevel::Info, "IJG: {0}", gcnew String(buffer));
+		//Platform::Log(LogLevel::Info, "IJG: {0}", gcnew String(buffer));
 	}
 }
 

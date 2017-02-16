@@ -196,7 +196,7 @@
     <value>No extensions found for extension point {0}, or the extensions could not be instantiated.  Please see the log for more information.</value>
   </data>
   <data name="ExceptionFatalApplicationError" xml:space="preserve">
-    <value>We're sorry, but an error has occurred that ClearCanvas Workstation cannot recover from.  Please check the log and restart.</value>
+    <value>We're sorry, but an error has occurred that UIH Workstation cannot recover from.  Please check the log and restart.</value>
   </data>
   <data name="ExceptionCastExpressionArrayCollectionEnumerable" xml:space="preserve">
     <value>Expression must evaluate to Array, ICollection, or IEnumerable type.</value>

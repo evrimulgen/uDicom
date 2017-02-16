@@ -1,3 +1,16 @@
+////////////////////////////////////////////////////////////////////////
+/// Copyright, (c) Shanghai United Imaging Healthcare Inc
+/// All rights reserved. 
+/// 
+/// *@author: qiuyang.cao@united-imaging.com
+///
+/// @file: DicomJpeg2000CodecFactory.h
+///
+/// @brief:
+///
+///
+/// @date: 2014/08/19
+/////////////////////////////////////////////////////////////////////////
 #pragma region License
 
 // Copyright (c) 2012, ClearCanvas Inc.
@@ -53,37 +66,38 @@
 using namespace System;
 using namespace System::IO;
 using namespace System::Xml;
+using namespace System::ComponentModel::Composition;
 
-using namespace ClearCanvas::Dicom;
-using namespace ClearCanvas::Dicom::Codec;
+using namespace UIH::Dicom;
+using namespace UIH::Dicom::Codec;
 
 #include "DicomJpeg2000Codec.h"
 
-namespace ClearCanvas {
+namespace UIH {
 namespace Dicom {
 namespace Codec {
 namespace Jpeg2000 {
 
-[ClearCanvas::Common::ExtensionOf(DicomCodecFactoryExtensionPoint::typeid)]
+[Export(IDicomCodecFactory::typeid)]
 public ref class DicomJpeg2000LosslessCodecFactory : public IDicomCodecFactory {
 public:
     virtual property String^ Name { String^ get() ;}
     virtual property bool Enabled { bool get() ;}
-    virtual property ClearCanvas::Dicom::TransferSyntax^ CodecTransferSyntax {  ClearCanvas::Dicom::TransferSyntax^ get(); };
+    virtual property UIH::Dicom::TransferSyntax^ CodecTransferSyntax {  UIH::Dicom::TransferSyntax^ get(); };
 
-    virtual DicomCodecParameters^ GetCodecParameters(DicomAttributeCollection^ dataSet);
+    virtual DicomCodecParameters^ GetCodecParameters(DicomDataset^ dataSet);
     virtual DicomCodecParameters^ GetCodecParameters(XmlDocument^ parms);
 	virtual IDicomCodec^ GetDicomCodec();
 };
 
-[ClearCanvas::Common::ExtensionOf(DicomCodecFactoryExtensionPoint::typeid)]
+[Export(IDicomCodecFactory::typeid)]
 public ref class DicomJpeg2000LossyCodecFactory : public IDicomCodecFactory {
 public:
     virtual property String^ Name { String^ get();}
     virtual property bool Enabled { bool get() ;}
-    virtual property ClearCanvas::Dicom::TransferSyntax^ CodecTransferSyntax { ClearCanvas::Dicom::TransferSyntax^ get(); };
+    virtual property UIH::Dicom::TransferSyntax^ CodecTransferSyntax { UIH::Dicom::TransferSyntax^ get(); };
 
-    virtual DicomCodecParameters^ GetCodecParameters(DicomAttributeCollection^ dataSet);
+    virtual DicomCodecParameters^ GetCodecParameters(DicomDataset^ dataSet);
     virtual DicomCodecParameters^ GetCodecParameters(XmlDocument^ parms);
 	virtual IDicomCodec^ GetDicomCodec();
 };
@@ -91,5 +105,5 @@ public:
 } // Jpeg2000
 } // Codec
 } // Dicom
-} // ClearCanvas
+} // UIH
 

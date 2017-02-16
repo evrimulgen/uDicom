@@ -1,24 +1,21 @@
+/////////////////////////////////////////////////////////////////////////
+//// Copyright, (c) Shanghai United Imaging Healthcare Inc
+//// All rights reserved. 
+//// 
+//// author: qiuyang.cao@united-imaging.com
+////
+//// File: DicomRleCodecFactory.cs
+////
+//// Summary:
+////
+////
+//// Date: 2014/08/19
+//////////////////////////////////////////////////////////////////////////
 #region License
 
-// Copyright (c) 2012, ClearCanvas Inc.
+// Copyright (c) 2011 - 2013, United-Imaging Inc.
 // All rights reserved.
-// http://www.clearcanvas.ca
-//
-// This file is part of the ClearCanvas RIS/PACS open source project.
-//
-// The ClearCanvas RIS/PACS open source project is free software: you can
-// redistribute it and/or modify it under the terms of the GNU Lesser Public
-// License as published by the Free Software Foundation, either version 3 of
-// the License, or (at your option) any later version.
-//
-// The ClearCanvas RIS/PACS open source project is distributed in the hope that
-// it will be useful, but WITHOUT ANY WARRANTY; without even the implied
-// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser Public License for more details.
-//
-// You should have received a copy of the GNU Lesser Public License along with
-// the ClearCanvas RIS/PACS open source project.  If not, see
-// <http://www.gnu.org/licenses/>.
+// http://www.united-imaging.com
 
 #endregion
 
@@ -49,15 +46,15 @@
 #endregion
 
 using System;
+using System.ComponentModel.Composition;
 using System.Xml;
-using ClearCanvas.Common;
 
-namespace ClearCanvas.Dicom.Codec.Rle
+namespace UIH.Dicom.Codec.Rle
 {
     /// <summary>
     /// Default codec factory for the DICOM RLE Transfer Syntax.
     /// </summary>
-	[ExtensionOf(typeof(DicomCodecFactoryExtensionPoint))]
+    [Export(typeof(IDicomCodecFactory))]
     public class DicomRleCodecFactory : IDicomCodecFactory
     {
         private readonly string _name = TransferSyntax.RleLossless.Name;
@@ -78,7 +75,7 @@ namespace ClearCanvas.Dicom.Codec.Rle
             get { return _transferSyntax; }
         }
 
-        virtual public DicomCodecParameters GetCodecParameters(DicomAttributeCollection dataSet)
+        virtual public DicomCodecParameters GetCodecParameters(DicomDataset dataSet)
         {
 			DicomRleCodecParameters codecParms = new DicomRleCodecParameters { ConvertPaletteToRGB = true };
 

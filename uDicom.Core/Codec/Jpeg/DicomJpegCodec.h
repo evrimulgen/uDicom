@@ -1,3 +1,16 @@
+////////////////////////////////////////////////////////////////////////
+/// Copyright, (c) Shanghai United Imaging Healthcare Inc
+/// All rights reserved. 
+/// 
+/// *@author: qiuyang.cao@united-imaging.com
+///
+/// @file: DicomJpegCodec.h
+///
+/// @brief:
+///
+///
+/// @date: 2014/08/19
+/////////////////////////////////////////////////////////////////////////
 #pragma region License
 
 // Copyright (c) 2012, ClearCanvas Inc.
@@ -57,13 +70,13 @@
 using namespace System;
 using namespace System::IO;
 
-using namespace ClearCanvas::Dicom;
-using namespace ClearCanvas::Dicom::Codec;
+using namespace UIH::Dicom;
+using namespace UIH::Dicom::Codec;
 
 #include "JpegCodec.h"
 #include "DicomJpegParameters.h"
 
-namespace ClearCanvas {
+namespace UIH {
 namespace Dicom {
 namespace Codec {
 namespace Jpeg {
@@ -71,7 +84,7 @@ namespace Jpeg {
 public ref class DicomJpegCodec abstract : public IDicomCodec {
 public:
 	virtual property String^ Name { String^ get(); };
-	virtual property ClearCanvas::Dicom::TransferSyntax^ CodecTransferSyntax { ClearCanvas::Dicom::TransferSyntax^ get(); };
+	virtual property UIH::Dicom::TransferSyntax^ CodecTransferSyntax { UIH::Dicom::TransferSyntax^ get(); };
 
 	virtual void Encode(DicomUncompressedPixelData^ oldPixelData, DicomCompressedPixelData^ newPixelData, DicomCodecParameters^ parameters);
 	virtual void Decode(DicomCompressedPixelData^ oldPixelData, DicomUncompressedPixelData^ newPixelData, DicomCodecParameters^ parameters);
@@ -87,7 +100,7 @@ public:
 public ref class DicomJpegProcess1Codec : public DicomJpegCodec {
 public:
     property String^ Name { virtual String^ get() override;}
-    property ClearCanvas::Dicom::TransferSyntax^ CodecTransferSyntax { virtual ClearCanvas::Dicom::TransferSyntax^ get() override; };
+    property UIH::Dicom::TransferSyntax^ CodecTransferSyntax { virtual UIH::Dicom::TransferSyntax^ get() override; };
 
 
 	virtual IJpegCodec^ GetCodec(int bits, DicomJpegParameters^ jparams) override {
@@ -101,7 +114,7 @@ public:
 public ref class DicomJpegProcess24Codec : public DicomJpegCodec {
 public:
     property String^ Name { virtual String^ get() override;}
-    property ClearCanvas::Dicom::TransferSyntax^ CodecTransferSyntax { virtual ClearCanvas::Dicom::TransferSyntax^ get() override; };
+    property UIH::Dicom::TransferSyntax^ CodecTransferSyntax { virtual UIH::Dicom::TransferSyntax^ get() override; };
 
 	virtual IJpegCodec^ GetCodec(int bits, DicomJpegParameters^ jparams) override {
 		// JPEG Extended only supports 12 bit or less images.
@@ -117,7 +130,7 @@ public:
 public ref class DicomJpegLossless14Codec : public DicomJpegCodec {
 public:
     property String^ Name { virtual String^ get() override;}
-    property ClearCanvas::Dicom::TransferSyntax^ CodecTransferSyntax { virtual ClearCanvas::Dicom::TransferSyntax^ get() override; };
+    property UIH::Dicom::TransferSyntax^ CodecTransferSyntax { virtual UIH::Dicom::TransferSyntax^ get() override; };
 
 	virtual IJpegCodec^ GetCodec(int bits, DicomJpegParameters^ jparams) override {
 		if (bits <= 8)
@@ -134,7 +147,7 @@ public:
 public ref class DicomJpegLossless14SV1Codec : public DicomJpegCodec {
 public:
     property String^ Name { virtual String^ get() override;}
-    property ClearCanvas::Dicom::TransferSyntax^ CodecTransferSyntax { virtual ClearCanvas::Dicom::TransferSyntax^ get() override; };
+    property UIH::Dicom::TransferSyntax^ CodecTransferSyntax { virtual UIH::Dicom::TransferSyntax^ get() override; };
 
 	virtual IJpegCodec^ GetCodec(int bits, DicomJpegParameters^ jparams) override {
 		if (bits <= 8)
@@ -151,6 +164,6 @@ public:
 } // Jpeg
 } // Codec
 } // Dicom
-} // ClearCanvas
+} // UIH
 
 #endif

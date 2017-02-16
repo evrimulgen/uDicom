@@ -1,24 +1,21 @@
+/////////////////////////////////////////////////////////////////////////
+//// Copyright, (c) Shanghai United Imaging Healthcare Inc
+//// All rights reserved. 
+//// 
+//// author: qiuyang.cao@united-imaging.com
+////
+//// File: DicomRleCodec.cs
+////
+//// Summary:
+////
+////
+//// Date: 2014/08/19
+//////////////////////////////////////////////////////////////////////////
 #region License
 
-// Copyright (c) 2012, ClearCanvas Inc.
+// Copyright (c) 2011 - 2013, United-Imaging Inc.
 // All rights reserved.
-// http://www.clearcanvas.ca
-//
-// This file is part of the ClearCanvas RIS/PACS open source project.
-//
-// The ClearCanvas RIS/PACS open source project is free software: you can
-// redistribute it and/or modify it under the terms of the GNU Lesser Public
-// License as published by the Free Software Foundation, either version 3 of
-// the License, or (at your option) any later version.
-//
-// The ClearCanvas RIS/PACS open source project is distributed in the hope that
-// it will be useful, but WITHOUT ANY WARRANTY; without even the implied
-// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser Public License for more details.
-//
-// You should have received a copy of the GNU Lesser Public License along with
-// the ClearCanvas RIS/PACS open source project.  If not, see
-// <http://www.gnu.org/licenses/>.
+// http://www.united-imaging.com
 
 #endregion
 
@@ -51,10 +48,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using ClearCanvas.Dicom.IO;
-using ClearCanvas.Common;
+using UIH.Dicom.IO;
 
-namespace ClearCanvas.Dicom.Codec.Rle
+namespace UIH.Dicom.Codec.Rle
 {
     /// <summary>
     /// Parameters for RLE compression.
@@ -103,7 +99,6 @@ namespace ClearCanvas.Dicom.Codec.Rle
         {
             get { return TransferSyntax.RleLossless; }
         }
-
 
         #region Encode
         private class RLEEncoder
@@ -465,7 +460,7 @@ namespace ClearCanvas.Dicom.Codec.Rle
                         int c = 257 - n;
                         if (i >= end)
                         {
-                            Platform.Log(LogLevel.Error, "RLE Segement unexpectedly wrong.");
+                            //Platform.Log(LogLevel.Error, "RLE Segement unexpectedly wrong.");
                             return;
                         }
                         byte b = rleData[i++];
@@ -473,7 +468,7 @@ namespace ClearCanvas.Dicom.Codec.Rle
                         {
                             if (pos >= buffer.Length)
                             {
-								Platform.Log(LogLevel.Error, "RLE segment unexpectedly too long.  Ignoring data.");
+								//Platform.Log(LogLevel.Error, "RLE segment unexpectedly too long.  Ignoring data.");
                                 return;
                             }
                             buffer[pos++] = b;
@@ -490,7 +485,7 @@ namespace ClearCanvas.Dicom.Codec.Rle
                         }
                         if (i > rleData.Length || pos + c > buffer.Length)
                         {
-							Platform.Log(LogLevel.Error, "Invalid formatted RLE data.  RLE segment unexpectedly too long.");
+							//Platform.Log(LogLevel.Error, "Invalid formatted RLE data.  RLE segment unexpectedly too long.");
                             return;
                         }
 

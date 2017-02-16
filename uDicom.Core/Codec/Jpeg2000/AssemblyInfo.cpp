@@ -1,3 +1,16 @@
+////////////////////////////////////////////////////////////////////////
+/// Copyright, (c) Shanghai United Imaging Healthcare Inc
+/// All rights reserved. 
+/// 
+/// *@author: qiuyang.cao@united-imaging.com
+///
+/// @file: AssemblyInfo.cpp
+///
+/// @brief:
+///
+///
+/// @date: 2014/08/19
+/////////////////////////////////////////////////////////////////////////
 #pragma region License
 
 // Copyright (c) 2012, ClearCanvas Inc.
@@ -53,20 +66,20 @@ using namespace System::Reflection;
 using namespace System::Runtime::CompilerServices;
 using namespace System::Runtime::InteropServices;
 using namespace System::Security::Permissions;
-using namespace ClearCanvas::Common;
-
-[assembly: ClearCanvas::Common::Plugin]
+//using namespace ClearCanvas::Common;
+//
+//[assembly: ClearCanvas::Common::Plugin]
 
 //
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 //
-[assembly:AssemblyTitleAttribute("ClearCanvas.Dicom.Codec.Jpeg2000")];
+[assembly:AssemblyTitleAttribute("UIH.Dicom.Codec.Jpeg2000")];
 [assembly:AssemblyDescriptionAttribute("")];
 [assembly:AssemblyConfigurationAttribute("")];
-[assembly:AssemblyCompanyAttribute("ClearCanvas Inc.")];
-[assembly:AssemblyProductAttribute("ClearCanvas.Dicom.Codec.Jpeg2000")];
+[assembly:AssemblyCompanyAttribute("UIH Inc.")];
+[assembly:AssemblyProductAttribute("UIH.Dicom.Codec.Jpeg2000")];
 [assembly:AssemblyCopyrightAttribute("Copyright (c) 2012")];
 [assembly:AssemblyTrademarkAttribute("")];
 [assembly:AssemblyCultureAttribute("")];

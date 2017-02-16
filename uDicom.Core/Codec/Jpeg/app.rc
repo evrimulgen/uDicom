@@ -81,13 +81,13 @@ BEGIN
     BEGIN
         BLOCK "000004b0"
         BEGIN
-            VALUE "CompanyName", "ClearCanvas Inc."
-            VALUE "FileDescription", "ClearCanvas.Dicom.Codec.Jpeg"
+            VALUE "CompanyName", "UIH Inc."
+            VALUE "FileDescription", "UIH.Dicom.Codec.Jpeg"
             VALUE "FileVersion", "1.0.0.0"
-            VALUE "InternalName", "ClearCanvas.Dicom.Codec.Jpeg.dll"
+            VALUE "InternalName", "UIH.Dicom.Codec.Jpeg.dll"
             VALUE "LegalCopyright", "Copyright (c) 2010"
-            VALUE "OriginalFilename", "ClearCanvas.Dicom.Codec.Jpeg.dll"
-            VALUE "ProductName", "ClearCanvas.Dicom.Codec.Jpeg"
+            VALUE "OriginalFilename", "UIH.Dicom.Codec.Jpeg.dll"
+            VALUE "ProductName", "UIH.Dicom.Codec.Jpeg"
             VALUE "ProductVersion", "1.0.0.0"
         END
     END

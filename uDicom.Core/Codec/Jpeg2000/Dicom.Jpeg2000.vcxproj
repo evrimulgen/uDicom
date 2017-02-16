@@ -168,9 +168,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework, Version=2.6.0.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
-      <HintPath>..\..\..\ReferencedAssemblies\nunit.framework.dll</HintPath>
-    </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Xml">
       <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
@@ -180,7 +178,6 @@
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="DicomJpeg2000Codec.cpp" />
     <ClCompile Include="DicomJpeg2000CodecFactory.cpp" />
-    <ClCompile Include="DicomJpeg2000CodecTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DicomJpeg2000Codec.h" />
@@ -188,11 +185,8 @@
     <ClInclude Include="DicomJpeg2000CodecTest.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Common\ClearCanvas.Common.csproj">
-      <Project>{f6ead428-e6cf-4df6-b2f3-d33d532c5343}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ClearCanvas.Dicom.csproj">
-      <Project>{ad9ece2b-8268-4115-8dc8-860fbd011fff}</Project>
+    <ProjectReference Include="..\..\uDicom.Core.csproj">
+      <Project>{5f03c5dc-cdf9-406c-a6c1-611ea4b1c441}</Project>
     </ProjectReference>
     <ProjectReference Include="OpenJPEG\OpenJPEG.vcxproj">
       <Project>{497ceac5-c575-47a7-9230-610d6a3b6a2a}</Project>
