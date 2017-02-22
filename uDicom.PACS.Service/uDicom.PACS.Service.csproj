@@ -41,20 +41,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssociationVerifier.cs" />
     <Compile Include="BaseScp.cs" />
     <Compile Include="CEchoScp.cs" />
     <Compile Include="CFindScp.cs" />
     <Compile Include="CMoveScp.cs" />
     <Compile Include="CStoreScp.cs" />
-    <Compile Include="DeviceManager.cs" />
+    <Compile Include="Interface\IDeviceManager.cs" />
     <Compile Include="DicomProcessingResult.cs" />
     <Compile Include="DicomScpContext.cs" />
     <Compile Include="Interface\ISopInstanceImporter.cs" />
     <Compile Include="Interface\ISopQuery.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Model\Device.cs" />
-    <Compile Include="Model\ISeries.cs" />
-    <Compile Include="Model\IPatient.cs" />
+    <Compile Include="Model\SeriesData.cs" />
+    <Compile Include="Model\PatientData.cs" />
     <Compile Include="Model\StudyData.cs" />
     <Compile Include="Model\ServerPartition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

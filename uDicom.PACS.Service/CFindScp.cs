@@ -59,7 +59,7 @@ namespace UIH.Dicom.PACS.Service
 
 		/// <summary>
         /// Public default constructor.  Implements the Find and Move services for 
-        /// Patient Root and Study Root queries.
+        /// PatientData Root and Study Root queries.
         /// </summary>
         public CFindScp()
 		{
@@ -95,7 +95,7 @@ namespace UIH.Dicom.PACS.Service
 
             try
             {
-                query.OnPatientQuery(message, delegate(IPatient row)
+                query.OnPatientQuery(message, delegate(PatientData row)
                 {
                     if (CancelReceived)
                         throw new DicomException("DICOM C-Cancel Received");
@@ -227,7 +227,7 @@ namespace UIH.Dicom.PACS.Service
 
             try
             {
-                query.OnSeriesQuery(message, delegate (ISeries row)
+                query.OnSeriesQuery(message, delegate (SeriesData row)
                 {
                     if (CancelReceived)
                         throw new DicomException("DICOM C-Cancel Received");
@@ -311,7 +311,7 @@ namespace UIH.Dicom.PACS.Service
             }
         }
 
-        private void PopulatePatient(DicomMessageBase response, IEnumerable<DicomTag> tagList, IPatient row)
+        private void PopulatePatient(DicomMessageBase response, IEnumerable<DicomTag> tagList, PatientData row)
         {
             DicomDataset dataSet = response.DataSet;
 
@@ -488,7 +488,7 @@ namespace UIH.Dicom.PACS.Service
         }
 
         private void PopulateSeries(DicomMessageBase request, DicomMessageBase response, IEnumerable<DicomTag> tagList,
-                                    ISeries row)
+                                    SeriesData row)
         {
             DicomDataset dataSet = response.DataSet;
 
@@ -806,7 +806,7 @@ namespace UIH.Dicom.PACS.Service
                     return true;
                 } */
 
-                Log.Logger.Error("Unexpected Patient Root Query/Retrieve level: {0}", level);
+                Log.Logger.Error("Unexpected PatientData Root Query/Retrieve level: {0}", level);
 
                 server.SendCFindResponse(presentationId, message.MessageId, new DicomMessage(),
                                          DicomStatuses.QueryRetrieveIdentifierDoesNotMatchSOPClass);

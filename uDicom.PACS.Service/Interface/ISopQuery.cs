@@ -10,11 +10,11 @@ namespace UIH.Dicom.PACS.Service.Interface
 
     public interface ISopQuery
     {
-        void OnPatientQuery(DicomMessage message, SelectCallback<IPatient> callback);
+        void OnPatientQuery(DicomMessage message, SelectCallback<PatientData> callback);
 
         void OnStudyQuery(DicomMessage message, SelectCallback<StudyData> callback);
 
-        void OnSeriesQuery(DicomMessage message, SelectCallback<ISeries> callback );
+        void OnSeriesQuery(DicomMessage message, SelectCallback<SeriesData> callback );
 
     }
 }
