@@ -22,9 +22,6 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.ComponentModel.Composition.Hosting;
-using System.IO;
-using System.Reflection;
 using UIH.Dicom.Log;
 
 namespace UIH.Dicom.Codec
@@ -49,34 +46,12 @@ namespace UIH.Dicom.Codec
             Codecs = new List<IDicomCodecFactory>();
 			try
 			{
-			    var path = Path.GetDirectoryName(
-			        new Uri(Assembly.GetExecutingAssembly().EscapedCodeBase).LocalPath);
-			    var search = "UIH.Dicom.Codec*.dll";
-
-                DirectoryCatalog catalog;
-
-			    try
-			    {
-                    catalog = new DirectoryCatalog(path, search);
-			    }
-			    catch (Exception ex)
-			    {
-			        LogAdapter.Logger.ErrorWithFormat(
-			            "Error encountered creating new DirectCatalog({path}, {search}) - {@exception}",
-			            path,
-			            search,
-			            ex);
-			        throw;
-			    }
-
-                var container = new CompositionContainer(catalog);
-
-                var codecFactories = container.GetExportedValues<IDicomCodecFactory>();
+			    var codecFactories = IoC.GetAll<IDicomCodecFactory>();
 
                 foreach (IDicomCodecFactory codecFactory in codecFactories)
                 {
                     Codecs.Add(codecFactory);
-                    LogAdapter.Logger.InfoWithFormat("Codec: {0}", codecFactory.Name);
+                    LogAdapter.Logger.Info("Codec: {0}", codecFactory.Name);
                     Dictionary[codecFactory.CodecTransferSyntax] = codecFactory;
                 }
 			}

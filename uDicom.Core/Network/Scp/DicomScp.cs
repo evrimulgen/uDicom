@@ -166,11 +166,9 @@ namespace UIH.Dicom.Network.Scp
         /// </remarks>
 		private void CreatePresentationContexts()
         {
-            List<IDicomScp<TContext>> scps =
-                Platform.Instance.CompositionContainer.GetExportedValues<IDicomScp<TContext>>().Select(scp => scp).
-                    ToList();
+            List<IDicomScp<TContext>> scps = IoC.GetAll<IDicomScp<TContext>>().ToList();
 
-        	foreach (IDicomScp<TContext> obj in scps)
+            foreach (IDicomScp<TContext> obj in scps)
         	{
         		IDicomScp<TContext> scp = obj as IDicomScp<TContext>;
         		scp.SetContext(_context);
@@ -265,7 +263,7 @@ namespace UIH.Dicom.Network.Scp
 
                 if (_assocParameters.GetPresentationContextIDs().Count == 0)
                 {
-                    LogAdapter.Logger.Log(LogLevel.Fatal, "No configured presentation contexts for AE: {0}", AeTitle);
+                    LogAdapter.Logger.Error( "No configured presentation contexts for AE: {0}", AeTitle);
                     return false;
                 }
 
@@ -273,7 +271,7 @@ namespace UIH.Dicom.Network.Scp
             }
             catch (DicomException ex)
             {
-                LogAdapter.Logger.Log(LogLevel.Fatal, "Unexpected exception when starting listener on port {0)", ListenPort);
+                LogAdapter.Logger.Error( "Unexpected exception when starting listener on port {0)", ListenPort);
                 return false;
             }
         }
@@ -290,7 +288,7 @@ namespace UIH.Dicom.Network.Scp
             catch (DicomException e)
             {
                 LogAdapter.Logger.TraceException(e);
-                LogAdapter.Logger.ErrorWithFormat("Unexpected exception when stopping listening on port {0}", ListenPort);
+                LogAdapter.Logger.Error("Unexpected exception when stopping listening on port {0}", ListenPort);
             }
         }
         #endregion

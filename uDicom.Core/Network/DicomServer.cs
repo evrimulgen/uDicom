@@ -292,7 +292,7 @@ namespace UIH.Dicom.Network
         	ListenerInfo info;
             if (!_appList.TryGetValue(association.CalledAE, out info))
             {
-                LogAdapter.Logger.ErrorWithFormat("Rejecting association from {0}: Invalid Called AE Title ({1}).", association.CallingAE, association.CalledAE);
+                LogAdapter.Logger.Error("Rejecting association from {0}: Invalid Called AE Title ({1}).", association.CallingAE, association.CalledAE);
                 SendAssociateReject(DicomRejectResult.Permanent, DicomRejectSource.ServiceProviderACSE, DicomRejectReason.CalledAENotRecognized);
                 return;
             }
@@ -313,7 +313,7 @@ namespace UIH.Dicom.Network
             bool anyValidContexts = NegotiateAssociation(association, info.Parameters);
             if (!anyValidContexts)
             {
-                LogAdapter.Logger.ErrorWithFormat("Rejecting association from {0}: No valid presentation contexts.", association.CallingAE);
+                LogAdapter.Logger.Error("Rejecting association from {0}: No valid presentation contexts.", association.CallingAE);
                 SendAssociateReject(DicomRejectResult.Permanent, DicomRejectSource.ServiceProviderACSE, DicomRejectReason.NoReasonGiven);
                 return;
             }

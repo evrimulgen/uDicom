@@ -80,15 +80,15 @@ extern "C" {
 #include "OpenJPEG/j2k.h"
 
 	void opj_error_callback(const char *msg, void *usr) {
-		LogAdapter::Logger->Log(LogLevel::Error, "OpenJPEG: {0}", gcnew String(msg));
+		LogAdapter::Logger->Error("OpenJPEG: {0}", gcnew String(msg));
 	}
 
 	void opj_warning_callback(const char *msg, void *) {
-		LogAdapter::Logger->Log(LogLevel::Warning, "OpenJPEG Warning: {0}", gcnew String(msg));
+		LogAdapter::Logger->Warn( "OpenJPEG Warning: {0}", gcnew String(msg));
 	}
 
 	void opj_info_callback(const char *msg, void *) {
-		LogAdapter::Logger->Log(LogLevel::Info, "OpenJPEG: {0}", gcnew String(msg));
+		LogAdapter::Logger->Info("OpenJPEG: {0}", gcnew String(msg));
 	}
 }
 

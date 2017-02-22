@@ -177,7 +177,7 @@ namespace UIH.Dicom
 			IDicomCodec codec = DicomCodecRegistry.GetCodec(TransferSyntax);
 			if (codec == null)
 			{
-                LogAdapter.Logger.ErrorWithFormat("Unable to get registered codec for {0}", TransferSyntax);
+                LogAdapter.Logger.Error("Unable to get registered codec for {0}", TransferSyntax);
 
 				throw new DicomCodecException("No registered codec for: " + TransferSyntax.Name);
 			}

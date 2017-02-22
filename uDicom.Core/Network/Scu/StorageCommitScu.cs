@@ -115,7 +115,7 @@ namespace UIH.Dicom.Network.Scu
 				throw new ApplicationException(message);
 			}
 
-            LogAdapter.Logger.InfoWithFormat("Preparing to connect to AE {0} on host {1} on port {2} and committing {3} images.",
+            LogAdapter.Logger.Info("Preparing to connect to AE {0} on host {1} on port {2} and committing {3} images.",
 			             RemoteAE, RemoteHost, RemotePort, _storageInstanceList.Count);
 
 			// the connect launches the actual send in a background thread.
@@ -183,7 +183,7 @@ namespace UIH.Dicom.Network.Scu
 		{
 			base.OnReceiveAssociateAccept(client, association);
 
-            LogAdapter.Logger.InfoWithFormat("Association Accepted:\r\n{0}", association.ToString());
+            LogAdapter.Logger.Info("Association Accepted:\r\n{0}", association.ToString());
 
 			byte pcid = association.FindAbstractSyntaxWithTransferSyntax(SopClass.StorageCommitmentPushModelSopClass,
 			                                                             TransferSyntax.ExplicitVrLittleEndian);
@@ -225,7 +225,7 @@ namespace UIH.Dicom.Network.Scu
 		{
 			if (Status == ScuOperationStatus.Canceled)
 			{
-                LogAdapter.Logger.InfoWithFormat("Cancel request received, releasing association from {0} to {1}", association.CallingAE, association.CalledAE);
+                LogAdapter.Logger.Info("Cancel request received, releasing association from {0} to {1}", association.CallingAE, association.CalledAE);
 				client.SendReleaseRequest();
 				StopRunningOperation();
 				return;

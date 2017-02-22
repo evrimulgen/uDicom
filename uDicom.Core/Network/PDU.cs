@@ -491,7 +491,7 @@ namespace UIH.Dicom.Network
                                 }
                                 else
                                 {
-                                    LogAdapter.Logger.ErrorWithFormat("Unhandled user item: 0x{0:x2} ({1} + 4 bytes)", ut, ul);
+                                    LogAdapter.Logger.Error("Unhandled user item: 0x{0:x2} ({1} + 4 bytes)", ut, ul);
                                     raw.SkipBytes("Unhandled User Item", ul);
                                 }
                             }

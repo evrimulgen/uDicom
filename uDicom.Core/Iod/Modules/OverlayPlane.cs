@@ -114,19 +114,19 @@ namespace UIH.Dicom.Iod.Modules
 			DicomElement element;
 			if (!DicomElementProvider.TryGetAttribute(DicomTags.PixelData, out element))
 			{
-				LogAdapter.Logger.Warning("Sop does not appear to have any pixel data from which to extract embedded overlays.");
+				LogAdapter.Logger.Warn("Sop does not appear to have any pixel data from which to extract embedded overlays.");
 				return false;
 			}
 
 			if (element is DicomFragmentSequence)
 			{
-				LogAdapter.Logger.Warning("Sop pixel data must be uncompressed to extract overlays.");
+				LogAdapter.Logger.Warn("Sop pixel data must be uncompressed to extract overlays.");
 				return false;
 			}
 
 			if (element.IsNull)
 			{
-				LogAdapter.Logger.Warning("Sop pixel data has no valid value and cannot have embedded overlays extracted.");
+				LogAdapter.Logger.Warn("Sop pixel data has no valid value and cannot have embedded overlays extracted.");
 				return false;
 			}
 
@@ -138,7 +138,7 @@ namespace UIH.Dicom.Iod.Modules
 				if (overlay.HasOverlayData)
 					continue;
 
-				LogAdapter.Logger.Warning("SOP Instance has embedded overlay in pixel data, extracting");
+				LogAdapter.Logger.Warn("SOP Instance has embedded overlay in pixel data, extracting");
 				overlay.ExtractEmbeddedOverlay(pixelData);
 				anyExtracted = true;
 			}

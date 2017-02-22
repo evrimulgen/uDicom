@@ -89,7 +89,7 @@ namespace UIH.Dicom.Network.Scu
 		/// <returns></returns>
 		public VerificationResult Verify(string clientAETitle, string remoteAE, string remoteHost, int remotePort)
 		{
-            LogAdapter.Logger.InfoWithFormat("Preparing to connect to AE {0} on host {1} on port {2} for verification.", remoteAE, remoteHost, remotePort);
+            LogAdapter.Logger.Info("Preparing to connect to AE {0} on host {1} on port {2} for verification.", remoteAE, remoteHost, remotePort);
 			try
 			{
 				base.ClientAETitle = clientAETitle;
@@ -187,7 +187,7 @@ namespace UIH.Dicom.Network.Scu
 		{
 			if (message.Status.Status != DicomState.Success)
 			{
-                LogAdapter.Logger.ErrorWithFormat("Failure status received in sending verification: {0}", message.Status.Description);
+                LogAdapter.Logger.Error("Failure status received in sending verification: {0}", message.Status.Description);
 				_verificationResult = VerificationResult.Failed;
 			}
 			else if (_verificationResult == VerificationResult.Canceled)

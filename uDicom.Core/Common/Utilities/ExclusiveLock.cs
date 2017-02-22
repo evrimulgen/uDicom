@@ -240,7 +240,7 @@ namespace UIH.Dicom.Common.Utilities
             // The ShredHostService + Desktop app run under different users
 			mutexName = "Global\\cc-filesystem-lock-" + mutexName;
 
-            LogAdapter.Logger.InfoWithFormat("Creating file system lock for: {0}\r\nMutex name: {1}", fileOrDirectoryName, mutexName);
+            LogAdapter.Logger.Info("Creating file system lock for: {0}\r\nMutex name: {1}", fileOrDirectoryName, mutexName);
 			return new NamedMutexLock(mutexName);
 		}
 	}

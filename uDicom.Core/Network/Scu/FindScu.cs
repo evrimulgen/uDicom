@@ -313,18 +313,18 @@ namespace UIH.Dicom.Network.Scu
                     if (status.Status == DicomState.Cancel)
                     {
                         if (LogInformation)
-                            LogAdapter.Logger.InfoWithFormat("Cancel status received in Find Scu: {0}", status);
+                            LogAdapter.Logger.Info("Cancel status received in Find Scu: {0}", status);
                         Status = ScuOperationStatus.Canceled;
                     }
                     else if (status.Status == DicomState.Failure)
                     {
-                        LogAdapter.Logger.ErrorWithFormat("Failure status received in Find Scu: {0}", status);
+                        LogAdapter.Logger.Error("Failure status received in Find Scu: {0}", status);
                         Status = ScuOperationStatus.Failed;
                         FailureDescription = status.ToString();
                     }
                     else if (status.Status == DicomState.Warning)
                     {
-                        LogAdapter.Logger.WarnWithFormat("Warning status received in Find Scu: {0}", status);
+                        LogAdapter.Logger.Warn("Warning status received in Find Scu: {0}", status);
                     }
                     else if (Status == ScuOperationStatus.Canceled)
                     {

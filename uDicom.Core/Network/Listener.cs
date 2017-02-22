@@ -67,13 +67,13 @@ namespace UIH.Dicom.Network
 
 					if (theListener._applications.ContainsKey(parameters.CalledAE))
 					{
-                        LogAdapter.Logger.ErrorWithFormat("Already listening with AE {0} on {1}", parameters.CalledAE,
+                        LogAdapter.Logger.Error("Already listening with AE {0} on {1}", parameters.CalledAE,
 						             parameters.LocalEndPoint.ToString());
 						return false;
 					}
 
 					theListener._applications.Add(parameters.CalledAE, info);
-                    LogAdapter.Logger.InfoWithFormat("Starting to listen with AE {0} on existing port {1}", parameters.CalledAE,
+                    LogAdapter.Logger.Info("Starting to listen with AE {0} on existing port {1}", parameters.CalledAE,
 					             parameters.LocalEndPoint.ToString());
 				}
 				else
@@ -81,14 +81,14 @@ namespace UIH.Dicom.Network
 					theListener = new Listener(parameters, acceptor);
 					if (!theListener.StartListening())
 					{
-                        LogAdapter.Logger.ErrorWithFormat("Unexpected error starting to listen on {0}", parameters.LocalEndPoint.ToString());
+                        LogAdapter.Logger.Error("Unexpected error starting to listen on {0}", parameters.LocalEndPoint.ToString());
 						return false;
 					}
 
 					_listeners[parameters.LocalEndPoint] = theListener;
 					theListener.StartThread();
 
-                    LogAdapter.Logger.InfoWithFormat("Starting to listen with AE {0} on port {1}", parameters.CalledAE,
+                    LogAdapter.Logger.Info("Starting to listen with AE {0} on port {1}", parameters.CalledAE,
 					             parameters.LocalEndPoint.ToString());
 				}
 
@@ -106,7 +106,7 @@ namespace UIH.Dicom.Network
 			catch (SocketException e)
 			{
                 LogAdapter.Logger.TraceException(e);
-                LogAdapter.Logger.ErrorWithFormat("Shutting down listener on {0}", _ipEndPoint.ToString());
+                LogAdapter.Logger.Error("Shutting down listener on {0}", _ipEndPoint.ToString());
 				_tcpListener = null;
 				return false;
 			}
@@ -132,19 +132,19 @@ namespace UIH.Dicom.Network
 							theListener.StopThread();
 							theListener.Dispose();
 						}
-                        LogAdapter.Logger.InfoWithFormat("Stopping listening with AE {0} on {1}", parameters.CalledAE,
+                        LogAdapter.Logger.Info("Stopping listening with AE {0} on {1}", parameters.CalledAE,
 						             parameters.LocalEndPoint.ToString());
 					}
 					else
 					{
-                        LogAdapter.Logger.ErrorWithFormat("Unable to stop listening on AE {0}, assembly was not listening with this AE.",
+                        LogAdapter.Logger.Error("Unable to stop listening on AE {0}, assembly was not listening with this AE.",
 						             parameters.CalledAE);
 						return false;
 					}
 				}
 				else
 				{
-                    LogAdapter.Logger.ErrorWithFormat("Unable to stop listening, assembly was not listening on end point {0}.",
+                    LogAdapter.Logger.Error("Unable to stop listening, assembly was not listening on end point {0}.",
 					             parameters.LocalEndPoint.ToString());
 					return false;
 				}

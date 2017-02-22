@@ -139,12 +139,12 @@ namespace UIH.Dicom.Network.Scu
 			string sopClassInFile = _dicomFile.DataSet[DicomTags.SopClassUid].ToString();
 			if (!sopClassInFile.Equals(_dicomFile.SopClass.Uid))
 			{
-				LogAdapter.Logger.WarnWithFormat("SOP Class in Meta Info ({0}) does not match SOP Class in DataSet ({1})",
+				LogAdapter.Logger.Warn("SOP Class in Meta Info ({0}) does not match SOP Class in DataSet ({1})",
 							 _dicomFile.SopClass.Uid, sopClassInFile);
 				_sopClass = SopClass.GetSopClass(sopClassInFile);
 				if (_sopClass == null)
 				{
-					LogAdapter.Logger.WarnWithFormat("Unknown SOP Class in dataset, reverting to meta info:  {0}", sopClassInFile);
+					LogAdapter.Logger.Warn("Unknown SOP Class in dataset, reverting to meta info:  {0}", sopClassInFile);
 					_sopClass = _dicomFile.SopClass;
 				}
 			}
@@ -243,12 +243,12 @@ namespace UIH.Dicom.Network.Scu
 			string sopClassInFile = theFile.DataSet[DicomTags.SopClassUid].ToString();
 			if (!sopClassInFile.Equals(theFile.SopClass.Uid))
 			{
-				LogAdapter.Logger.WarnWithFormat("SOP Class in Meta Info ({0}) does not match SOP Class in DataSet ({1})",
+				LogAdapter.Logger.Warn("SOP Class in Meta Info ({0}) does not match SOP Class in DataSet ({1})",
 				             theFile.SopClass.Uid, sopClassInFile);
 				_sopClass = SopClass.GetSopClass(sopClassInFile);
 				if (_sopClass == null)
 				{
-					LogAdapter.Logger.WarnWithFormat("Unknown SOP Class in dataset, reverting to meta info:  {0}", sopClassInFile);
+					LogAdapter.Logger.Warn("Unknown SOP Class in dataset, reverting to meta info:  {0}", sopClassInFile);
 					_sopClass = theFile.SopClass;
 				}
 			}

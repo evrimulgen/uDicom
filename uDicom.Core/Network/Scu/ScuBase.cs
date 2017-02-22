@@ -232,7 +232,7 @@ namespace UIH.Dicom.Network.Scu
 		public virtual void Cancel()
 		{
 			if (LogInformation)
-                LogAdapter.Logger.InfoWithFormat("Canceling Scu connected from {0} to {1}:{2}:{3}...", ClientAETitle, RemoteAE,
+                LogAdapter.Logger.Info("Canceling Scu connected from {0} to {1}:{2}:{3}...", ClientAETitle, RemoteAE,
 			                 RemoteHost, RemotePort);
 			Status = ScuOperationStatus.Canceled;
 			ProgressEvent.Set();
@@ -339,7 +339,7 @@ namespace UIH.Dicom.Network.Scu
 			{
 				Status = ScuOperationStatus.ConnectFailed;
 				FailureDescription = ex.Message;
-                LogAdapter.Logger.ErrorWithFormat("Exception attempting connection to RemoteHost {0} ({1}:{2})", RemoteAE, RemoteHost, RemotePort);
+                LogAdapter.Logger.Error("Exception attempting connection to RemoteHost {0} ({1}:{2})", RemoteAE, RemoteHost, RemotePort);
 				throw;
 			}
 
@@ -347,7 +347,7 @@ namespace UIH.Dicom.Network.Scu
 
         protected void Connect(string clientAETitle, string remoteAE, string remoteHost, int remotePort)
         {
-            if (LogInformation) LogAdapter.Logger.InfoWithFormat("Preparing to connect to AE {0} on host {1} on port {2} for printer status request.", remoteAE, remoteHost, remotePort);
+            if (LogInformation) LogAdapter.Logger.Info("Preparing to connect to AE {0} on host {1} on port {2} for printer status request.", remoteAE, remoteHost, remotePort);
             try
             {
                 ClientAETitle = clientAETitle;
@@ -359,7 +359,7 @@ namespace UIH.Dicom.Network.Scu
             catch (Exception e)
             {
                 LogAdapter.Logger.TraceException(e);
-                LogAdapter.Logger.ErrorWithFormat("Unexpected exception trying to connect to Remote AE {0} on host {1} on port {2}", remoteAE, remoteHost, remotePort);
+                LogAdapter.Logger.Error("Unexpected exception trying to connect to Remote AE {0} on host {1} on port {2}", remoteAE, remoteHost, remotePort);
                 throw;
             }
         }
@@ -489,7 +489,7 @@ namespace UIH.Dicom.Network.Scu
 		public virtual void OnReceiveAssociateAccept(DicomClient client, ClientAssociationParameters association)
 		{
 			if (LogInformation)
-                LogAdapter.Logger.InfoWithFormat("Association Accepted from {0} to remote AE {1}:{2}", association.CallingAE,
+                LogAdapter.Logger.Info("Association Accepted from {0} to remote AE {1}:{2}", association.CallingAE,
 				             association.CalledAE, association.RemoteEndPoint.ToString());
 
 			EventHandler<AssociationParameters> tempHandler = AssociationAccepted;
@@ -528,7 +528,7 @@ namespace UIH.Dicom.Network.Scu
 			FailureDescription =
 				String.Format("Association Rejection when {0} connected to remote AE {1}:{2}", association.CallingAE,
 				              association.CalledAE, association.RemoteEndPoint);
-			LogAdapter.Logger.Warning(FailureDescription);
+			LogAdapter.Logger.Warn(FailureDescription);
 			StopRunningOperation(ScuOperationStatus.AssociationRejected);
 		}
 
@@ -561,7 +561,7 @@ namespace UIH.Dicom.Network.Scu
 		/// <param name="association">The association.</param>
 		public void OnReceiveReleaseResponse(DicomClient client, ClientAssociationParameters association)
 		{
-            if (LogInformation) LogAdapter.Logger.InfoWithFormat("Association released from {0} to {1}", association.CallingAE, association.CalledAE);
+            if (LogInformation) LogAdapter.Logger.Info("Association released from {0} to {1}", association.CallingAE, association.CalledAE);
 			StopRunningOperation();
 		}
 
@@ -575,7 +575,7 @@ namespace UIH.Dicom.Network.Scu
 		public void OnReceiveAbort(DicomClient client, ClientAssociationParameters association, DicomAbortSource source, DicomAbortReason reason)
 		{
 			FailureDescription = String.Format( "Unexpected association abort received from {0} to {1}", association.CallingAE, association.CalledAE);
-			LogAdapter.Logger.Warning(FailureDescription);
+			LogAdapter.Logger.Warn(FailureDescription);
 			StopRunningOperation(ScuOperationStatus.UnexpectedMessage);
 		}
 
@@ -600,7 +600,7 @@ namespace UIH.Dicom.Network.Scu
 			}
 			else
 			{
-				LogAdapter.Logger.Warning(FailureDescription);
+				LogAdapter.Logger.Warn(FailureDescription);
 			}
 
 			//We don't want to blow away the OnDimseTimeout 'TimeoutExpired' status.
@@ -634,7 +634,7 @@ namespace UIH.Dicom.Network.Scu
 				LogAdapter.Logger.TraceException(ex);
 			}
 
-            LogAdapter.Logger.WarnWithFormat("Completed aborting connection (after DIMSE timeout) from {0} to {1}", association.CallingAE, association.CalledAE);
+            LogAdapter.Logger.Warn("Completed aborting connection (after DIMSE timeout) from {0} to {1}", association.CallingAE, association.CalledAE);
 			ProgressEvent.Set();
 		}
 

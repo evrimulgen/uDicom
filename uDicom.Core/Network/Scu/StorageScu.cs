@@ -272,7 +272,7 @@ namespace UIH.Dicom.Network.Scu
 				throw new ApplicationException(message);
 			}
 
-			LogAdapter.Logger.InfoWithFormat("Preparing to connect to AE {0} on host {1} on port {2} and sending {3} images.",
+			LogAdapter.Logger.Info("Preparing to connect to AE {0} on host {1} on port {2} and sending {3} images.",
 			             RemoteAE, RemoteHost, RemotePort, _storageInstanceList.Count);
 			try
 			{
@@ -483,7 +483,7 @@ namespace UIH.Dicom.Network.Scu
                                                      bool ok = SendCStore(client, association);
                                                      while (ok == false)
                                                      {
-                                                         LogAdapter.Logger.InfoWithFormat("Attempted to send {0} of {1} instances to {2}.", _fileListIndex + 1, _storageInstanceList.Count, client.AssociationParams.CalledAE);
+                                                         LogAdapter.Logger.Info("Attempted to send {0} of {1} instances to {2}.", _fileListIndex + 1, _storageInstanceList.Count, client.AssociationParams.CalledAE);
                                                          _fileListIndex++;
                                                          if (_fileListIndex >= _storageInstanceList.Count)
                                                          {
@@ -648,7 +648,7 @@ namespace UIH.Dicom.Network.Scu
                         if (pcid != 0)
                         {
                             SendOnPresentationContext(client, association, pcid, fileToSend, msg);
-                            LogAdapter.Logger.WarnWithFormat("Could not send SOP as compressed, sent as uncompressed: {0}, file: {1}", e.Message, fileToSend.SopInstanceUid);
+                            LogAdapter.Logger.Warn("Could not send SOP as compressed, sent as uncompressed: {0}, file: {1}", e.Message, fileToSend.SopInstanceUid);
                             return true;
                         }
                     }
@@ -803,7 +803,7 @@ namespace UIH.Dicom.Network.Scu
 		{
 			base.OnReceiveAssociateAccept(client, association);
 
-			LogAdapter.Logger.InfoWithFormat("Association Accepted:\r\n{0}", association.ToString());
+			LogAdapter.Logger.Info("Association Accepted:\r\n{0}", association.ToString());
 
 			_fileListIndex = 0;
 
@@ -830,13 +830,13 @@ namespace UIH.Dicom.Network.Scu
 				if (message.Status.Status == DicomState.Warning)
 				{
 					_warningSubOperations++;
-					LogAdapter.Logger.WarnWithFormat("Warning status received in sending C-STORE to {0}: {1}",
+					LogAdapter.Logger.Warn("Warning status received in sending C-STORE to {0}: {1}",
 								 association.CalledAE, message.Status.Description);
 				}
 				else if (message.Status.Status == DicomState.Failure)
 				{
 					_failureSubOperations++;
-					LogAdapter.Logger.InfoWithFormat("Failure status received in sending C-STORE to {0}: {1}",
+					LogAdapter.Logger.Info("Failure status received in sending C-STORE to {0}: {1}",
 						association.CalledAE, message.Status.Description);
 				}
 			}
@@ -850,7 +850,7 @@ namespace UIH.Dicom.Network.Scu
 			if (Status == ScuOperationStatus.Canceled || message.Status.Status == DicomState.Cancel)
 			{
 				FailRemaining(DicomStatuses.Cancel);
-				LogAdapter.Logger.InfoWithFormat("Cancel requested by {0}, releasing association from {1} to {2}",
+				LogAdapter.Logger.Info("Cancel requested by {0}, releasing association from {1} to {2}",
 					(message.Status.Status == DicomState.Cancel) ? "remote host" : "client", 
 					association.CallingAE, association.CalledAE);
 
@@ -863,7 +863,7 @@ namespace UIH.Dicom.Network.Scu
 			_fileListIndex++;
 			if (_fileListIndex >= _storageInstanceList.Count)
 			{
-                LogAdapter.Logger.InfoWithFormat("Completed sending {0} C-STORE-RQ messages, releasing association.", _storageInstanceList.Count);
+                LogAdapter.Logger.Info("Completed sending {0} C-STORE-RQ messages, releasing association.", _storageInstanceList.Count);
 				client.SendReleaseRequest();
 				StopRunningOperation();
 				return;

@@ -209,7 +209,7 @@ void DicomJpegCodec::Decode(DicomCompressedPixelData^ oldPixelData, DicomUncompr
 	
 		unsigned char bitsStored = GetJpegBitDepth(jpegPtr,jpegData->Length);
 		if (bitsStored != oldPixelData->BitsStored)
-			LogAdapter::Logger->WarnWithFormat("Bit depth in jpeg data ({0}) doesn't match DICOM header bit depth ({1}).",
+			LogAdapter::Logger->Warn("Bit depth in jpeg data ({0}) doesn't match DICOM header bit depth ({1}).",
 							bitsStored, oldPixelData->BitsStored);
 
 		IJpegCodec^ codec = GetCodec(bitsStored, jparams);
@@ -239,7 +239,7 @@ void DicomJpegCodec::DecodeFrame(int frame, DicomCompressedPixelData^ oldPixelDa
 
 	unsigned char bitsStored = GetJpegBitDepth(jpegPtr,jpegData->Length);
 	if (bitsStored != oldPixelData->BitsStored)
-		LogAdapter::Logger->WarnWithFormat("Bit depth in jpeg data ({0}) doesn't match DICOM header bit depth ({1}).",
+		LogAdapter::Logger->Warn("Bit depth in jpeg data ({0}) doesn't match DICOM header bit depth ({1}).",
 						bitsStored, oldPixelData->BitsStored);
 
 	IJpegCodec^ codec = GetCodec(bitsStored, jparams);

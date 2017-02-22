@@ -76,7 +76,7 @@ namespace UIH.Dicom
                     codec = DicomCodecRegistry.GetCodec(newTransferSyntax);
                     if (codec == null)
                     {
-                        LogAdapter.Logger.ErrorWithFormat("Unable to get registered codec for {0}", newTransferSyntax);
+                        LogAdapter.Logger.Error("Unable to get registered codec for {0}", newTransferSyntax);
                         throw new DicomCodecException("No registered codec for: " + newTransferSyntax.Name);
                     }
                 }
@@ -99,14 +99,14 @@ namespace UIH.Dicom
 						if (DicomUncompressedPixelData.RightAlign(pixelStream, pd.BitsAllocated, pd.BitsStored, pd.HighBit))
 						{
 							var newHighBit = (ushort) (pd.HighBit - pd.LowBit);
-							LogAdapter.Logger.WarnWithFormat("Right aligned pixel data (High Bit: {0}->{1}).", pd.HighBit, newHighBit);
+							LogAdapter.Logger.Warn("Right aligned pixel data (High Bit: {0}->{1}).", pd.HighBit, newHighBit);
 
 							pd.HighBit = newHighBit; //correct high bit after right-aligning.
 							DataSet[DicomTags.HighBit].SetUInt16(0, newHighBit);
 						}
 						if (DicomUncompressedPixelData.ZeroUnusedBits(pixelStream, pd.BitsAllocated, pd.BitsStored, pd.HighBit))
 						{
-							LogAdapter.Logger.Warning("Zeroed some unused bits before compression.");
+							LogAdapter.Logger.Warn("Zeroed some unused bits before compression.");
 						}
 					}
 
@@ -141,7 +141,7 @@ namespace UIH.Dicom
                     codec = DicomCodecRegistry.GetCodec(TransferSyntax);
                     if (codec == null)
                     {
-                        LogAdapter.Logger.ErrorWithFormat("Unable to get registered codec for {0}", TransferSyntax);
+                        LogAdapter.Logger.Error("Unable to get registered codec for {0}", TransferSyntax);
 
                         throw new DicomCodecException("No registered codec for: " + TransferSyntax.Name);
                     }

@@ -20,14 +20,11 @@
 #endregion
 
 using System;
-using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
 using System.IO;
 
 namespace UIH.Dicom.Common
 {
     
-    [Export]
     public class Platform
     {
         #region Filed & Const string
@@ -41,8 +38,6 @@ namespace UIH.Dicom.Common
         private static volatile string _installDirectory;
         private static volatile string _pluginsDirectory;
         private static volatile string _logDirectory;
-
-        public CompositionContainer CompositionContainer = null;
 
         #endregion
 

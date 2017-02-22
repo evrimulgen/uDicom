@@ -62,9 +62,7 @@ namespace UIH.Dicom.Network.Scp
             _verifier = verifier;
         	_complete = complete;
 
-            List<IDicomScp<TContext>> scps =
-                Platform.Instance.CompositionContainer.GetExportedValues<IDicomScp<TContext>>().Select(scp => scp).
-                    ToList();
+           List<IDicomScp<TContext>> scps = IoC.GetAll<IDicomScp<TContext>>().ToList();
 
             // First set the user parms for each of the extensions before we do anything with them.
             foreach (object obj in scps)
@@ -97,7 +95,7 @@ namespace UIH.Dicom.Network.Scp
                                         break;
                                     }
                                     else
-                                        LogAdapter.Logger.ErrorWithFormat("SOP Class {0} supported by more than one extension", sop.SopClass.Name);
+                                        LogAdapter.Logger.Error("SOP Class {0} supported by more than one extension", sop.SopClass.Name);
                                 }
                             }
                         }
@@ -160,7 +158,7 @@ namespace UIH.Dicom.Network.Scp
                 if (verified == false)
                 {
                     server.SendAssociateReject(result,DicomRejectSource.ServiceUser,reason);
-                    LogAdapter.Logger.InfoWithFormat("Association rejected from {0} to {1}", 
+                    LogAdapter.Logger.Info("Association rejected from {0} to {1}", 
                         association.CallingAE, association.CalledAE);
                     return;
                 }
@@ -190,14 +188,14 @@ namespace UIH.Dicom.Network.Scp
 
             if (!atLeastOneAccepted)
             {
-                LogAdapter.Logger.InfoWithFormat("None of the proposed presentation context is accepted. Rejecting association from {0} to {1}", association.CallingAE, association.CalledAE);
+                LogAdapter.Logger.Info("None of the proposed presentation context is accepted. Rejecting association from {0} to {1}", association.CallingAE, association.CalledAE);
                 server.SendAssociateReject(DicomRejectResult.Permanent, DicomRejectSource.ServiceUser, DicomRejectReason.NoReasonGiven);
                 return;
             }
 
             server.SendAssociateAccept(association);
 
-            LogAdapter.Logger.InfoWithFormat("Received association:\r\n{0}", association.ToString());      
+            LogAdapter.Logger.Info("Received association:\r\n{0}", association.ToString());      
         }
 
         void IDicomServerHandler.OnReceiveRequestMessage(DicomServer server, ServerAssociationParameters association, byte presentationID, DicomMessage message)
@@ -207,7 +205,7 @@ namespace UIH.Dicom.Network.Scp
             bool ok = scp.OnReceiveRequest(server, association, presentationID, message);
             if (!ok)
             {
-                LogAdapter.Logger.ErrorWithFormat("Unexpected error processing message of type {0}.  Aborting association.", message.SopClass.Name);
+                LogAdapter.Logger.Error("Unexpected error processing message of type {0}.  Aborting association.", message.SopClass.Name);
 
                 server.SendAssociateAbort(DicomAbortSource.ServiceProvider, DicomAbortReason.NotSpecified);
 
@@ -222,13 +220,13 @@ namespace UIH.Dicom.Network.Scp
 
         void IDicomServerHandler.OnReceiveResponseMessage(DicomServer server, ServerAssociationParameters association, byte presentationID, DicomMessage message)
         {
-            LogAdapter.Logger.ErrorWithFormat("Unexpectedly received OnReceiveResponseMessage callback from {0} to {1}.  Aborting association.", association.CallingAE, association.CalledAE);
+            LogAdapter.Logger.Error("Unexpectedly received OnReceiveResponseMessage callback from {0} to {1}.  Aborting association.", association.CallingAE, association.CalledAE);
             server.SendAssociateAbort(DicomAbortSource.ServiceUser, DicomAbortReason.UnexpectedPDU);
         }
         
         void IDicomServerHandler.OnReceiveReleaseRequest(DicomServer server, ServerAssociationParameters association)
         {
-            LogAdapter.Logger.InfoWithFormat("Received association release request from {0} to {1}.", association.CallingAE, association.CalledAE);
+            LogAdapter.Logger.Info("Received association release request from {0} to {1}.", association.CallingAE, association.CalledAE);
 			if (_complete != null)
 				_complete(_context, association, _instances);
             OnAssociationRelease(server, association);
@@ -237,7 +235,7 @@ namespace UIH.Dicom.Network.Scp
 
         void IDicomServerHandler.OnReceiveAbort(DicomServer server, ServerAssociationParameters association, DicomAbortSource source, DicomAbortReason reason)
         {
-            LogAdapter.Logger.ErrorWithFormat("Received association abort from {0} to {1}", association.CallingAE, association.CalledAE);
+            LogAdapter.Logger.Error("Received association abort from {0} to {1}", association.CallingAE, association.CalledAE);
 			if (_complete != null)
 				_complete(_context, association, _instances);
             OnAssociationAbort(server, association);
@@ -246,7 +244,7 @@ namespace UIH.Dicom.Network.Scp
 
         void IDicomServerHandler.OnNetworkError(DicomServer server, ServerAssociationParameters association, Exception e)
         {
-            LogAdapter.Logger.ErrorWithFormat("Unexpectedly received OnNetworkError callback from {0} to {1}.  Aborting association.", association.CallingAE, association.CalledAE);
+            LogAdapter.Logger.Error("Unexpectedly received OnNetworkError callback from {0} to {1}.  Aborting association.", association.CallingAE, association.CalledAE);
 			if (_complete != null)
 				_complete(_context, association, _instances);
             OnNetworkError(server, association);

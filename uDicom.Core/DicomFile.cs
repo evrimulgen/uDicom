@@ -465,7 +465,7 @@ namespace UIH.Dicom
                     DicomReadStatus stat = dsr.Read(stopTag, options);
                     if (stat == DicomReadStatus.UnknownError)
                     {
-                        LogAdapter.Logger.ErrorWithFormat("Unexpected error when reading file: {0}", Filename);
+                        LogAdapter.Logger.Error("Unexpected error when reading file: {0}", Filename);
                         throw new DicomException("Unexpected read error with file: " + Filename);
                     }
 
@@ -500,7 +500,7 @@ namespace UIH.Dicom
                 dsr.Read(new DicomTag(0x0002FFFF, "Bogus Tag", "BogusTag", DicomVr.UNvr, false, 1, 1, false), options);
             if (readStat != DicomReadStatus.Success)
             {
-                LogAdapter.Logger.ErrorWithFormat("Unexpected error when reading file Meta info for file: {0}", Filename);
+                LogAdapter.Logger.Error("Unexpected error when reading file Meta info for file: {0}", Filename);
                 throw new DicomException("Unexpected failure reading file Meta info for file: " + Filename);
             }
             dsr.Dataset = DataSet;
@@ -508,13 +508,13 @@ namespace UIH.Dicom
             readStat = dsr.Read(stopTag, options);
             if (readStat == DicomReadStatus.NeedMoreData)
             {
-                LogAdapter.Logger.ErrorWithFormat("Unexpected error ({0}) when reading file at offset {2}: {1}",
+                LogAdapter.Logger.Error("Unexpected error ({0}) when reading file at offset {2}: {1}",
                     readStat, Filename, dsr.BytesRead);
                 return;
             }
             if (readStat != DicomReadStatus.Success)
             {
-                LogAdapter.Logger.ErrorWithFormat("Unexpected error ({0}) when reading file at offset {2}: {1}", readStat, Filename, dsr.BytesRead);
+                LogAdapter.Logger.Error("Unexpected error ({0}) when reading file at offset {2}: {1}", readStat, Filename, dsr.BytesRead);
                 throw new DicomException("Unexpected failure (" + readStat + ") reading file at offset " + dsr.BytesRead + ": " + Filename);
             }
         }

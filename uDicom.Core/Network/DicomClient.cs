@@ -277,7 +277,7 @@ namespace UIH.Dicom.Network
 
         private void OnClientConnected()
         {
-            if (LogInformation) LogAdapter.Logger.WarnWithFormat("{0} SCU -> Network Connected: {2} {1}", _assoc.CallingAE, InternalSocket.RemoteEndPoint.ToString(), _assoc.CalledAE);
+            if (LogInformation) LogAdapter.Logger.Warn("{0} SCU -> Network Connected: {2} {1}", _assoc.CallingAE, InternalSocket.RemoteEndPoint.ToString(), _assoc.CalledAE);
 
             SendAssociateRequest(_assoc);
         }

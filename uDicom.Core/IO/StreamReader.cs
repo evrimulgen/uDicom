@@ -384,7 +384,7 @@ namespace UIH.Dicom.IO
 						}
 						else
 						{
-                            LogAdapter.Logger.ErrorWithFormat("Encountered unexpected tag in stream: {0}", LastTagRead.ToString());
+                            LogAdapter.Logger.Error("Encountered unexpected tag in stream: {0}", LastTagRead.ToString());
 							// unexpected tag
 							return DicomReadStatus.UnknownError;
 						}
@@ -460,7 +460,7 @@ namespace UIH.Dicom.IO
                             	DicomReadStatus stat = idsr.Read(null, options);
                                 if (stat != DicomReadStatus.Success)
                                 {
-                                    LogAdapter.Logger.ErrorWithFormat("Unexpected parsing error ({0}) when reading sequence attribute: {1}.", stat, rec.Tag.ToString());
+                                    LogAdapter.Logger.Error("Unexpected parsing error ({0}) when reading sequence attribute: {1}.", stat, rec.Tag.ToString());
                                     return stat;
                                 }
                             }
@@ -503,7 +503,7 @@ namespace UIH.Dicom.IO
 								{
 									// To handle this case, we'd have to add a new mechanism to transition the parser to implicit VR parsing,
 									// and then return back to implicit once the parsing of the SQ is complete.
-									LogAdapter.Logger.ErrorWithFormat(
+									LogAdapter.Logger.Error(
 									             "Encountered unknown tag {0}, encoded as undefined length in an Explicit VR transfer syntax at offset {1}.  Unable to parse.",
 									             LastTagRead, _stream.Position);
 									return DicomReadStatus.UnknownError;

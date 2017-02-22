@@ -191,12 +191,12 @@ namespace UIH.Dicom.Network.Scu
 						this.ReleaseConnection(client);
 						return;
 					case PrinterStatus.Warning:
-						LogAdapter.Logger.Warning(logMessage);
+						LogAdapter.Logger.Warn(logMessage);
 						break;
 					case PrinterStatus.None:
 					case PrinterStatus.Normal:
 					default:
-						LogAdapter.Logger.Warning(logMessage);
+						LogAdapter.Logger.Warn(logMessage);
 						break;
 				}
 
@@ -234,7 +234,7 @@ namespace UIH.Dicom.Network.Scu
 						return;
 
 					case DicomState.Warning:
-						LogAdapter.Logger.Warning(string.Format("{0} status received in Print Scu response message", message.Status.Status));
+						LogAdapter.Logger.Warn(string.Format("{0} status received in Print Scu response message", message.Status.Status));
 						break;
 
 					case DicomState.Success:
@@ -321,7 +321,7 @@ namespace UIH.Dicom.Network.Scu
 			this.Client.SendNCreateRequest(null, GetPresentationContextId(this.AssociationParameters), this.Client.NextMessageID(), message, DicomUids.BasicFilmSession);
 			_eventObject = EventObject.FilmSession;
 
-			LogAdapter.Logger.Warning("Creating film session...");
+			LogAdapter.Logger.Warn("Creating film session...");
 		}
 
 		protected void CreateFilmBox(FilmSession filmSession, FilmBox filmBox)
@@ -337,7 +337,7 @@ namespace UIH.Dicom.Network.Scu
 			var message = new DicomMessage(null, (DicomDataset)filmBox.DicomElementProvider);
 			this.Client.SendNCreateRequest(null, GetPresentationContextId(this.AssociationParameters), this.Client.NextMessageID(), message, DicomUids.BasicFilmBoxSOP);
 			_eventObject = EventObject.FilmBox;
-			LogAdapter.Logger.Warning("Creating film box...");
+			LogAdapter.Logger.Warn("Creating film box...");
 		}
 
 		protected void SetImageBox(ImageBox imageBox)
@@ -350,7 +350,7 @@ namespace UIH.Dicom.Network.Scu
 
 			this.Client.SendNSetRequest(GetPresentationContextId(this.AssociationParameters), this.Client.NextMessageID(), message);
 			_eventObject = EventObject.ImageBox;
-            LogAdapter.Logger.WarnWithFormat("Setting image box {0}...", _numberOfImageBoxesSent);
+            LogAdapter.Logger.Warn("Setting image box {0}...", _numberOfImageBoxesSent);
 		}
 
 		protected void PrintFilmBox(FilmBox filmBox)
@@ -364,7 +364,7 @@ namespace UIH.Dicom.Network.Scu
 
 			this.Client.SendNActionRequest(GetPresentationContextId(this.AssociationParameters), this.Client.NextMessageID(), message);
 			_eventObject = EventObject.FilmBox;
-			LogAdapter.Logger.Warning("Printing film box...");
+			LogAdapter.Logger.Warn("Printing film box...");
 		}
 
 		protected void DeleteFilmBox(FilmBox filmBox)
@@ -377,7 +377,7 @@ namespace UIH.Dicom.Network.Scu
 
 			this.Client.SendNDeleteRequest(GetPresentationContextId(this.AssociationParameters), this.Client.NextMessageID(), message);
 			_eventObject = EventObject.FilmBox;
-			LogAdapter.Logger.Warning("Deleting film box...");
+			LogAdapter.Logger.Warn("Deleting film box...");
 		}
 
 		protected void DeleteFilmSession(FilmSession filmSession)
@@ -390,7 +390,7 @@ namespace UIH.Dicom.Network.Scu
 
 			this.Client.SendNDeleteRequest(GetPresentationContextId(this.AssociationParameters), this.Client.NextMessageID(), message);
 			_eventObject = EventObject.FilmSession;
-			LogAdapter.Logger.Warning("Deleting film session...");
+			LogAdapter.Logger.Warn("Deleting film session...");
 		}
 
 		private byte GetPresentationContextId(AssociationParameters association)

@@ -712,7 +712,7 @@ namespace UIH.Dicom
                     }
                     else
                     {
-                        LogAdapter.Logger.InfoWithFormat(
+                        LogAdapter.Logger.Info(
 							"Cannot find dicomTag {0} for record type {1}", dicomTag2 != null ? dicomTag2.ToString() : dicomTag.ToString(), recordType);
                     }
                 }

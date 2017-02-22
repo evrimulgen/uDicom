@@ -319,7 +319,7 @@ namespace UIH.Dicom.Network
                     OnNetworkError(e, true);
                     break;
                 case DicomAssociationState.Sta6_AssociationEstablished:
-                    LogAdapter.Logger.ErrorWithFormat("Aborting association from {0} to {1}", _assoc.CallingAE, _assoc.CalledAE);
+                    LogAdapter.Logger.Error("Aborting association from {0} to {1}", _assoc.CallingAE, _assoc.CalledAE);
                     SendAssociateAbort(DicomAbortSource.ServiceProvider, DicomAbortReason.NotSpecified);
                     OnNetworkError(e, false);
                     break;
@@ -759,7 +759,7 @@ namespace UIH.Dicom.Network
             }
             else
             {
-                LogAdapter.Logger.ErrorWithFormat("Unexpected state for association abort, closing connection from {0} to {1}",
+                LogAdapter.Logger.Error("Unexpected state for association abort, closing connection from {0} to {1}",
                                      _assoc.CallingAE, _assoc.CalledAE);
 
 				OnNetworkError(null, true);
@@ -864,7 +864,7 @@ namespace UIH.Dicom.Network
         /// <param name="messageID">The messageID to use.</param>
         public void SendCEchoRequest(byte presentationID, ushort messageID)
         {
-            LogAdapter.Logger.InfoWithFormat("Sending C Echo request, pres ID: {0}, messageID = {1}", presentationID, messageID);
+            LogAdapter.Logger.Info("Sending C Echo request, pres ID: {0}, messageID = {1}", presentationID, messageID);
             var msg = new DicomMessage
                                	{
                                		MessageId = messageID,
@@ -1427,7 +1427,7 @@ namespace UIH.Dicom.Network
                         if (!success)
                         {
                             // Start the Abort process, not much else we can do
-                            LogAdapter.Logger.ErrorWithFormat(
+                            LogAdapter.Logger.Error(
                                 "Unexpected error processing PDU.  Aborting Association from {0} to {1}",
                                 _assoc.CallingAE, _assoc.CalledAE);
                             SendAssociateAbort(DicomAbortSource.ServiceProvider, DicomAbortReason.InvalidPDUParameter);
@@ -1468,7 +1468,7 @@ namespace UIH.Dicom.Network
                         			NetworkClosed(errorMessage);
                         		break;
                         	default:
-                                LogAdapter.Logger.ErrorWithFormat("DIMSE timeout in unexpected state: {0}", State.ToString());
+                                LogAdapter.Logger.Error("DIMSE timeout in unexpected state: {0}", State.ToString());
                         		OnDimseTimeout();
 								ResetDimseTimeout();
                         		break;
@@ -1732,7 +1732,7 @@ namespace UIH.Dicom.Network
                         {
                             if (stat == DicomReadStatus.NeedMoreData)
                             {
-                                LogAdapter.Logger.ErrorWithFormat(
+                                LogAdapter.Logger.Error(
                             	             "Unexpected end of StreamReader.  More data needed ({0} bytes, last tag read {1}) after reading last PDV fragment.",
 											 _dimse.CommandReader.BytesNeeded, _dimse.CommandReader.LastTagRead.ToString());
                                 return false;
@@ -1803,7 +1803,7 @@ namespace UIH.Dicom.Network
                         {
                             if (stat == DicomReadStatus.NeedMoreData)
                             {
-                                LogAdapter.Logger.ErrorWithFormat(
+                                LogAdapter.Logger.Error(
                             	             "Unexpected end of StreamReader.  More data needed ({0} bytes, last tag read {1}) after reading last PDV fragment.",
 											 _dimse.DatasetReader.BytesNeeded, _dimse.DatasetReader.LastTagRead.ToString());
                                 return false;
@@ -1990,13 +1990,13 @@ namespace UIH.Dicom.Network
 
         private static void LogSendReceive(bool receive, DicomDataset metaInfo, DicomDataset dataSet)
         {
-			if (LogAdapter.Logger.IsLogLevelEnabled(LogLevel.Debug))
-			{
-				string receiveOrSend = receive ? "Receive" : "Send";
-				LogAdapter.Logger.Log(LogLevel.Debug,
-				             receiveOrSend + " MetaInfo:\r\n" + (metaInfo != null ? metaInfo.DumpString : String.Empty));
-				LogAdapter.Logger.Warning(receiveOrSend + " DataSet:\r\n" + (dataSet != null ? dataSet.DumpString : String.Empty));
-			}
+            // TODO How to dump Send Receive
+			//if (LogAdapter.Logger.IsLogLevelEnabled(LogLevel.Debug))
+			//{
+			//	string receiveOrSend = receive ? "Receive" : "Send";
+			//	LogAdapter.Logger.Info(receiveOrSend + " MetaInfo:\r\n" + (metaInfo != null ? metaInfo.DumpString : String.Empty));
+			//	LogAdapter.Logger.Warn(receiveOrSend + " DataSet:\r\n" + (dataSet != null ? dataSet.DumpString : String.Empty));
+			//}
 		}
 		#endregion		
     }

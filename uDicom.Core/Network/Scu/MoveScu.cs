@@ -162,7 +162,7 @@ namespace UIH.Dicom.Network.Scu
         public override void Cancel()
         {
             if (LogInformation)
-                LogAdapter.Logger.InfoWithFormat("Canceling Scu connected from {0} to {1}:{2}:{3}...", ClientAETitle, RemoteAE,
+                LogAdapter.Logger.Info("Canceling Scu connected from {0} to {1}:{2}:{3}...", ClientAETitle, RemoteAE,
                              RemoteHost, RemotePort);
 
             if (!_cancelRequested)
@@ -188,7 +188,7 @@ namespace UIH.Dicom.Network.Scu
             _warningSubOperations = 0;
 
 			if (LogInformation)
-                LogAdapter.Logger.InfoWithFormat("Preparing to connect to AE {0} on host {1} on port {2} for move request to {3}.",
+                LogAdapter.Logger.Info("Preparing to connect to AE {0} on host {1} on port {2} for move request to {3}.",
 				             RemoteAE, RemoteHost, RemotePort, _destinationAe);
 
             try
@@ -421,18 +421,18 @@ namespace UIH.Dicom.Network.Scu
 				{
 					if (status.Status == DicomState.Cancel)
 					{
-                        if (LogInformation) LogAdapter.Logger.InfoWithFormat("Cancel status received in Move Scu: {0}", status);
+                        if (LogInformation) LogAdapter.Logger.Info("Cancel status received in Move Scu: {0}", status);
 						Status = ScuOperationStatus.Canceled;
 					}
                     else if (status.Status == DicomState.Failure)
 					{
-                        LogAdapter.Logger.ErrorWithFormat("Failure status received in Move Scu: {0}", status);
+                        LogAdapter.Logger.Error("Failure status received in Move Scu: {0}", status);
 						Status = ScuOperationStatus.Failed;
 						FailureDescription = status.ToString();
 					}
                     else if (status.Status == DicomState.Warning)
 					{
-                        LogAdapter.Logger.WarnWithFormat("Warning status received in Move Scu: {0}", status);
+                        LogAdapter.Logger.Warn("Warning status received in Move Scu: {0}", status);
 					}
 					else if (Status == ScuOperationStatus.Canceled)
 					{
@@ -471,7 +471,7 @@ namespace UIH.Dicom.Network.Scu
 				LogAdapter.Logger.TraceException(ex);
 			}
 
-            LogAdapter.Logger.WarnWithFormat("Completed aborting connection (after DIMSE timeout) from {0} to {1}",
+            LogAdapter.Logger.Warn("Completed aborting connection (after DIMSE timeout) from {0} to {1}",
 			             association.CallingAE, association.CalledAE);
 			ProgressEvent.Set();
 		}

@@ -32,7 +32,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
@@ -127,6 +126,7 @@
     <Compile Include="IDicomCharacterSetParser.cs" />
     <Compile Include="IDicomElementProvider.cs" />
     <Compile Include="Interfaces.cs" />
+    <Compile Include="IoC.cs" />
     <Compile Include="Iod\AnatomicalOrientationType.cs" />
     <Compile Include="Iod\CIELabColor.cs" />
     <Compile Include="Iod\ComponentGroup.cs" />
@@ -325,6 +325,7 @@
     <Compile Include="IO\IByteBuffer.cs" />
     <Compile Include="IO\StreamReader.cs" />
     <Compile Include="IO\StreamWriter.cs" />
+    <Compile Include="Log\ILog.cs" />
     <Compile Include="Log\Logger.cs" />
     <Compile Include="Log\LoggerAdatper.cs" />
     <Compile Include="Log\LogManager.cs" />

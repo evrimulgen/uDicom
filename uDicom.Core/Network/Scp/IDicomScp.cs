@@ -41,10 +41,10 @@ namespace UIH.Dicom.Network.Scp
         /// </summary>
         /// <param name="server">The <see cref="DicomServer"/> instance for the association.</param>
         /// <param name="association">Parameters for the association.</param>
-        /// <param name="presentationID">The presentation context for the association.</param>
+        /// <param name="presentationId">The presentation context for the association.</param>
         /// <param name="message">The message to process.</param>
         /// <returns>true on success, false on failure.</returns>
-        bool OnReceiveRequest(DicomServer server, ServerAssociationParameters association, byte presentationID, DicomMessage message);
+        bool OnReceiveRequest(DicomServer server, ServerAssociationParameters association, byte presentationId, DicomMessage message);
 
         void AssociationRelease(DicomServer server, AssociationParameters assoc);
         void AssociationAbort(DicomServer server, AssociationParameters assoc);
