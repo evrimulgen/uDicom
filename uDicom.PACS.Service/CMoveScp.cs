@@ -16,7 +16,7 @@ using UIH.Dicom.Network.Scu;
 
 namespace UIH.Dicom.PACS.Service
 {
-    [Export(typeof(IDicomScp<DicomScpContext>))]
+    [Export(typeof(IDicomScp<DicomScpContext>)), PartCreationPolicy(CreationPolicy.NonShared)]
     public class CMoveScp : BaseScp
     {
         #region Private members

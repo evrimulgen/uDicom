@@ -12,7 +12,7 @@ namespace UIH.Dicom.PACS.Service
     public class DicomScpContext
     {
         #region Constructors
-        public DicomScpContext(ServerPartition partition)
+        public DicomScpContext(IServerPartition partition)
         {
             Partition = partition;
         }
@@ -20,7 +20,7 @@ namespace UIH.Dicom.PACS.Service
 
         #region Properties
 
-        public ServerPartition Partition { get; set; }
+        public IServerPartition Partition { get; set; }
 
         #endregion
     }

@@ -21,7 +21,7 @@ namespace UIH.Dicom.PACS.Service
         /// </summary>
         /// <remarks>
         /// This method primarily checks the remote AE title to see if it is a valid device that can 
-        /// connect to the partition.
+        /// connect to the destAe.
         /// </remarks>
         /// <param name="context">Generic parameter passed in, is a DicomScpParameters instance.</param>
         /// <param name="assocParms">The association parameters.</param>
@@ -31,7 +31,7 @@ namespace UIH.Dicom.PACS.Service
         public static bool Verify(DicomScpContext context, ServerAssociationParameters assocParms, out DicomRejectResult result, out DicomRejectReason reason)
         {
             bool isNew;
-            Device device = IoC.Get<IDeviceManager>().LookupDevice(assocParms, out isNew);
+            IDevice device = IoC.Get<IDeviceManager>().LookupDevice(context.Partition, assocParms, out isNew);
 
             if (device == null)
             {
@@ -47,9 +47,9 @@ namespace UIH.Dicom.PACS.Service
                 return false;
             }
 
-            if (device.Enable == false)
+            if (device.Enabled == false)
             {
-                Log.Logger.Error("Rejecting association from {0} to {1}.  Device is disabled.",
+                Log.Logger.Error("Rejecting association from {0} to {1}.  IDevice is disabled.",
                              assocParms.CallingAE, assocParms.CalledAE);
 
                 reason = DicomRejectReason.CallingAENotRecognized;

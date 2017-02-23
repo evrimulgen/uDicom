@@ -15,7 +15,7 @@ using UIH.Pacs.Services.Dicom;
 
 namespace UIH.Dicom.PACS.Service
 {
-    [Export(typeof (IDicomScp<DicomScpContext>))]
+    [Export(typeof (IDicomScp<DicomScpContext>)), PartCreationPolicy(CreationPolicy.NonShared)]
     public class CEchoScp : BaseScp
     {
         #region Private members

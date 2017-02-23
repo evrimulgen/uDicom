@@ -19,7 +19,7 @@ using UIH.Dicom.PACS.Service.Model;
 
 namespace UIH.Dicom.PACS.Service
 {
-    [Export(typeof (IDicomScp<DicomScpContext>))]
+    [Export(typeof (IDicomScp<DicomScpContext>)), PartCreationPolicy(CreationPolicy.NonShared)]
     public class CFindScp : BaseScp
     {
         #region Private members
@@ -59,7 +59,7 @@ namespace UIH.Dicom.PACS.Service
 
 		/// <summary>
         /// Public default constructor.  Implements the Find and Move services for 
-        /// PatientData Root and Study Root queries.
+        /// IPatientData Root and Study Root queries.
         /// </summary>
         public CFindScp()
 		{
@@ -95,7 +95,7 @@ namespace UIH.Dicom.PACS.Service
 
             try
             {
-                query.OnPatientQuery(message, delegate(PatientData row)
+                query.OnPatientQuery(message, delegate(IPatientData row)
                 {
                     if (CancelReceived)
                         throw new DicomException("DICOM C-Cancel Received");
@@ -161,7 +161,7 @@ namespace UIH.Dicom.PACS.Service
 
             try
             {
-                query.OnStudyQuery(message, delegate (StudyData row)
+                query.OnStudyQuery(message, delegate (IStudyData row)
                 {
                     if (CancelReceived)
                         throw new DicomException("DICOM C-Cancel Received");
@@ -227,7 +227,7 @@ namespace UIH.Dicom.PACS.Service
 
             try
             {
-                query.OnSeriesQuery(message, delegate (SeriesData row)
+                query.OnSeriesQuery(message, delegate (ISeriesData row)
                 {
                     if (CancelReceived)
                         throw new DicomException("DICOM C-Cancel Received");
@@ -290,8 +290,8 @@ namespace UIH.Dicom.PACS.Service
             var matchingTagList = new List<uint>();
 
             DicomDataset data = message.DataSet;
-            string studyInstanceUid = data[DicomTags.StudyInstanceUid].GetString(0, String.Empty);
-            string seriesInstanceUid = data[DicomTags.SeriesInstanceUid].GetString(0, String.Empty);
+            string studyInstanceUid = data[DicomTags.StudyUid].GetString(0, String.Empty);
+            string seriesInstanceUid = data[DicomTags.SeriesUid].GetString(0, String.Empty);
         }
         */
         
@@ -311,7 +311,7 @@ namespace UIH.Dicom.PACS.Service
             }
         }
 
-        private void PopulatePatient(DicomMessageBase response, IEnumerable<DicomTag> tagList, PatientData row)
+        private void PopulatePatient(DicomMessageBase response, IEnumerable<DicomTag> tagList, IPatientData row)
         {
             DicomDataset dataSet = response.DataSet;
 
@@ -324,8 +324,8 @@ namespace UIH.Dicom.PACS.Service
                 dataSet.SpecificCharacterSet = characterSet;
             }
 
-            IList<StudyData> relatedStudies = row.LoadRelatedStudies();
-            StudyData studyData = null;
+            IList<IStudyData> relatedStudies = row.LoadRelatedStudies();
+            IStudyData studyData = null;
             if (relatedStudies.Count > 0)
                 studyData = relatedStudies.First();
 
@@ -336,7 +336,7 @@ namespace UIH.Dicom.PACS.Service
                     switch (tag.TagValue)
                     {
                         case DicomTags.PatientsName:
-                            dataSet[DicomTags.PatientsName].SetStringValue(row.PatientsName);
+                            dataSet[DicomTags.PatientsName].SetStringValue(row.PatientName);
                             break;
                         case DicomTags.PatientId:
                             dataSet[DicomTags.PatientId].SetStringValue(row.PatientId);
@@ -345,14 +345,14 @@ namespace UIH.Dicom.PACS.Service
                             dataSet[DicomTags.IssuerOfPatientId].SetStringValue(row.IssuerOfPatientId);
                             break;
                         case DicomTags.NumberOfPatientRelatedStudies:
-                            dataSet[DicomTags.NumberOfPatientRelatedStudies].AppendInt32(row.NumberOfPatientRelatedStudies);
+                            dataSet[DicomTags.NumberOfPatientRelatedStudies].AppendInt32(row.NumberOfRelatedStudies);
                             break;
                         case DicomTags.NumberOfPatientRelatedSeries:
-                            dataSet[DicomTags.NumberOfPatientRelatedSeries].AppendInt32(row.NumberOfPatientRelatedSeries);
+                            dataSet[DicomTags.NumberOfPatientRelatedSeries].AppendInt32(row.NumberOfRelatedSeries);
                             break;
                         case DicomTags.NumberOfPatientRelatedInstances:
                             dataSet[DicomTags.NumberOfPatientRelatedInstances].AppendInt32(
-                                row.NumberOfPatientRelatedInstances);
+                                row.NumberOfRelatedInstances);
                             break;
                         case DicomTags.QueryRetrieveLevel:
                             dataSet[DicomTags.QueryRetrieveLevel].SetStringValue("PATIENT");
@@ -361,13 +361,13 @@ namespace UIH.Dicom.PACS.Service
                             if (studyData == null)
                                 dataSet[DicomTags.PatientsSex].SetNullValue();
                             else
-                                dataSet[DicomTags.PatientsSex].SetStringValue(studyData.PatientsSex);
+                                dataSet[DicomTags.PatientsSex].SetStringValue(studyData.PatientSex);
                             break;
                         case DicomTags.PatientsBirthDate:
                             if (studyData == null)
                                 dataSet[DicomTags.PatientsBirthDate].SetNullValue();
                             else
-                                dataSet[DicomTags.PatientsBirthDate].SetStringValue(studyData.PatientsBirthDate);
+                                dataSet[DicomTags.PatientsBirthDate].SetStringValue(studyData.PatientBirthday);
                             break;
 
                         // Meta tags that should have not been in the RQ, but we've already set
@@ -395,7 +395,7 @@ namespace UIH.Dicom.PACS.Service
 
         }
 
-        private void PopulateStudy(DicomMessageBase response, IEnumerable<DicomTag> tagList, StudyData row)
+        private void PopulateStudy(DicomMessageBase response, IEnumerable<DicomTag> tagList, IStudyData row)
         {
             DicomDataset dataSet = response.DataSet;
 
@@ -417,22 +417,22 @@ namespace UIH.Dicom.PACS.Service
                     switch (tag.TagValue)
                     {
                         case DicomTags.StudyInstanceUid:
-                            dataSet[DicomTags.StudyInstanceUid].SetStringValue(row.StudyInstanceUid);
+                            dataSet[DicomTags.StudyInstanceUid].SetStringValue(row.StudyUid);
                             break;
                         case DicomTags.PatientsName:
-                            dataSet[DicomTags.PatientsName].SetStringValue(row.PatientsName);
+                            dataSet[DicomTags.PatientsName].SetStringValue(row.PatientName);
                             break;
                         case DicomTags.PatientId:
                             dataSet[DicomTags.PatientId].SetStringValue(row.PatientId);
                             break;
                         case DicomTags.PatientsBirthDate:
-                            dataSet[DicomTags.PatientsBirthDate].SetStringValue(row.PatientsBirthDate);
+                            dataSet[DicomTags.PatientsBirthDate].SetStringValue(row.PatientBirthday);
                             break;
                         case DicomTags.PatientsAge:
-                            dataSet[DicomTags.PatientsAge].SetStringValue(row.PatientsAge);
+                            dataSet[DicomTags.PatientsAge].SetStringValue(row.PatientAge);
                             break;
                         case DicomTags.PatientsSex:
-                            dataSet[DicomTags.PatientsSex].SetStringValue(row.PatientsSex);
+                            dataSet[DicomTags.PatientsSex].SetStringValue(row.PatientSex);
                             break;
                         case DicomTags.StudyDate:
                             dataSet[DicomTags.StudyDate].SetStringValue(row.StudyDate);
@@ -450,14 +450,14 @@ namespace UIH.Dicom.PACS.Service
                             dataSet[DicomTags.StudyDescription].SetStringValue(row.StudyDescription);
                             break;
                         case DicomTags.ReferringPhysiciansName:
-                            dataSet[DicomTags.ReferringPhysiciansName].SetStringValue(row.ReferringPhysiciansName);
+                            dataSet[DicomTags.ReferringPhysiciansName].SetStringValue(row.RefPhysician);
                             break;
                         case DicomTags.NumberOfStudyRelatedSeries:
-                            dataSet[DicomTags.NumberOfStudyRelatedSeries].AppendInt32(row.NumberOfStudyRelatedSeries);
+                            dataSet[DicomTags.NumberOfStudyRelatedSeries].AppendInt32(row.NumberOfRelatedSeries);
                             break;
                         case DicomTags.NumberOfStudyRelatedInstances:
                             dataSet[DicomTags.NumberOfStudyRelatedInstances].AppendInt32(
-                                row.NumberOfStudyRelatedInstances);
+                                row.NumberOfRelatedImage);
                             break;
                         case DicomTags.ModalitiesInStudy:
                             //LoadModalitiesInStudy(read, response, row.Key);
@@ -488,7 +488,7 @@ namespace UIH.Dicom.PACS.Service
         }
 
         private void PopulateSeries(DicomMessageBase request, DicomMessageBase response, IEnumerable<DicomTag> tagList,
-                                    SeriesData row)
+                                    ISeriesData row)
         {
             DicomDataset dataSet = response.DataSet;
 
@@ -516,7 +516,7 @@ namespace UIH.Dicom.PACS.Service
                                 request.DataSet[DicomTags.StudyInstanceUid].ToString());
                             break;
                         case DicomTags.SeriesInstanceUid:
-                            dataSet[DicomTags.SeriesInstanceUid].SetStringValue(row.SeriesInstanceUid);
+                            dataSet[DicomTags.SeriesInstanceUid].SetStringValue(row.SeriesUid);
                             break;
                         case DicomTags.Modality:
                             dataSet[DicomTags.Modality].SetStringValue(row.Modality);
@@ -536,7 +536,7 @@ namespace UIH.Dicom.PACS.Service
                                 row.PerformedProcedureStepStartTime);
                             break;
                         case DicomTags.NumberOfSeriesRelatedInstances:
-                            dataSet[DicomTags.NumberOfSeriesRelatedInstances].AppendInt32(row.NumberOfSeriesRelatedInstances);
+                            dataSet[DicomTags.NumberOfSeriesRelatedInstances].AppendInt32(row.NumberOfRelatedImage);
                             break;
                         case DicomTags.RequestAttributesSequence:
                             //LoadRequestAttributes(read, response, row);
@@ -573,7 +573,7 @@ namespace UIH.Dicom.PACS.Service
         {
             DicomDataset dataSet = response.DataSet;
 
-            dataSet[DicomTags.RetrieveAeTitle].SetStringValue(Partition.AeTitle);
+            dataSet[DicomTags.RetrieveAeTitle].SetStringValue(destAe.AeTitle);
             dataSet[DicomTags.InstanceAvailability].SetStringValue("ONLINE");
 
             DicomDataset sourceDataSet = theInstanceStream.Collection;
@@ -599,13 +599,13 @@ namespace UIH.Dicom.PACS.Service
                         case DicomTags.PatientId:
                             dataSet[DicomTags.PatientId].SetStringValue(request.DataSet[DicomTags.PatientId].ToString());
                             break;
-                        case DicomTags.StudyInstanceUid:
-                            dataSet[DicomTags.StudyInstanceUid].SetStringValue(
-                                request.DataSet[DicomTags.StudyInstanceUid].ToString());
+                        case DicomTags.StudyUid:
+                            dataSet[DicomTags.StudyUid].SetStringValue(
+                                request.DataSet[DicomTags.StudyUid].ToString());
                             break;
-                        case DicomTags.SeriesInstanceUid:
-                            dataSet[DicomTags.SeriesInstanceUid].SetStringValue(
-                                request.DataSet[DicomTags.SeriesInstanceUid].ToString());
+                        case DicomTags.SeriesUid:
+                            dataSet[DicomTags.SeriesUid].SetStringValue(
+                                request.DataSet[DicomTags.SeriesUid].ToString());
                             break;
                         case DicomTags.QueryRetrieveLevel:
                             dataSet[DicomTags.QueryRetrieveLevel].SetStringValue("IMAGE");
@@ -806,7 +806,7 @@ namespace UIH.Dicom.PACS.Service
                     return true;
                 } */
 
-                Log.Logger.Error("Unexpected PatientData Root Query/Retrieve level: {0}", level);
+                Log.Logger.Error("Unexpected IPatientData Root Query/Retrieve level: {0}", level);
 
                 server.SendCFindResponse(presentationId, message.MessageId, new DicomMessage(),
                                          DicomStatuses.QueryRetrieveIdentifierDoesNotMatchSOPClass);

@@ -13,18 +13,18 @@ namespace UIH.Dicom.PACS.Service
     {
         #region Protected Members
 
-        private DicomScpContext _context;
+        protected DicomScpContext _context;
 
         #endregion
 
         #region Properties
 
-        protected ServerPartition Partition
+        protected IServerPartition Partition
         {
             get { return _context.Partition; }
         }
 
-        protected Device Device { get; set; }
+        protected IDevice Device { get; set; }
 
         #endregion
 
@@ -36,7 +36,7 @@ namespace UIH.Dicom.PACS.Service
             bool isNew;
 
             var dm = IoC.Get<IDeviceManager>();
-            Device = dm.LookupDevice(association, out isNew);
+            Device = dm.LookupDevice(_context.Partition, association, out isNew);
 
             var result = OnVerifyAssociation(association, pcid);
             if(result != DicomPresContextResult.Accept)
@@ -57,20 +57,18 @@ namespace UIH.Dicom.PACS.Service
             throw new NotImplementedException("The method must be implement");
         }
 
-        public void AssociationRelease(DicomServer server, AssociationParameters assoc)
+        public virtual IDicomFilestreamHandler OnStartFilestream(DicomServer server, ServerAssociationParameters association,
+                                                                 byte presentationId, DicomMessage message)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
-        public void AssociationAbort(DicomServer server, AssociationParameters assoc)
+        public virtual bool ReceiveMessageAsFileStream(DicomServer server, ServerAssociationParameters association, byte presentationId,
+                                               DicomMessage message)
         {
-            throw new NotImplementedException();
+            return false;
         }
 
-        public void OnNetworkError(DicomServer server, AssociationParameters assoc)
-        {
-            throw new NotImplementedException();
-        }
 
         public virtual IList<SupportedSop> GetSupportedSopClasses()
         {
@@ -82,9 +80,9 @@ namespace UIH.Dicom.PACS.Service
             _context = context;
         }
 
-        public void Cleanup()
+        public virtual void Cleanup()
         {
-            throw new NotImplementedException();
+            
         }
     }
 }
