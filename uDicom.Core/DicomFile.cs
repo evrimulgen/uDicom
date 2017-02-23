@@ -22,6 +22,8 @@
 using System;
 using System.IO;
 using System.Text;
+using ClearCanvas.Dicom.IO;
+using UIH.Dicom.Common;
 using UIH.Dicom.IO;
 using UIH.Dicom.Log;
 
@@ -36,11 +38,12 @@ namespace UIH.Dicom
     /// <see cref="DicomDataset"/> instances for the Meta Info (group 0x0002 attributes) and Data Set. 
     /// </para>
     /// </remarks>
-    public class DicomFile : DicomMessageBase, IComparable<DicomFile>
+	public class DicomFile : DicomMessageBase
     {
         #region Private Members
 
-        private String _filename = String.Empty;
+		private String _filename = String.Empty;
+		private DicomStreamOpener _streamOpener;
 
         #endregion
 
@@ -147,17 +150,31 @@ namespace UIH.Dicom
 
         #region Properties
 
-        /// <summary>
-        /// The filename of the file.
-        /// </summary>
-        /// <remarks>
-        /// This property sets/gets the filename associated with the file.
-        /// </remarks>
-        public String Filename
-        {
-            get { return _filename; }
-            set { _filename = value; }
-        }
+		/// <summary>
+		/// Indicates if <see cref="Load"/> has been called on this file.
+		/// </summary>
+		public bool Loaded { get; set; }
+
+		/// <summary>
+		/// The length of the MetaInfo in the file.  This value is only valid if <see cref="DicomFile.Load"/>  or if <see cref="DicomFile.Save"/> has been called on the file.
+		/// </summary>
+		public long MetaInfoFileLength { get; set; }
+
+		/// <summary>
+		/// The filename of the file.
+		/// </summary>
+		/// <remarks>
+		/// This property sets/gets the filename associated with the file.
+		/// </remarks>
+		public String Filename
+		{
+			get { return _filename; }
+			set
+			{
+				_filename = value;
+				_streamOpener = null;
+			}
+		}
 
         /// <summary>
         /// The SOP Class of the file.
@@ -192,13 +209,20 @@ namespace UIH.Dicom
             {
                 String transferSyntaxUid = MetaInfo[DicomTags.TransferSyntaxUid];
 
-                return TransferSyntax.GetTransferSyntax(transferSyntaxUid);
-            }
-            set
-            {
-                MetaInfo[DicomTags.TransferSyntaxUid].SetStringValue(value.UidString);
-            }
-        }
+				return TransferSyntax.GetTransferSyntax(transferSyntaxUid);
+			}
+			set { MetaInfo[DicomTags.TransferSyntaxUid].SetStringValue(value.UidString); }
+		}
+
+		internal DicomStreamOpener StreamOpener
+		{
+			get { return _streamOpener ?? (_streamOpener = (!string.IsNullOrEmpty(_filename) ? DicomStreamOpener.Create(_filename) : null)); }
+			set
+			{
+				_streamOpener = value;
+				_filename = String.Empty;
+			}
+		}
 
         #endregion
 
@@ -400,101 +424,171 @@ namespace UIH.Dicom
         /// <param name="stopTag"></param>
         /// <param name="options">The options to use when reading the file.</param>
 		public void Load(DicomTag stopTag, DicomReadOptions options)
-        {
-        	using (FileStream fs = File.OpenRead(Filename))
-        	{
-        		Load(fs, stopTag, options);
-				fs.Close();
-        	}
-        }
+		{
+			var streamOpener = StreamOpener;
+			Platform.CheckForNullReference(streamOpener, "filename"); // the only reason why stream opener is null here is because filename is empty
+			using (var stream = streamOpener.Open())
+			{
+				LoadCore(stream, streamOpener, stopTag, options);
+				stream.Close();
+			}
+		}
 
-    	/// <summary>
-        /// Load a DICOM file from an input stream.
-        /// </summary>
-        /// <remarks>
-        /// Note:  If the file does not contain DICM encoded in it, and 
-        /// <see cref="Stream.CanSeek"/> is true for <paramref name="iStream"/>, 
-        /// the routine will assume the file is not a Part 10 format file, and is 
-        /// instead encoded as just a DataSet with the transfer syntax set to 
-        /// Implicit VR Little Endian.
-        /// </remarks>
-        /// <param name="iStream">The input stream to read from.</param>
-        public void Load(Stream iStream)
-        {
-            DicomReadOptions options = DicomReadOptions.Default;
-            Load(iStream, null, options);
-        }
+		/// <summary>
+		/// Load a DICOM file from an input stream.
+		/// </summary>
+		/// <remarks>
+		/// Note:  If the file does not contain DICM encoded in it, and 
+		/// <see cref="Stream.CanSeek"/> is true for <paramref name="stream"/>, 
+		/// the routine will assume the file is not a Part 10 format file, and is 
+		/// instead encoded as just a DataSet with the transfer syntax set to 
+		/// Implicit VR Little Endian.
+		/// </remarks>
+		/// <param name="stream">The input stream to read from.</param>
+		public void Load(Stream stream)
+		{
+			const DicomReadOptions options = DicomReadOptions.Default;
+			Platform.CheckForNullReference(stream, "stream");
+			LoadCore(stream, null, null, options);
+		}
 
-        /// <summary>
-        /// Load a DICOM file from an input stream.
-        /// </summary>
-        /// <remarks>
-        /// Note:  If the file does not contain DICM encoded in it, and 
-        /// <see cref="Stream.CanSeek"/> is true for <paramref name="iStream"/>, 
-        /// the routine will assume the file is not a Part 10 format file, and is 
-        /// instead encoded as just a DataSet with the transfer syntax set to 
-        /// Implicit VR Little Endian.
-        /// </remarks>
-        /// <param name="iStream">The input stream to read from.</param>
-        /// <param name="stopTag">The dicom tag to stop the reading at.</param>
-        /// <param name="options">The dicom read options to consider.</param>
-        public void Load(Stream iStream, DicomTag stopTag, DicomReadOptions options)
-        {
-            if (iStream == null) throw new ArgumentNullException("iStream");
+		/// <summary>
+		/// Load a DICOM file from an input stream, given a delegate to open the stream.
+		/// </summary>
+		/// <remarks>
+		/// Note:  If the file does not contain DICM encoded in it, and 
+		/// <see cref="Stream.CanSeek"/> is true for the stream returned by <paramref name="streamOpener"/>, 
+		/// the routine will assume the file is not a Part 10 format file, and is 
+		/// instead encoded as just a DataSet with the transfer syntax set to 
+		/// Implicit VR Little Endian.
+		/// 
+		/// Also, if you are using the <see cref="DicomReadOptions.StorePixelDataReferences"/> option with
+		/// a <see cref="Stream"/> as opposed to simply a file name, you must use this method so that the
+		/// stream can be reopenened internally whenever pixel data is accessed.
+		/// </remarks>
+		/// <param name="streamOpener">A delegate that opens the stream to read from.</param>
+		/// <param name="stopTag">The dicom tag to stop the reading at.</param>
+		/// <param name="options">The dicom read options to consider.</param>
+		public void Load(DicomStreamOpener streamOpener, DicomTag stopTag, DicomReadOptions options)
+		{
+			Platform.CheckForNullReference(streamOpener, "streamOpener");
+			StreamOpener = streamOpener;
+			using (var stream = streamOpener.Open())
+			{
+				LoadCore(stream, streamOpener, stopTag, options);
+				stream.Close();
+			}
+		}
 
-            if (stopTag == null)
-                stopTag = new DicomTag(0xFFFFFFFF, "Bogus Tag", "BogusTag", DicomVr.NONE, false, 1, 1, false);
+		/// <summary>
+		/// Load a DICOM file from an input stream.
+		/// </summary>
+		/// <remarks>
+		/// Note:  If the file does not contain DICM encoded in it, and 
+		/// <see cref="Stream.CanSeek"/> is true for <paramref name="stream"/>, 
+		/// the routine will assume the file is not a Part 10 format file, and is 
+		/// instead encoded as just a DataSet with the transfer syntax set to 
+		/// Implicit VR Little Endian.
+		/// 
+		/// Also, this overload cannot be used directly with <see cref="DicomReadOptions.StorePixelDataReferences"/>,
+		/// as there must be a way to re-open the same stream at a later time. If the option is required,
+		/// use the <see cref="Load(Func{Stream}, DicomTag, DicomReadOptions)">overload</see> that accepts a delegate for opening the stream.
+		/// </remarks>
+		/// <param name="stream">The input stream to read from.</param>
+		/// <param name="stopTag">The dicom tag to stop the reading at.</param>
+		/// <param name="options">The dicom read options to consider.</param>
+		public void Load(Stream stream, DicomTag stopTag, DicomReadOptions options)
+		{
+			Platform.CheckForNullReference(stream, "stream");
+			LoadCore(stream, null, stopTag, options);
+		}
 
-            DicomStreamReader dsr;
+		private void LoadCore(Stream stream, DicomStreamOpener streamOpener, DicomTag stopTag, DicomReadOptions options)
+		{
+			// TODO CR (24 Jan 2014): DICOM stream read only uses tag value, so the real implementation should be the uint overload!
+			if (stopTag == null)
+				stopTag = new DicomTag(0xFFFFFFFF, "Bogus Tag", "BogusTag", DicomVr.NONE, false, 1, 1, false);
 
-            if (iStream.CanSeek)
-            {
-                iStream.Seek(128, SeekOrigin.Begin);
-                if (!FileHasPart10Header(iStream))
-                {
-                    if (!Flags.IsSet(options, DicomReadOptions.ReadNonPart10Files))
-                        throw new DicomException(String.Format("File is not part 10 format file: {0}", Filename));
+			DicomStreamReader dsr;
 
-                    iStream.Seek(0, SeekOrigin.Begin);
-                    dsr = new DicomStreamReader(iStream)
-                              {
-                                  Filename = Filename,
-                                  TransferSyntax = TransferSyntax.ImplicitVrLittleEndian,
-                                  Dataset = DataSet
-                              };
-                    DicomReadStatus stat = dsr.Read(stopTag, options);
-                    if (stat == DicomReadStatus.UnknownError)
-                    {
+			var iStream = stream ?? streamOpener.Open();
+			if (iStream.CanSeek)
+			{
+				iStream.Seek(128, SeekOrigin.Begin);
+				if (!FileHasPart10Header(iStream))
+				{
+					if (!Flags.IsSet(options, DicomReadOptions.ReadNonPart10Files))
+						throw new DicomException(String.Format("File is not part 10 format file: {0}", Filename));
+
+					iStream.Seek(0, SeekOrigin.Begin);
+					dsr = new DicomStreamReader(iStream)
+					      	{
+					      		StreamOpener = streamOpener,
+					      		TransferSyntax = TransferSyntax.ImplicitVrLittleEndian,
+					      		Dataset = DataSet
+					      	};
+					DicomReadStatus stat = dsr.Read(stopTag, options);
+					if (stat != DicomReadStatus.Success)
+					{
                         LogAdapter.Logger.Error("Unexpected error when reading file: {0}", Filename);
-                        throw new DicomException("Unexpected read error with file: " + Filename);
-                    }
+						throw new DicomException("Unexpected read error with file: " + Filename);
+					}
 
-                    TransferSyntax = TransferSyntax.ImplicitVrLittleEndian;
-                    if (DataSet.Contains(DicomTags.SopClassUid))
-                        MediaStorageSopClassUid = DataSet[DicomTags.SopClassUid].ToString();
-                    if (DataSet.Contains(DicomTags.SopInstanceUid))
-                        MediaStorageSopInstanceUid = DataSet[DicomTags.SopInstanceUid].ToString();
-                    return;
-                }
-            }
-            else
-            {
-                // Read the 128 byte header first, then check for DICM
-                iStream.Read(new byte[128], 0, 128);
+					TransferSyntax = TransferSyntax.ImplicitVrLittleEndian;
+					if (DataSet.Contains(DicomTags.SopClassUid))
+						MediaStorageSopClassUid = DataSet[DicomTags.SopClassUid].ToString();
+					if (DataSet.Contains(DicomTags.SopInstanceUid))
+						MediaStorageSopInstanceUid = DataSet[DicomTags.SopInstanceUid].ToString();
 
-                if (!FileHasPart10Header(iStream))
-                {
-                    LogAdapter.Logger.Error("Reading DICOM file from stream, file does not have part 10 format header.");
-                    throw new DicomException("File being read from stream is not a part 10 format file");
-                }
-            }
+					Loaded = true;
+					return;
+				}
+			}
+			else
+			{
+				// TODO CR (04 Apr 2014): this code here is almost identical to the seekable stream above, except that we use the 4CC wrapper
+				// we can combine these two when we trust that the wrapper works in all cases
+				iStream = FourCcReadStream.Create(iStream);
 
-            dsr = new DicomStreamReader(iStream)
-                      {
-                          TransferSyntax = TransferSyntax.ExplicitVrLittleEndian,
-                          Filename = Filename,
-                          Dataset = MetaInfo
-                      };
+				// Read the 128 byte header first, then check for DICM
+				iStream.SeekEx(128, SeekOrigin.Begin);
+
+				if (!FileHasPart10Header(iStream))
+				{
+					if (!Flags.IsSet(options, DicomReadOptions.ReadNonPart10Files))
+						throw new DicomException(String.Format("File is not part 10 format file: {0}", Filename));
+
+					iStream.Seek(0, SeekOrigin.Begin);
+					dsr = new DicomStreamReader(iStream)
+					      	{
+					      		StreamOpener = streamOpener,
+					      		TransferSyntax = TransferSyntax.ImplicitVrLittleEndian,
+					      		Dataset = DataSet
+					      	};
+					DicomReadStatus stat = dsr.Read(stopTag, options);
+					if (stat != DicomReadStatus.Success)
+					{
+						LogAdapter.Logger.Error("Unexpected error when reading file: {0}", Filename);
+						throw new DicomException("Unexpected read error with file: " + Filename);
+					}
+
+					TransferSyntax = TransferSyntax.ImplicitVrLittleEndian;
+					if (DataSet.Contains(DicomTags.SopClassUid))
+						MediaStorageSopClassUid = DataSet[DicomTags.SopClassUid].ToString();
+					if (DataSet.Contains(DicomTags.SopInstanceUid))
+						MediaStorageSopInstanceUid = DataSet[DicomTags.SopInstanceUid].ToString();
+
+					Loaded = true;
+					return;
+				}
+			}
+
+			dsr = new DicomStreamReader(iStream)
+			      	{
+			      		TransferSyntax = TransferSyntax.ExplicitVrLittleEndian,
+			      		StreamOpener = streamOpener,
+			      		Dataset = MetaInfo
+			      	};
 
             DicomReadStatus readStat =
                 dsr.Read(new DicomTag(0x0002FFFF, "Bogus Tag", "BogusTag", DicomVr.UNvr, false, 1, 1, false), options);
@@ -503,21 +597,19 @@ namespace UIH.Dicom
                 LogAdapter.Logger.Error("Unexpected error when reading file Meta info for file: {0}", Filename);
                 throw new DicomException("Unexpected failure reading file Meta info for file: " + Filename);
             }
-            dsr.Dataset = DataSet;
-            dsr.TransferSyntax = TransferSyntax;
-            readStat = dsr.Read(stopTag, options);
-            if (readStat == DicomReadStatus.NeedMoreData)
-            {
-                LogAdapter.Logger.Error("Unexpected error ({0}) when reading file at offset {2}: {1}",
-                    readStat, Filename, dsr.BytesRead);
-                return;
-            }
-            if (readStat != DicomReadStatus.Success)
-            {
+			MetaInfoFileLength = dsr.EndGroupTwo + 128 + 4;
+
+			dsr.Dataset = DataSet;
+			dsr.TransferSyntax = TransferSyntax;
+			readStat = dsr.Read(stopTag, options);
+			if (readStat != DicomReadStatus.Success)
+			{
                 LogAdapter.Logger.Error("Unexpected error ({0}) when reading file at offset {2}: {1}", readStat, Filename, dsr.BytesRead);
-                throw new DicomException("Unexpected failure (" + readStat + ") reading file at offset " + dsr.BytesRead + ": " + Filename);
-            }
-        }
+				throw new DicomException("Unexpected failure (" + readStat + ") reading file at offset " + dsr.BytesRead + ": " + Filename);
+			}
+
+			Loaded = true;
+		}
 
         /// <summary>
         /// Internal routine to see if the file is encoded as a DICOM Part 10 format file.
@@ -621,7 +713,9 @@ namespace UIH.Dicom
             dsw.Write(TransferSyntax.ExplicitVrLittleEndian,
                       MetaInfo, options | DicomWriteOptions.CalculateGroupLengths);
 
-            dsw.Write(TransferSyntax, DataSet, options);
+			MetaInfoFileLength = iStream.Position;
+
+			dsw.Write(TransferSyntax, DataSet, options);
 
 			iStream.Flush();
 
@@ -649,24 +743,131 @@ namespace UIH.Dicom
         }
         #endregion
 
-        public int CompareTo(DicomFile other)
-        {
-            if (other == null || other.DataSet == null)
-            {
-                return 1;
-            }
+		#region FourCcReadStream
 
-            var currentInstanceNumber = this.DataSet[DicomTags.InstanceNumber].GetInt32(0, -1);
+		/// <summary>
+		/// Used to buffer the first 132 bytes of an unseekable DICOM stream, so that we can reset if it turns out to not be a Part 10 file
+		/// </summary>
+		private class FourCcReadStream : Stream
+		{
+			private Stream _realStream;
+			private Stream _prefixStream;
+			private long _position;
 
-            var otherInstanceNumber = other.DataSet[DicomTags.InstanceNumber].GetInt32(0, -1);
+			public static FourCcReadStream Create(Stream realStream)
+			{
+				var prefixBuffer = new byte[132]; // 128 prefix + 4CC
 
-            if (currentInstanceNumber == -1)
-            {
-                return otherInstanceNumber == -1 ? 1 : -1;
-            }
+				var bytesRead = 0;
+				while (bytesRead < 132)
+				{
+					// fill the entire buffer - if Read returns 0, then we encountered an EOF and the stream is definitely not a part 10 file, but might still be valid!
+					var read = realStream.Read(prefixBuffer, bytesRead, prefixBuffer.Length - bytesRead);
+					if (read == 0) break;
+					bytesRead += read;
+				}
 
-            return currentInstanceNumber - otherInstanceNumber >= 0 ? 1 : -1;
+				return new FourCcReadStream(new MemoryStream(prefixBuffer, 0, bytesRead, false), realStream);
+			}
 
-        }
-    }
+			private FourCcReadStream(Stream prefix, Stream realStream)
+			{
+				_prefixStream = prefix;
+				_realStream = realStream;
+				_position = 0;
+			}
+
+			public override void Close()
+			{
+				if (_realStream != null)
+					_realStream.Close();
+
+				if (_prefixStream != null)
+					_prefixStream.Close();
+
+				base.Close();
+			}
+
+			protected override void Dispose(bool disposing)
+			{
+				if (!disposing) return;
+
+				if (_realStream != null)
+				{
+					_realStream.Dispose();
+					_realStream = null;
+				}
+
+				if (_prefixStream != null)
+				{
+					_prefixStream.Dispose();
+					_prefixStream = null;
+				}
+			}
+
+			public override bool CanRead
+			{
+				get { return true; }
+			}
+
+			public override bool CanSeek
+			{
+				get { return false; }
+			}
+
+			public override bool CanWrite
+			{
+				get { return false; }
+			}
+
+			public override long Length
+			{
+				get { return _realStream.Length; }
+			}
+
+			public override long Position
+			{
+				get { return _position; }
+				set { throw new NotSupportedException(); }
+			}
+
+			public override int Read(byte[] buffer, int offset, int count)
+			{
+				var bytesRead = (_position < _prefixStream.Length ? _prefixStream : _realStream).Read(buffer, offset, count);
+				_position += bytesRead;
+				return bytesRead;
+			}
+
+			public override int ReadByte()
+			{
+				var result = (_position < _prefixStream.Length ? _prefixStream : _realStream).ReadByte();
+				if (result >= 0) ++_position;
+				return result;
+			}
+
+			public override long Seek(long offset, SeekOrigin origin)
+			{
+				if (_position <= _prefixStream.Length && offset == 0 && origin == SeekOrigin.Begin)
+					return _position = _prefixStream.Position = 0;
+				throw new InvalidOperationException("Unable to reset stream when the position has already advanced past the prefix");
+			}
+
+			public override void Write(byte[] buffer, int offset, int count)
+			{
+				throw new NotSupportedException();
+			}
+
+			public override void Flush()
+			{
+				throw new NotSupportedException();
+			}
+
+			public override void SetLength(long value)
+			{
+				throw new NotSupportedException();
+			}
+		}
+
+		#endregion
+	}
 }

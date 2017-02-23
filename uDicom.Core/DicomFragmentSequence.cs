@@ -72,15 +72,16 @@ namespace UIH.Dicom
         }
         #endregion
 
-        #region Private Methods
-        private ByteBuffer Load()
-        {
-            if (_reference != null)
-            {
-                ByteBuffer bb;
-				using (FileStream fs = File.OpenRead(_reference.Filename))
-                {
-                    fs.Seek(_reference.Offset, SeekOrigin.Begin);
+		#region Private Methods
+
+		private ByteBuffer Load()
+		{
+			if (_reference != null)
+			{
+				ByteBuffer bb;
+				using (var fs = _reference.StreamOpener.Open())
+				{
+					fs.Seek(_reference.Offset, SeekOrigin.Begin);
 
                     bb = new ByteBuffer();
                     bb.Endian = _reference.Endian;

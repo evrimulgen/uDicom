@@ -25,33 +25,46 @@ using System.IO;
 
 namespace UIH.Dicom.IO
 {   
-    internal class ChunkStream : Stream
-    {
-        #region Private Members
-        private long _position;
-        private long _length;
-        private int _current;
-        private int _offset;
-        private readonly List<byte[]> _chunks;
-        #endregion
+	public class ByteArrayChunk
+	{
+		public byte[] Array { get; set; }
+		public int Index { get; set; }
+		public int Count { get; set; }
+	}
 
-        #region Public Constructors
-        public ChunkStream()
-        {
-            _current = 0;
-            _offset = 0;
-            _position = 0;
-            _length = 0;
-            _chunks = new List<byte[]>();
-        }
-        #endregion
+	internal class ChunkStream : Stream
+	{
+		#region Private Members
+		private long _position;
+		private long _length;
+		private int _current;
+		private int _offset;
+		private readonly List<ByteArrayChunk> _chunks;
+		#endregion
 
-        #region Public Members
-        public void AddChunk(byte[] chunk)
-        {
-            _chunks.Add(chunk);
-            _length += chunk.Length;
-        }
+		#region Public Constructors
+		public ChunkStream()
+		{
+			_current = 0;
+			_offset = 0;
+			_position = 0;
+			_length = 0;
+			_chunks = new List<ByteArrayChunk>();
+		}
+		#endregion
+
+		#region Public Members
+		public void AddChunk(byte[] chunk)
+		{
+			_chunks.Add(new ByteArrayChunk { Array = chunk, Count = chunk.Length, Index = 0 });
+			_length += chunk.Length;
+		}
+
+		public void AddChunk(ByteArrayChunk chunk)
+		{
+			_chunks.Add(chunk);
+			_length += chunk.Count;
+		}
 
         public void Clear()
         {
@@ -94,24 +107,24 @@ namespace UIH.Dicom.IO
             set { Seek(value, SeekOrigin.Begin); }
         }
 
-        public override int Read(byte[] buffer, int offset, int count)
-        {
-            int read = 0, dstOffset = 0;
-            for (int i = _current; i < _chunks.Count; i++)
-            {
-                byte[] chunk = _chunks[i];
-                int bytesInChunk = chunk.Length - _offset;
+		public override int Read(byte[] buffer, int offset, int count)
+		{
+			int read = 0, dstOffset = 0;
+			for (int i = _current; i < _chunks.Count; i++)
+			{
+				ByteArrayChunk chunk = _chunks[i];
+				int bytesInChunk = chunk.Count - _offset;
 
-                if (bytesInChunk > count)
-                {
-                    Array.Copy(chunk, _offset, buffer, dstOffset, count);
-                    read += count;
-                    _offset += count;
-                    _position += count;
-                    return read;
-                }
+				if (bytesInChunk > count)
+				{
+					Array.Copy(chunk.Array, chunk.Index + _offset, buffer, dstOffset, count);
+					read += count;
+					_offset += count;
+					_position += count;
+					return read;
+				}
 
-                Array.Copy(chunk, _offset, buffer, dstOffset, bytesInChunk);
+				Array.Copy(chunk.Array, chunk.Index + _offset, buffer, dstOffset, bytesInChunk);
 
                 read += bytesInChunk;
                 count -= bytesInChunk;
@@ -127,47 +140,47 @@ namespace UIH.Dicom.IO
             return read;
         }
 
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            if (origin == SeekOrigin.Begin)
-            {
-                _current = 0;
-                _offset = 0;
-                _position = 0;
-            }
-            if (origin == SeekOrigin.End)
-            {
-                _current = _chunks.Count - 1;
-                _offset = _chunks[_current].Length - 1;
-                _position = _length - 1;
-            }
+		public override long Seek(long offset, SeekOrigin origin)
+		{
+			if (origin == SeekOrigin.Begin)
+			{
+				_current = 0;
+				_offset = 0;
+				_position = 0;
+			}
+			if (origin == SeekOrigin.End)
+			{
+				_current = _chunks.Count - 1;
+				_offset = _chunks[_current].Count - 1;
+				_position = _length - 1;
+			}
 
-            _position += offset;
-            if (_position < 0)
-                _position = 0;
-            else if (_position >= _length)
-                _position = _length - 1;
+			_position += offset;
+			if (_position < 0)
+				_position = 0;
+			else if (_position >= _length)
+				_position = _length - 1;
 
-            _current = 0;
-            _offset = 0;
-            long remain = _position;
+			_current = 0;
+			_offset = 0;
+			long remain = _position;
 
-            for (int i = 0; i < _chunks.Count; i++)
-            {
-                byte[] chunk = _chunks[i];
-                if (chunk == null)
-                    throw new NotSupportedException("Seek not supported at this time");
-                if (remain > chunk.Length)
-                {
-                    remain -= chunk.Length;
-                }
-                else
-                {
-                    _offset = (int)remain;
-                    return _position;
-                }
-                _current++;
-            }
+			for (int i = 0; i < _chunks.Count; i++)
+			{
+				ByteArrayChunk chunk = _chunks[i];
+				if (chunk == null)
+					throw new NotSupportedException("Seek not supported at this time");
+				if (remain > chunk.Count)
+				{
+					remain -= chunk.Count;
+				}
+				else
+				{
+					_offset = (int)remain;
+					return _position;
+				}
+				_current++;
+			}
 
             _position -= remain;
             return _position;

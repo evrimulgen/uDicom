@@ -307,6 +307,39 @@ namespace UIH.Dicom
 			}
 		}
 
+        /// <summary>
+        /// Creates a <see cref="ByteBuffer"/> filled with the values from this <see cref="DicomAttributeBinaryData{T}"/> 
+        /// and padded with an extra byte if necessary to make it even length.
+        /// </summary>
+        /// <param name="endian">The endianess of the <see cref="ByteBuffer"/>.</param>
+        /// <returns>A new <see cref="ByteBuffer"/> instance containing the values of this instance.</returns>
+        internal ByteBuffer CreateEvenLengthByteBuffer(Endian endian)
+        {
+            if (_array != null)
+            {
+                var length = _array.Length * _sizeOfT;
+                var bufferLength = length%2 == 0 ? length : length + 1;
+                var byteVal = new byte[bufferLength];
+                Buffer.BlockCopy(_array, 0, byteVal, 0, length);
+                
+                // just to be safe
+                if (length % 2 == 1)
+                    byteVal[bufferLength - 1] = 0;
+
+                return new ByteBuffer(byteVal, endian);
+            }
+            else
+            {
+                var bb = new ByteBuffer(endian, _stream.Length);
+                _stream.WriteTo(bb.Stream);
+                
+                if (_stream.Length%2==1)
+                    bb.Stream.WriteByte(0x0);
+
+                return bb;
+            }
+        }
+
 		/// <summary>
 		/// Gets the values of the <see cref="DicomElementBinaryData{T}"/> as an array.
 		/// </summary>

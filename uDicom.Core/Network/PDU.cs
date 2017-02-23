@@ -31,13 +31,14 @@ namespace UIH.Dicom.Network
     public class RawPDU
     {
         #region Private members
-        private readonly byte _type;
+        private byte _type;
         private readonly Stream _is;
         private MemoryStream _ms;
         private BinaryReader _br;
         private readonly BinaryWriter _bw;
         private readonly Stack<long> _m16;
         private readonly Stack<long> _m32;
+		private readonly Stack<long> _mb;
         #endregion
 
         #region Public Constructors
@@ -55,13 +56,44 @@ namespace UIH.Dicom.Network
 		/// </para>
 		/// </remarks>
 		/// <param name="type">The PDU type being created.</param>
-        public RawPDU(byte type)
+		/// <param name="max">The maximum length of the PDU</param>
+        public RawPDU(byte type, uint max)
         {
             _type = type;
-            _ms = new MemoryStream();
+            _ms = new MemoryStream((int)max);
             _bw = EndianBinaryWriter.Create(_ms, Endian.Big);
             _m16 = new Stack<long>();
             _m32 = new Stack<long>();
+			_mb = new Stack<long>();
+
+			// Write the PDU header now
+			_bw.Write(_type);
+			_bw.Write((byte)0);
+			MarkLength32("PDU Length");
+        }
+
+				/// <summary>
+		/// Constructor.
+		/// </summary>
+		/// <remarks>
+		/// <para>
+		/// It is assumed that this contructor must be used when writing / creating a new PDU.  This constructor
+		/// will not work when reading a PDU.
+		/// </para>
+		/// <para>
+		/// NOTE:  It might make sense in the future to split this class into one that writes PDUs and 
+		/// a second class that reads PDUs.
+		/// </para>
+		/// </remarks>
+		/// <param name="type">The PDU type being created.</param>
+		public RawPDU(byte type)
+		{
+			_type = type;
+			_ms = new MemoryStream();
+			_bw = EndianBinaryWriter.Create(_ms, Endian.Big);
+			_m16 = new Stack<long>();
+			_m32 = new Stack<long>();
+			_mb = new Stack<long>();
 
 			// Write the PDU header now
 			_bw.Write(_type);
@@ -79,9 +111,6 @@ namespace UIH.Dicom.Network
 		/// <param name="s">The Stream to read from.</param>
         public RawPDU(Stream s)
         {
-            BinaryReader br = EndianBinaryReader.Create(s, Endian.Big);
-
-            _type = br.ReadByte();	// PDU-Type
             _is = s;
         }
         #endregion
@@ -100,14 +129,14 @@ namespace UIH.Dicom.Network
         #region Private Methods
         public void ReadPDU()
         {
-            _ms = new MemoryStream();
             BinaryReader br = EndianBinaryReader.Create(_is, Endian.Big);
 
+			_type = br.ReadByte();
             br.ReadByte();
             uint len = br.ReadUInt32();	// PDU-Length
 
             byte[] data = br.ReadBytes((int)len);
-            _ms = new MemoryStream(data, false);
+	        _ms = new MemoryStream(data, 0, data.Length, false, true);
             _br = EndianBinaryReader.Create(_ms, Endian.Big);
         }
 
@@ -139,7 +168,19 @@ namespace UIH.Dicom.Network
 
         public override String ToString()
         {
-            return String.Format("Pdu[type={0:X2}, length={1}]", Type, Length);
+	        string typeString = string.Empty;
+	        switch (Type)
+	        {
+		        case 0x01: typeString = "A-Associate-RQ"; break;
+		        case 0x02: typeString = "A-Associate-AC"; break;
+		        case 0x03: typeString = "A-Associate-RJ"; break;
+		        case 0x04: typeString = "P-DATA"; break;
+		        case 0x05: typeString = "A-Release-RQ"; break;
+		        case 0x06: typeString = "A-Release-RP"; break;
+		        case 0x07: typeString = "A-Abort"; break;
+	        }
+
+	        return String.Format("Pdu[type={0} ({1:X2}), length={2}]", typeString, Type, Length);
         }
 
         #region Read Methods
@@ -164,6 +205,14 @@ namespace UIH.Dicom.Network
             CheckOffset(count, name);
             return _br.ReadBytes(count);
         }
+
+		public ByteArrayChunk ReadBytesToArraySegment(String name, int count)
+		{
+			CheckOffset(count, name);
+			var segment = new ByteArrayChunk {Array = _ms.GetBuffer(), Count = count, Index = (int) _ms.Position};
+			_ms.Seek(count, SeekOrigin.Current);
+			return segment;
+		}
 
         public ushort ReadUInt16(String name)
         {
@@ -209,6 +258,11 @@ namespace UIH.Dicom.Network
             _bw.Write(v);
         }
 
+		public void Write(String name, byte[] v, int index, int count)
+		{
+			_bw.Write(v, index, count);
+		}
+
         public void Write(String name, ushort v)
         {
             _bw.Write(v);
@@ -235,6 +289,12 @@ namespace UIH.Dicom.Network
             _bw.Write((ushort)0);
         }
 
+		public void MarkByte(String name)
+		{
+			_mb.Push(_ms.Position);
+			_bw.Write((byte)0);
+		}
+
         public void WriteLength16()
         {
             long p1 = _m16.Pop();
@@ -255,10 +315,19 @@ namespace UIH.Dicom.Network
             long p1 = _m32.Pop();
             long p2 = _ms.Position;
             _ms.Position = p1;
-            //LogAdapter.Logger.Info(" 32 bit PDV length: {0}, end position: {1} start position: {2}", (uint)(p2-(p1+4)),p2, p1 );
+            //Platform.Log(LogLevel.Info, " 32 bit PDV length: {0}, end position: {1} start position: {2}", (uint)(p2-(p1+4)),p2, p1 );
             _bw.Write((uint)(p2 - (p1 + 4)));
             _ms.Position = p2;
         }
+
+		public void WriteByte(byte val)
+		{
+			long p1 = _mb.Pop();
+			long p2 = _ms.Position;
+			_ms.Position = p1;
+			_bw.Write(val);
+			_ms.Position = p2;
+		}
 
         private static char[] ToCharArray(String s, int l, char p)
         {
@@ -867,12 +936,12 @@ namespace UIH.Dicom.Network
     }
     #endregion
 
-    #region P-Data-TF
-    public class PDataTF : IPDU
-    {
-        public PDataTF()
-        {
-        }
+	#region P-Data-TF Read
+	public class PDataTFRead : IPDU
+	{
+		public PDataTFRead()
+		{
+		}
 
         private readonly List<PDV> _pdvs = new List<PDV>();
         public List<PDV> PDVs
@@ -918,78 +987,139 @@ namespace UIH.Dicom.Network
     }
     #endregion
 
+	#region P-Data-TF Write
+	public class PDataTFWrite : IPDU
+	{
+		private RawPDU _rawPDU;
+		private uint _max;
+		public PDataTFWrite(uint max)
+		{
+			_rawPDU = new RawPDU(0x04, max);
+			_max = max;
+		}
+
+		public void CreatePDV(byte pcid)
+		{
+			_rawPDU.MarkLength32("PDV-Length");
+			_rawPDU.Write("Presentation Context ID", pcid);
+			_rawPDU.MarkByte("Message Control Header");
+		}
+
+		public void CompletePDV(bool last, bool command)
+		{
+			byte mch = (byte)((last ? 2 : 0) + (command ? 1 : 0));
+			_rawPDU.WriteByte(mch);
+			_rawPDU.WriteLength32();
+		}
+
+		public uint GetLength()
+		{
+			return _rawPDU.Length;
+		}
+
+		public uint GetRemaining()
+		{
+			return _max - _rawPDU.Length;
+		}
+
+		public void AppendPdv(byte[] val)
+		{
+			_rawPDU.Write("PDV Value", val);
+		}
+
+		public void AppendPdv(byte[] val, int index, int count)
+		{
+			_rawPDU.Write("PDV Value", val, index, count);
+		}
+
+		#region Write
+		public RawPDU Write()
+		{
+			return _rawPDU;
+		}
+		#endregion
+
+		#region Read
+		public void Read(RawPDU raw)
+		{
+			throw new NotImplementedException();
+		}
+		#endregion
+	}
+	#endregion
+
     #region PDV
-    public class PDV
-    {
-        private byte _pcid;
-        private byte[] _value = new byte[0];
-        private bool _command = false;
-        private bool _last = false;
+	public class PDV
+	{
+		private byte _pcid;
+		private ByteArrayChunk _value;
+		private bool _command = false;
+		private bool _last = false;
 
-        public PDV(byte pcid, byte[] value, bool command, bool last)
-        {
-            _pcid = pcid;
-            _value = value;
-            _command = command;
-            _last = last;
-        }
-        public PDV()
-        {
-        }
+		public PDV(byte pcid, byte[] value, bool command, bool last)
+		{
+			_pcid = pcid;
+			_value = new ByteArrayChunk { Array = value, Count = value.Length, Index = 0 };
+			_command = command;
+			_last = last;
+		}
+		public PDV()
+		{
+		}
 
-        public byte PCID
-        {
-            get { return _pcid; }
-            set { _pcid = value; }
-        }
-        public byte[] Value
-        {
-            get { return _value; }
-            set { _value = value; }
-        }
-        public bool IsCommand
-        {
-            get { return _command; }
-            set { _command = value; }
-        }
-        public bool IsLastFragment
-        {
-            get { return _last; }
-            set { _last = value; }
-        }
+		public byte PCID
+		{
+			get { return _pcid; }
+			set { _pcid = value; }
+		}
+		public ByteArrayChunk Value
+		{
+			get { return _value; }
+			set { _value = value; }
+		}
+		public bool IsCommand
+		{
+			get { return _command; }
+			set { _command = value; }
+		}
+		public bool IsLastFragment
+		{
+			get { return _last; }
+			set { _last = value; }
+		}
 
-        /// <summary>
-        /// Returns entire length of PDV (the data length + 6 byte header).
-        /// </summary>
-        public uint PDVLength
-        {
-            get { return (uint)_value.Length + 6; }
-        }
+		/// <summary>
+		/// Returns entire length of PDV (the data length + 6 byte header).
+		/// </summary>
+		public uint PDVLength
+		{
+			get { return (uint)_value.Count + 6; }
+		}
 
-        #region Write
-        public void Write(RawPDU pdu)
-        {
-            byte mch = (byte)((_last ? 2 : 0) + (_command ? 1 : 0));
-            pdu.MarkLength32("PDV-Length");
-            pdu.Write("Presentation Context ID", _pcid);
-            pdu.Write("Message Control Header", mch);
-            pdu.Write("PDV Value", _value);
-            pdu.WriteLength32();
-        }
-        #endregion
+		#region Write
+		public void Write(RawPDU pdu)
+		{
+			byte mch = (byte)((_last ? 2 : 0) + (_command ? 1 : 0));
+			pdu.MarkLength32("PDV-Length");
+			pdu.Write("Presentation Context ID", _pcid);
+			pdu.Write("Message Control Header", mch);
+			pdu.Write("PDV Value", _value.Array, _value.Index, _value.Count);
+			pdu.WriteLength32();
+		}
+		#endregion
 
-        #region Read
-        public uint Read(RawPDU raw)
-        {
-            uint len = raw.ReadUInt32("PDV-Length");
-            _pcid = raw.ReadByte("Presentation Context ID");
-            byte mch = raw.ReadByte("Message Control Header");
-            _value = raw.ReadBytes("PDV Value", (int)len - 2);
-            _command = (mch & 0x01) != 0;
-            _last = (mch & 0x02) != 0;
-            return len + 4;
-        }
-        #endregion
-    }
+		#region Read
+		public uint Read(RawPDU raw)
+		{
+			uint len = raw.ReadUInt32("PDV-Length");
+			_pcid = raw.ReadByte("Presentation Context ID");
+			byte mch = raw.ReadByte("Message Control Header");
+			_value = raw.ReadBytesToArraySegment("PDV Value", (int)len - 2);
+			_command = (mch & 0x01) != 0;
+			_last = (mch & 0x02) != 0;
+			return len + 4;
+		}
+		#endregion
+	}
     #endregion
 }

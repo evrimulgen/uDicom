@@ -1111,7 +1111,7 @@ namespace UIH.Dicom
 				if (_obAttrib.Reference != null)
 				{
 					ByteBuffer bb;
-					using (var fs = File.OpenRead(_obAttrib.Reference.Filename))
+					using (var fs = _obAttrib.Reference.StreamOpener.Open())
 					{
 						long offset = _obAttrib.Reference.Offset + _frameIndex*FrameSize;
 						fs.Seek(offset, SeekOrigin.Begin);
@@ -1166,7 +1166,7 @@ namespace UIH.Dicom
 						// For odd number frames, we get a byte before the frame
 						// and for even frames we get a byte after the frame.
 
-						using (var fs = File.OpenRead(_owAttrib.Reference.Filename))
+						using (var fs = _owAttrib.Reference.StreamOpener.Open())
 						{
 							if (_frameIndex%2 == 1)
 								fs.Seek((_owAttrib.Reference.Offset + _frameIndex*FrameSize) - 1, SeekOrigin.Begin);
@@ -1189,7 +1189,7 @@ namespace UIH.Dicom
 						return;
 					}
 
-					using (var fs = File.OpenRead(_owAttrib.Reference.Filename))
+					using (var fs = _owAttrib.Reference.StreamOpener.Open())
 					{
 						fs.Seek(_owAttrib.Reference.Offset + _frameIndex*FrameSize, SeekOrigin.Begin);
 

@@ -22,6 +22,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using UIH.Dicom.IO;
 using UIH.Dicom.Network;
@@ -203,7 +204,7 @@ namespace UIH.Dicom
 		private DicomElementBinaryData<T> Load()
 		{
 			ByteBuffer bb;
-			using (FileStream fs = File.OpenRead(_reference.Filename))
+			using (var fs = _reference.StreamOpener.Open())
 			{
 				fs.Seek(_reference.Offset, SeekOrigin.Begin);
 
@@ -271,13 +272,22 @@ namespace UIH.Dicom
 			ByteBuffer bb;
 			if (_reference != null)
 			{
-				using (FileStream fs = File.OpenRead(_reference.Filename))
+				using (var fs = _reference.StreamOpener.Open())
 				{
 					fs.Seek(_reference.Offset, SeekOrigin.Begin);
 
+					// Note: the length passed in the constructor is used for determinining whether "highCapacityMode" is used.
+					// It is NOT used to allocate the internal buffer.
 					bb = new ByteBuffer(_reference.Length);
 					bb.CopyFrom(fs, (int) _reference.Length);
 					fs.Close();
+				}
+
+				if (_reference.Length%2 == 1)
+				{
+					// Note: Because the buffer is initialized using ByteBuffer.CopyFrom(), internal Stream object is created to store the data. Calling Append() will only append to the stream.
+					// If the buffer is initialized in other ways, calling Append() may cause an extra copy of the data created.
+					bb.Append(new byte[1], 0, 1);
 				}
 
 				if (syntax.Endian != _reference.Endian)
@@ -285,7 +295,7 @@ namespace UIH.Dicom
 			}
 			else if (_values != null)
 			{
-				bb = _values.CreateByteBuffer(syntax.Endian);
+				bb = _values.CreateEvenLengthByteBuffer(syntax.Endian);
 
 				if (syntax.Endian != ByteBuffer.LocalMachineEndian)
 					bb.Swap(Tag.VR.UnitSize);
@@ -437,6 +447,18 @@ namespace UIH.Dicom
 
 			if (_values == null)
 				return String.Empty;
+
+			// TODO: this is horrible API design - accidentally putting a watch on a large binary attribute (e.g. pixel data of a mammo) will kill the IDE
+			// Put that kind of functionality in a GetStringValue() method (to match SetStringValue() method), and let ToString() follow the MSDN recommended guidelines:
+			// * The returned string should be friendly and readable by humans.
+			// * The returned string should uniquely identify the value of the object instance.
+			// * The returned string should be as short as possible so that it is suitable for display by a debugger.
+			// * Your ToString override should not return String.Empty or a null string.
+			// * Your ToString override should not throw an exception.
+			// * If the string representation of an instance is culture-sensitive or can be formatted in multiple ways, implement the IFormattable interface.
+			// * If the returned string includes sensitive information, you should first demand an appropriate permission. If the demand succeeds, you can return the sensitive information; otherwise, you should return a string that excludes the sensitive information.
+			// * Your ToString override should have no observable side effects to avoid complications in debugging. For example, a call to the ToString method should not change the value of instance fields.
+			// * If your type implements a parsing method (or Parse or TryParse method, a constructor, or some other static method that instantiates an instance of the type from a string), you should ensure that the string returned by the ToString method can be converted to an object instance. 
 
 			StringBuilder val = null;
 			foreach (T index in _values)
@@ -1431,24 +1453,84 @@ namespace UIH.Dicom
 			return Data.CompareValues(other.Data);
 		}
 
-		internal override uint CalculateWriteLength(TransferSyntax syntax, DicomWriteOptions options, DicomElementBinaryData<byte> values)
+		#endregion
+	}
+
+	#endregion
+
+	#region DicomElementOD
+
+	/// <summary>
+	/// <see cref="DicomAttributeBinary"/> derived class for storing OD value representation tags.
+	/// </summary>
+	public class DicomElementOD : DicomElementBinary<double>
+	{
+		public DicomElementOD(uint tag)
+			: base(tag) {}
+
+		public DicomElementOD(DicomTag tag)
+			: base(tag)
 		{
-			uint length = 0;
-			length += 4; // element tag
-			if (syntax.ExplicitVr)
+			if (!tag.VR.Equals(DicomVr.ODvr)
+			    && !tag.MultiVR)
+				throw new DicomException(SR.InvalidVR);
+		}
+
+		internal DicomElementOD(DicomTag tag, ByteBuffer item)
+			: base(tag, item) {}
+
+		internal DicomElementOD(DicomElementOD attrib)
+			: base(attrib) {}
+
+		internal DicomElementOD(DicomTag tag, FileReference reference)
+			: base(tag, reference) {}
+
+		#region Abstract Method Implementation
+
+		public override string ToString()
+		{
+			return Tag + " of length " + base.StreamLength;
+		}
+
+		public override DicomElement Copy()
+		{
+			return new DicomElementOD(this);
+		}
+
+		internal override DicomElement Copy(bool copyBinary)
+		{
+			return new DicomElementOD(this);
+		}
+
+		protected override bool SetValuesCore(object value)
+		{
+			if (value is double[])
 			{
-				length += 2; // vr
-				length += 6; // length
+				Data = new DicomElementBinaryData<double>((double[]) value);
+				return true;
 			}
-			else
+			if (value is float[])
 			{
-				length += 4; // length
+				Data = new DicomElementBinaryData<double>(((float[]) value).Cast<double>().ToArray(), false);
+				return true;
 			}
-			if (values != null)
-			{
-				length += (uint) values.Length;
-			}
-			return length;
+			return false;
+		}
+
+		protected override double ParseNumber(string val, CultureInfo culture)
+		{
+			if (string.IsNullOrEmpty(val))
+				throw new DicomDataException("Null values invalid for OD VR");
+
+			double parseVal;
+			if (!double.TryParse(val.Trim(), NumberStyle, culture, out parseVal))
+				throw new DicomDataException(String.Format("Invalid double format value for tag {0}: {1}", Tag, val));
+			return parseVal;
+		}
+
+		protected override string FormatNumber(double val, CultureInfo culture)
+		{
+			return val.ToString(culture);
 		}
 
 		#endregion
@@ -2944,7 +3026,7 @@ namespace UIH.Dicom
 			ByteBuffer bb;
 			if (Reference != null)
 			{
-				using (FileStream fs = File.OpenRead(Reference.Filename))
+				using (var fs = Reference.StreamOpener.Open())
 				{
 					fs.Seek(Reference.Offset, SeekOrigin.Begin);
 
@@ -2952,6 +3034,11 @@ namespace UIH.Dicom
 					bb.CopyFrom(fs, (int) Reference.Length);
 					fs.Close();
 				}
+
+				// Note: Because the buffer is initialized using ByteBuffer.CopyFrom(), internal Stream object is created to store the data. Calling Append() will only append to the stream.
+				// If the buffer is initialized in other ways, calling Append() may cause an extra copy of the data created.
+				if (Reference.Length%2 == 1)
+					bb.Append(new byte[1], 0, 1);
 			}
 			else if (Data != null)
 			{

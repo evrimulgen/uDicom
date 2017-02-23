@@ -22,6 +22,7 @@
 using System;
 using System.IO;
 using System.Threading;
+using UIH.Dicom;
 using UIH.Dicom.Common;
 using UIH.Dicom.Codec;
 using UIH.Dicom.Common.Utilities;
@@ -104,21 +105,27 @@ namespace UIH.Dicom.Network
         CCancelRequest = 0x0FFF
     }
 
-    internal class DcmDimseInfo
-    {
-        public DicomDataset Command;
-        public DicomDataset Dataset;
-        public ChunkStream CommandData;
-        public ChunkStream DatasetData;
-        public DicomStreamReader CommandReader;
-        public DicomStreamReader DatasetReader;
-        public bool IsNewDimse;
+	internal class DcmDimseInfo
+	{
+		public DicomDataset Command;
+		public DicomDataset Dataset;
+		public ChunkStream CommandData;
+		public ChunkStream DatasetData;
+		public DicomStreamReader CommandReader;
+		public DicomStreamReader DatasetReader;
+		public bool IsNewDimse;
+		public DicomReadStatus ParseDatasetStatus;
+		public DicomTag DatasetStopTag;
+		public bool StreamMessage;
 
-        public DcmDimseInfo()
-        {
-            IsNewDimse = true;
-        }
-    }
+		public DcmDimseInfo()
+		{
+			IsNewDimse = true;
+			ParseDatasetStatus = DicomReadStatus.NeedMoreData;
+			DatasetStopTag = null;
+			StreamMessage = false;
+		}
+	}
 
     /// <summary>
     /// Class used for DICOM network communications.
@@ -163,18 +170,36 @@ namespace UIH.Dicom.Network
         /// <summary>
 		/// Flag telling if the network 
 		/// </summary>
-    	public bool NetworkActive
-    	{
-    		get
-    		{
-    			return _network != null;
-    		}
-    	}
+		public bool NetworkActive
+		{
+			get { return _network != null; }
+		}
 
-        /// <summary>
-        /// The number of outstanding operations.  Used when asynchronous operations are negotiated.
-        /// </summary>
-        public ushort OutstandingOperations { get; set; }
+		public bool StreamMessage
+		{
+			set
+			{
+				if (_dimse != null)
+					_dimse.StreamMessage = value;
+			}
+		}
+
+		/// <summary>
+		/// When reading the dataset of a DIMSE message, set tag at which to stop parsing the data.
+		/// </summary>
+		public DicomTag DimseDatasetStopTag
+		{
+			set
+			{
+				if (_dimse != null)
+					_dimse.DatasetStopTag = value;
+			}
+		}
+
+		/// <summary>
+		/// The number of outstanding operations.  Used when asynchronous operations are negotiated.
+		/// </summary>
+		public ushort OutstandingOperations { get; set; }
 
         #endregion
 
@@ -381,31 +406,18 @@ namespace UIH.Dicom.Network
             throw new Exception("The method or operation is not implemented.");
         }
 
-        protected virtual void OnReceiveDimseBegin(byte pcid, DicomDataset command,
-                                                   DicomDataset dataset)
-        {
-        }
-
-        protected virtual void OnReceiveDimseProgress(byte pcid, DicomDataset command,
-                                                      DicomDataset dataset)
-        {
-        }
-
-        protected virtual void OnReceiveDimseRequest(byte pcid, DicomMessage msg)
-        {
-        }
+		protected virtual void OnReceiveDimseRequest(byte pcid, DicomMessage msg) {}
 
         protected virtual void OnReceiveDimseResponse(byte pcid, DicomMessage msg)
         {
         }
 
-        protected virtual void OnDimseRequestSent(byte pcid, DicomMessage msg)
-        {
-        }
+		protected virtual void OnReceiveDimseCommand(byte pcid, DicomDataset command) {}
 
-        protected virtual void OnDimseResponseSent(byte pcid, DicomMessage msg)
-        {
-        }
+		protected virtual bool OnReceiveFileStream(byte pcid, DicomDataset command, DicomDataset dataset, byte[] data, int offset, int count, bool encounteredStopTag, bool isFirst, bool isLast)
+		{
+			return false;
+		}
 
         private bool OnReceiveDimse(byte pcid, DicomDataset command, DicomDataset dataset)
         {
@@ -455,57 +467,44 @@ namespace UIH.Dicom.Network
             return false;
         }
 
-        protected virtual void OnSendDimseBegin(byte pcid, DicomDataset command,
-                                                DicomDataset dataset)
-        {
-        }
+		protected virtual void OnDimseSent(byte pcid, DicomDataset command, DicomDataset dataset)
+		{
+			var msg = new DicomMessage(command, dataset);
+			DicomCommandField commandField = msg.CommandField;
 
-        protected virtual void OnSendDimseProgress(byte pcid, DicomDataset command,
-                                                   DicomDataset dataset)
-        {
-        }
+			if ((commandField == DicomCommandField.CStoreRequest)
+			    || (commandField == DicomCommandField.CCancelRequest)
+			    || (commandField == DicomCommandField.CEchoRequest)
+			    || (commandField == DicomCommandField.CFindRequest)
+			    || (commandField == DicomCommandField.CGetRequest)
+			    || (commandField == DicomCommandField.CMoveRequest)
+			    || (commandField == DicomCommandField.NActionRequest)
+			    || (commandField == DicomCommandField.NCreateRequest)
+			    || (commandField == DicomCommandField.NDeleteRequest)
+			    || (commandField == DicomCommandField.NEventReportRequest)
+			    || (commandField == DicomCommandField.NGetRequest)
+			    || (commandField == DicomCommandField.NSetRequest))
+			{
+				if (MessageSent != null)
+					MessageSent(_assoc, msg);
+			}
 
-        protected virtual void OnDimseSent(byte pcid, DicomDataset command, DicomDataset dataset)
-        {
-            var msg = new DicomMessage(command, dataset);
-            DicomCommandField commandField = msg.CommandField;
-
-            if ((commandField == DicomCommandField.CStoreRequest)
-                || (commandField == DicomCommandField.CCancelRequest)
-                || (commandField == DicomCommandField.CEchoRequest)
-                || (commandField == DicomCommandField.CFindRequest)
-                || (commandField == DicomCommandField.CGetRequest)
-                || (commandField == DicomCommandField.CMoveRequest)
-                || (commandField == DicomCommandField.NActionRequest)
-                || (commandField == DicomCommandField.NCreateRequest)
-                || (commandField == DicomCommandField.NDeleteRequest)
-                || (commandField == DicomCommandField.NEventReportRequest)
-                || (commandField == DicomCommandField.NGetRequest)
-                || (commandField == DicomCommandField.NSetRequest))
-            {
-                OnDimseRequestSent(pcid, msg);
-
-                if (MessageSent != null)
-                    MessageSent(_assoc, msg);
-            }
-
-            if ((commandField == DicomCommandField.CStoreResponse)
-                || (commandField == DicomCommandField.CEchoResponse)
-                || (commandField == DicomCommandField.CFindResponse)
-                || (commandField == DicomCommandField.CGetResponse)
-                || (commandField == DicomCommandField.CMoveResponse)
-                || (commandField == DicomCommandField.NActionResponse)
-                || (commandField == DicomCommandField.NCreateResponse)
-                || (commandField == DicomCommandField.NDeleteResponse)
-                || (commandField == DicomCommandField.NEventReportResponse)
-                || (commandField == DicomCommandField.NGetResponse)
-                || (commandField == DicomCommandField.NSetResponse))
-            {
-                OnDimseResponseSent(pcid, msg);
-                if (MessageSent != null)
-                    MessageSent(_assoc, msg);
-            }
-        }
+			if ((commandField == DicomCommandField.CStoreResponse)
+			    || (commandField == DicomCommandField.CEchoResponse)
+			    || (commandField == DicomCommandField.CFindResponse)
+			    || (commandField == DicomCommandField.CGetResponse)
+			    || (commandField == DicomCommandField.CMoveResponse)
+			    || (commandField == DicomCommandField.NActionResponse)
+			    || (commandField == DicomCommandField.NCreateResponse)
+			    || (commandField == DicomCommandField.NDeleteResponse)
+			    || (commandField == DicomCommandField.NEventReportResponse)
+			    || (commandField == DicomCommandField.NGetResponse)
+			    || (commandField == DicomCommandField.NSetResponse))
+			{
+				if (MessageSent != null)
+					MessageSent(_assoc, msg);
+			}
+		}
 
         #endregion
 
@@ -997,24 +996,57 @@ namespace UIH.Dicom.Network
             SendDimse(presentationID, command, message.DataSet);
         }
 
-        /// <summary>
-        /// Method to send a DICOM C-STORE-RSP message.
-        /// </summary>
-        /// <param name="presentationID"></param>
-        /// <param name="messageID"></param>
-        /// <param name="affectedInstance"></param>
-        /// <param name="status"></param>
-        public void SendCStoreResponse(byte presentationID, ushort messageID, string affectedInstance, DicomStatus status)
-        {
-            var msg = new DicomMessage
-                          {
-                              MessageIdBeingRespondedTo = messageID,
-                              CommandField = DicomCommandField.CStoreResponse,
-                              AffectedSopClassUid = _assoc.GetAbstractSyntax(presentationID).UID,
-                              AffectedSopInstanceUid = affectedInstance,
-                              DataSetType = 0x0101,
-                              Status = status
-                          };
+		/// <summary>
+		/// Method to send a DICOM C-STORE-RQ message.
+		/// </summary>
+		/// <param name="presentationID"></param>
+		/// <param name="messageID"></param>
+		/// <param name="priority"></param>
+		/// <param name="moveAE"></param>
+		/// <param name="moveMessageID"></param>
+		/// <param name="dataSetStream"></param>
+		public void SendCStoreRequest(byte presentationID, ushort messageID,
+		                              DicomPriority priority, string moveAE, ushort moveMessageID, string sopInstanceUid, string sopClassUid, Stream dataSetStream)
+		{
+			DicomUid affectedClass = _assoc.GetAbstractSyntax(presentationID);
+
+			DicomMessage message = new DicomMessage();
+			DicomDataset command = message.MetaInfo;
+
+			message.MessageId = messageID;
+			message.CommandField = DicomCommandField.CStoreRequest;
+			message.AffectedSopClassUid = sopClassUid;
+			message.DataSetType = 0x0202;
+			message.Priority = priority;
+			message.AffectedSopInstanceUid = sopInstanceUid;
+
+			if (!string.IsNullOrEmpty(moveAE))
+			{
+				message.MoveOriginatorApplicationEntityTitle = moveAE;
+				message.MoveOriginatorMessageId = moveMessageID;
+			}
+
+			SendDimseDataSetStream(presentationID, command, dataSetStream);
+		}
+
+		/// <summary>
+		/// Method to send a DICOM C-STORE-RSP message.
+		/// </summary>
+		/// <param name="presentationID"></param>
+		/// <param name="messageID"></param>
+		/// <param name="affectedInstance"></param>
+		/// <param name="status"></param>
+		public void SendCStoreResponse(byte presentationID, ushort messageID, string affectedInstance, DicomStatus status)
+		{
+			var msg = new DicomMessage
+			          {
+				          MessageIdBeingRespondedTo = messageID,
+				          CommandField = DicomCommandField.CStoreResponse,
+				          AffectedSopClassUid = _assoc.GetAbstractSyntax(presentationID).UID,
+				          AffectedSopInstanceUid = affectedInstance,
+				          DataSetType = 0x0101,
+				          Status = status
+			          };
 
         	SendDimse(presentationID, msg.CommandSet, null);
         }
@@ -1355,8 +1387,10 @@ namespace UIH.Dicom.Network
 			message.CommandSet[DicomTags.MessageId].SetUInt16(0, messageID);
 			message.CommandSet[DicomTags.CommandField].SetUInt16(0, (ushort)DicomCommandField.NActionRequest);
 
-			//if (message.DataSet != null && !message.DataSet.IsEmpty())
-			message.CommandSet[DicomTags.CommandDataSetType].SetUInt16(0, 0x101);
+			if (message.DataSet == null || message.DataSet.IsEmpty())
+				message.CommandSet[DicomTags.CommandDataSetType].SetUInt16(0, 0x101);
+			else
+				message.CommandSet[DicomTags.CommandDataSetType].SetUInt16(0, 0x102);
 
 			SendDimse(presentationID, message.CommandSet, message.DataSet);
 		}
@@ -1597,19 +1631,19 @@ namespace UIH.Dicom.Network
 
                             OnReceiveAssociateReject(pdu.Result, pdu.Source, pdu.Reason);
 
-                            return true;
-                        }
-                    case 0x04:
-                        {
-                            var pdu = new PDataTF();
-                            pdu.Read(raw);
-                            return ProcessPDataTF(pdu);
-                        }
-                    case 0x05:
-                        {
-                            var pdu = new AReleaseRQ();
-                            pdu.Read(raw);
-                            State = DicomAssociationState.Sta8_AwaitingAReleaseRPLocalUser;
+						return true;
+					}
+					case 0x04:
+					{
+						var pdu = new PDataTFRead();
+						pdu.Read(raw);
+						return ProcessPDataTF(pdu);
+					}
+					case 0x05:
+					{
+						var pdu = new AReleaseRQ();
+						pdu.Read(raw);
+						State = DicomAssociationState.Sta8_AwaitingAReleaseRPLocalUser;
 
                             OnReceiveReleaseRequest();
 
@@ -1662,44 +1696,61 @@ namespace UIH.Dicom.Network
             }
         }
 
-        private bool ProcessNextPDU()
-        {
-            var raw = new RawPDU(_network);
+		private bool ProcessNextPDU()
+		{
+			var raw = new RawPDU(_network);
 
-            if (raw.Type == 0x04)
-            {
-                if (_dimse == null)
-                {
-                    _dimse = new DcmDimseInfo();
-                    _assoc.TotalDimseReceived++;
-                }
-            }
+			raw.ReadPDU();
 
-            raw.ReadPDU();
+			if (_multiThreaded)
+			{
+				_processingQueue.Enqueue(delegate
+				                         {
+					                         if (raw.Type == 0x04)
+					                         {
+						                         if (_dimse == null)
+						                         {
+							                         _dimse = new DcmDimseInfo();
+							                         _assoc.TotalDimseReceived++;
+						                         }
+					                         }
 
-            if (_multiThreaded)
-            {
-                _processingQueue.Enqueue(delegate
-                                             {
-                                                 ProcessRawPDU(raw);
-                                             });
-                return true;
-            }
-            return ProcessRawPDU(raw);
-        }
+					                         if (!ProcessRawPDU(raw))
+					                         {
+                                                 LogAdapter.Logger.Error(
+                                                              "Unexpected error processing PDU.  Aborting Association from {0} to {1}",
+						                                      _assoc.CallingAE, _assoc.CalledAE);
+						                         SendAssociateAbort(DicomAbortSource.ServiceProvider,
+						                                            DicomAbortReason.InvalidPDUParameter);
+					                         }
+				                         });
+				return true;
+			}
 
-        private bool ProcessPDataTF(PDataTF pdu)
-        {
-        	try
-            {
-            	byte pcid = 0;
-                foreach (PDV pdv in pdu.PDVs)
-                {
-                    pcid = pdv.PCID;
-                    if (pdv.IsCommand)
-                    {
-                        if (_dimse.CommandData == null)
-                            _dimse.CommandData = new ChunkStream();
+			if (raw.Type == 0x04)
+			{
+				if (_dimse == null)
+				{
+					_dimse = new DcmDimseInfo();
+					_assoc.TotalDimseReceived++;
+				}
+			}
+
+			return ProcessRawPDU(raw);
+		}
+
+		private bool ProcessPDataTF(PDataTFRead pdu)
+		{
+			try
+			{
+				byte pcid = 0;
+				foreach (PDV pdv in pdu.PDVs)
+				{
+					pcid = pdv.PCID;
+					if (pdv.IsCommand)
+					{
+						if (_dimse.CommandData == null)
+							_dimse.CommandData = new ChunkStream();
 
                         _dimse.CommandData.AddChunk(pdv.Value);
 
@@ -1740,22 +1791,20 @@ namespace UIH.Dicom.Network
                             _dimse.CommandData = null;
                             _dimse.CommandReader = null;
 
-                            bool isLast = true;
-                            if (_dimse.Command.Contains(DicomTags.CommandDataSetType))
-                            {
-                                if (_dimse.Command[DicomTags.CommandDataSetType].GetUInt16(0, 0x0) != 0x0101)
-                                    isLast = false;
-                            }
-                            if (isLast)
-                            {
-                                if (_dimse.IsNewDimse)
-                                {
-                                    OnReceiveDimseBegin(pcid, _dimse.Command, _dimse.Dataset);
-                                }
-                                OnReceiveDimseProgress(pcid, _dimse.Command, _dimse.Dataset);
-                                bool ret = OnReceiveDimse(pcid, _dimse.Command, _dimse.Dataset);
-                                if (!ret)
-									LogAdapter.Logger.Error("Error with OnReceiveDimse");
+							bool isLast = true;
+							if (_dimse.Command.Contains(DicomTags.CommandDataSetType))
+							{
+								if (_dimse.Command[DicomTags.CommandDataSetType].GetUInt16(0, 0x0) != 0x0101)
+									isLast = false;
+							}
+
+							OnReceiveDimseCommand(pcid, _dimse.Command);
+
+							if (isLast)
+							{
+								bool ret = OnReceiveDimse(pcid, _dimse.Command, _dimse.Dataset);
+								if (!ret)
+                                    LogAdapter.Logger.Error("Error with OnReceiveDimse");
 
                                 LogSendReceive(true, _dimse.Command, _dimse.Dataset);
                                 
@@ -1771,12 +1820,8 @@ namespace UIH.Dicom.Network
                         if (_dimse.DatasetData == null)
                             _dimse.DatasetData = new ChunkStream();
 
-                        _dimse.DatasetData.AddChunk(pdv.Value);
-
-                        if (_dimse.Dataset == null)
-                        {
-                            _dimse.Dataset = new DicomDataset(0x00040000, 0xFFFFFFFF);
-                        }
+						if (_dimse.Dataset == null)
+							_dimse.Dataset = new DicomDataset(0x00040000, 0xFFFFFFFF);
 
                         if (_dimse.DatasetReader == null)
                         {
@@ -1787,56 +1832,70 @@ namespace UIH.Dicom.Network
                                                    	};
                         }
 
-                        DicomReadStatus stat =
-                            _dimse.DatasetReader.Read(null, DicomReadOptions.UseDictionaryForExplicitUN);
-                        if (stat == DicomReadStatus.UnknownError)
-                        {
-							LogAdapter.Logger.Error("Unexpected parsing error when reading DataSet.");
-                            return false;
-                        }
+						if (!_dimse.DatasetReader.EncounteredStopTag)
+						{
+							_dimse.DatasetData.AddChunk(pdv.Value);
+
+							_dimse.ParseDatasetStatus = _dimse.DatasetReader.Read(_dimse.DatasetStopTag, DicomReadOptions.UseDictionaryForExplicitUN);
+							if (_dimse.ParseDatasetStatus == DicomReadStatus.UnknownError)
+							{
+								LogAdapter.Logger.Error("Unexpected parsing error when reading DataSet.");
+								return false;
+							}
+						}
 
                         _assoc.TotalBytesRead += (UInt64) pdv.PDVLength - 6;
                         if (DimseMessageReceiving != null)
                             DimseMessageReceiving(_assoc, pcid);
 
-                        if (pdv.IsLastFragment)
-                        {
-                            if (stat == DicomReadStatus.NeedMoreData)
-                            {
+						bool ret = true;
+						if (_dimse.StreamMessage)
+						{
+							if (_dimse.IsNewDimse)
+							{
+								byte[] fileGroup2 = CreateFileHeader(pcid, _dimse.Command);
+								ret = OnReceiveFileStream(pcid, _dimse.Command, _dimse.Dataset, fileGroup2, 0, fileGroup2.Length, _dimse.DatasetReader.EncounteredStopTag, _dimse.IsNewDimse, false);
+								_dimse.IsNewDimse = false;
+							}
+
+							ret = ret && OnReceiveFileStream(pcid, _dimse.Command, _dimse.Dataset, pdv.Value.Array, pdv.Value.Index, pdv.Value.Count, _dimse.DatasetReader.EncounteredStopTag, false, pdv.IsLastFragment);
+							if (!ret)
+                                LogAdapter.Logger.Error("Error with OnReceiveFileStream");
+						}
+
+						if (pdv.IsLastFragment)
+						{
+							if (_dimse.ParseDatasetStatus == DicomReadStatus.NeedMoreData)
+							{
                                 LogAdapter.Logger.Error(
-                            	             "Unexpected end of StreamReader.  More data needed ({0} bytes, last tag read {1}) after reading last PDV fragment.",
-											 _dimse.DatasetReader.BytesNeeded, _dimse.DatasetReader.LastTagRead.ToString());
-                                return false;
-                            }
-                            _dimse.CommandData = null;
-                            _dimse.CommandReader = null;
+                                             "Unexpected end of StreamReader.  More data needed ({0} bytes, last tag read {1}) after reading last PDV fragment.",
+								             _dimse.DatasetReader.BytesNeeded, _dimse.DatasetReader.LastTagRead.ToString());
+								return false;
+							}
+							_dimse.CommandData = null;
+							_dimse.CommandReader = null;
 
                             LogSendReceive(true, _dimse.Command, _dimse.Dataset);
 
-                            if (_dimse.IsNewDimse)
-                            {
-                                OnReceiveDimseBegin(pcid, _dimse.Command, _dimse.Dataset);
-                            }
-                            OnReceiveDimseProgress(pcid, _dimse.Command, _dimse.Dataset);
-                            bool ret = OnReceiveDimse(pcid, _dimse.Command, _dimse.Dataset);
-                            if (!ret)
-								LogAdapter.Logger.Error("Error with OnReceiveDimse");
+							if (!_dimse.StreamMessage)
+							{
+								ret = OnReceiveDimse(pcid, _dimse.Command, _dimse.Dataset);
+								if (!ret)
+                                    LogAdapter.Logger.Error("Error with OnReceiveDimse");
+							}
+							else
+							{
+								if (MessageReceived != null)
+									MessageReceived(_assoc, new DicomMessage(_dimse.Command, _dimse.Dataset));
+							}
 
-                            _dimse = null;
-                            return ret;
-                        }
-                    }
-                }
+							_dimse = null;
+							return ret;
+						}
 
-                if (_dimse.IsNewDimse)
-                {
-                    OnReceiveDimseBegin(pcid, _dimse.Command, _dimse.Dataset);
-                    _dimse.IsNewDimse = false;
-                }
-                else
-                {
-                    OnReceiveDimseProgress(pcid, _dimse.Command, _dimse.Dataset);
-                }
+						if (!ret) return false;
+					}
+				}
 
                 return true;
             }
@@ -1848,9 +1907,30 @@ namespace UIH.Dicom.Network
             }
         }
 
-    	private void SendRawPDU(RawPDU pdu)
-        {
-            ResetDimseTimeout();
+		private byte[] CreateFileHeader(byte pcid, DicomDataset command)
+		{
+			var msg = new DicomMessage(command, new DicomDataset());
+			var file = new DicomFile
+			           {
+				           MediaStorageSopClassUid = msg.AffectedSopClassUid,
+				           MediaStorageSopInstanceUid = msg.AffectedSopInstanceUid,
+				           ImplementationClassUid = DicomImplementation.ClassUID.UID,
+				           ImplementationVersionName = DicomImplementation.Version,
+				           SourceApplicationEntityTitle = _assoc.CallingAE,
+				           TransferSyntax = _assoc.GetAcceptedTransferSyntax(pcid)
+			           };
+
+			var ms = new MemoryStream();
+			file.Save(ms, DicomWriteOptions.Default);
+			var byteArray = new byte[ms.Length];
+			var sourceArray = ms.GetBuffer();
+			Array.Copy(sourceArray, 0, byteArray, 0, ms.Length);
+			return byteArray;
+		}
+
+		private void SendRawPDU(RawPDU pdu)
+		{
+			//ResetDimseTimeout();
 
             // If the try/catch is reintroduced here, it must
             // throw an exception, if the exception is just eaten, 
@@ -1871,46 +1951,35 @@ namespace UIH.Dicom.Network
             ResetDimseTimeout();
         }
 
-        /// <summary>
-        /// Method for sending a DIMSE mesage.
-        /// </summary>
-        /// <param name="pcid"></param>
-        /// <param name="command"></param>
-        /// <param name="dataset"></param>
-        private void SendDimse(byte pcid, DicomDataset command, DicomDataset dataset)
-        {
-            try
-            {
-                TransferSyntax ts = _assoc.GetAcceptedTransferSyntax(pcid);
+		/// <summary>
+		/// Method for sending a DIMSE mesage.
+		/// </summary>
+		/// <param name="pcid"></param>
+		/// <param name="command"></param>
+		/// <param name="dataset"></param>
+		private void SendDimse(byte pcid, DicomDataset command, DicomDataset dataset)
+		{
+			try
+			{
+				TransferSyntax ts = _assoc.GetAcceptedTransferSyntax(pcid);
 
-                uint total =
-                    command.CalculateWriteLength(TransferSyntax.ImplicitVrLittleEndian,
-                                                 DicomWriteOptions.Default | DicomWriteOptions.CalculateGroupLengths);
+				PDataTFStream pdustream;
+				if (_assoc.RemoteMaximumPduLength == 0 || _assoc.RemoteMaximumPduLength > _assoc.LocalMaximumPduLength)
+					pdustream = new PDataTFStream(this, pcid, _assoc.LocalMaximumPduLength, NetworkSettings.Default.CombineCommandDataPdu);
+				else
+					pdustream = new PDataTFStream(this, pcid, _assoc.RemoteMaximumPduLength, NetworkSettings.Default.CombineCommandDataPdu);
+				pdustream.OnTick += delegate
+				                    {
+					                    if (DimseMessageSending != null)
+						                    DimseMessageSending(_assoc, pcid, command, dataset);
+				                    };
 
-                if (dataset != null  && !dataset.IsEmpty())
-                    total += dataset.CalculateWriteLength(ts, DicomWriteOptions.Default);
-
-                PDataTFStream pdustream;
-                if (_assoc.RemoteMaximumPduLength == 0 || _assoc.RemoteMaximumPduLength > _assoc.LocalMaximumPduLength)
-					pdustream = new PDataTFStream(this, pcid, _assoc.LocalMaximumPduLength, total, NetworkSettings.Default.CombineCommandDataPdu);
-                else
-					pdustream = new PDataTFStream(this, pcid, _assoc.RemoteMaximumPduLength, total, NetworkSettings.Default.CombineCommandDataPdu);
-                pdustream.OnTick += delegate
-                                        {
-                                            OnSendDimseProgress(pcid, command, dataset);
-
-                                            if (DimseMessageSending != null)
-                                                DimseMessageSending(_assoc, pcid, command, dataset);
-                                        };
-
-                // Introduced lock as risk mitigation for ticket #10147.  Note that a more thorough locking
-                // mechanism should be developed to work across PDU types, and also should take into account
-                // if we do end up using _multiThreaded = true
-                lock (_writeSyncLock)
-                {
-                    LogSendReceive(false, command, dataset);
-
-                    OnSendDimseBegin(pcid, command, dataset);
+				// Introduced lock as risk mitigation for ticket #10147.  Note that a more thorough locking
+				// mechanism should be developed to work across PDU types, and also should take into account
+				// if we do end up using _multiThreaded = true
+				lock (_writeSyncLock)
+				{
+					LogSendReceive(false, command, dataset);
 
                     var dsw = new DicomStreamWriter(pdustream);
                     dsw.Write(TransferSyntax.ImplicitVrLittleEndian,
@@ -1926,7 +1995,7 @@ namespace UIH.Dicom.Network
                     pdustream.Flush(true);
                 }
 
-                _assoc.TotalBytesSent += total;
+				_assoc.TotalBytesSent += (ulong) pdustream.BytesWritten;
 
                 OnDimseSent(pcid, command, dataset);
             }
@@ -1934,17 +2003,82 @@ namespace UIH.Dicom.Network
             {
                 OnNetworkError(e, true);
 
-                // TODO
-                // Should we throw another exception here?  Should the user know there's an error?  They'll get
-                // the error reported to them through the OnNetworkError routine, and throwing an exception here
-                // might cause us to call OnNetworkError a second time, because the exception may be caught at a higher
-                // level
-                // Note, when fixing defect #8184, realized that throwing an exception here would cause
-                // failures in the ImageServer, because there are places where we wouldn't catch the 
-                // exception.  Should be careful if this is ever introduced back in.
-                //throw new DicomException("Unexpected exception when sending a DIMSE message",e);
-            }
-        }
+				// TODO
+				// Should we throw another exception here?  Should the user know there's an error?  They'll get
+				// the error reported to them through the OnNetworkError routine, and throwing an exception here
+				// might cause us to call OnNetworkError a second time, because the exception may be caught at a higher
+				// level
+				// Note, when fixing defect #8184, realized that throwing an exception here would cause
+				// failures in the ImageServer, because there are places where we wouldn't catch the 
+				// exception.  Should be careful if this is ever introduced back in.
+				//throw new DicomException("Unexpected exception when sending a DIMSE message",e);
+			}
+		}
+
+		/// <summary>
+		/// Method for sending a DIMSE mesage.
+		/// </summary>
+		/// <param name="pcid"></param>
+		/// <param name="command"></param>
+		/// <param name="dataset"></param>
+		private void SendDimseDataSetStream(byte pcid, DicomDataset command, Stream dataset)
+		{
+			try
+			{
+				TransferSyntax ts = _assoc.GetAcceptedTransferSyntax(pcid);
+
+				PDataTFStream pdustream;
+				if (_assoc.RemoteMaximumPduLength == 0 || _assoc.RemoteMaximumPduLength > _assoc.LocalMaximumPduLength)
+					pdustream = new PDataTFStream(this, pcid, _assoc.LocalMaximumPduLength, NetworkSettings.Default.CombineCommandDataPdu);
+				else
+					pdustream = new PDataTFStream(this, pcid, _assoc.RemoteMaximumPduLength, NetworkSettings.Default.CombineCommandDataPdu);
+				pdustream.OnTick += delegate
+				                    {
+					                    if (DimseMessageSending != null)
+						                    DimseMessageSending(_assoc, pcid, command, null);
+				                    };
+
+				// Introduced lock as risk mitigation for ticket #10147.  Note that a more thorough locking
+				// mechanism should be developed to work across PDU types, and also should take into account
+				// if we do end up using _multiThreaded = true
+				lock (_writeSyncLock)
+				{
+					LogSendReceive(false, command, null);
+
+					var dsw = new DicomStreamWriter(pdustream);
+					dsw.Write(TransferSyntax.ImplicitVrLittleEndian,
+					          command, DicomWriteOptions.Default | DicomWriteOptions.CalculateGroupLengths);
+
+					if (dataset != null)
+					{
+						pdustream.IsCommand = false;
+
+						pdustream.Write(dataset);
+					}
+
+					// flush last pdu
+					pdustream.Flush(true);
+				}
+
+				_assoc.TotalBytesSent += (ulong) pdustream.BytesWritten;
+
+				OnDimseSent(pcid, command, null);
+			}
+			catch (Exception e)
+			{
+				OnNetworkError(e, true);
+
+				// TODO
+				// Should we throw another exception here?  Should the user know there's an error?  They'll get
+				// the error reported to them through the OnNetworkError routine, and throwing an exception here
+				// might cause us to call OnNetworkError a second time, because the exception may be caught at a higher
+				// level
+				// Note, when fixing defect #8184, realized that throwing an exception here would cause
+				// failures in the ImageServer, because there are places where we wouldn't catch the 
+				// exception.  Should be careful if this is ever introduced back in.
+				//throw new DicomException("Unexpected exception when sending a DIMSE message",e);
+			}
+		}
 
 		/// <summary>
 		/// Helper for sending N-Create, N-Set, and N-Delete Response messages.

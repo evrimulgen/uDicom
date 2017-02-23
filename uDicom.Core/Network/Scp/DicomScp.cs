@@ -112,8 +112,6 @@ namespace UIH.Dicom.Network.Scp
 
         #region Private Members
 
-        private string _aeTitle;
-        private int _listenPort;
         private ServerAssociationParameters _assocParameters;
         private readonly TContext _context;
         private readonly AssociationVerifyCallback _verifier;
@@ -124,20 +122,18 @@ namespace UIH.Dicom.Network.Scp
         /// <summary>
         /// The local Application Entity Title of the DICOM SCP.
         /// </summary>
-        public string AeTitle
-        {
-            get { return _aeTitle; }
-            set { _aeTitle = value; }
-        }
+        public string AeTitle { get; set; }
 
         /// <summary>
         /// The listen port of the DICOM SCP. 
         /// </summary>
-        public int ListenPort
-        {
-            get { return _listenPort; }
-            set { _listenPort = value; }
-        }
+        public int ListenPort { get; set; }
+
+        /// <summary>
+        /// The listen port of the DICOM SCP. 
+        /// </summary>
+        public IPAddress ListenAddress { get; set; }
+
 
         /// <summary>
         /// The Association parameters used to negotiate the association.
@@ -252,10 +248,26 @@ namespace UIH.Dicom.Network.Scp
         /// Start listening for associations.
         /// </summary>
         /// <returns>true on success, false on failure.</returns>
+        public bool Start()
+        {
+            if (ListenAddress != null)
+                return Start(ListenAddress);
+
+            LogAdapter.Logger.Error("Attempted to listen on AE {0} with no Listening IP Address set.", AeTitle);
+             
+            return false;
+        }
+
+
+        /// <summary>
+        /// Start listening for associations.
+        /// </summary>
+        /// <returns>true on success, false on failure.</returns>
         public bool Start(IPAddress addr)
         {
             try
             {
+                ListenAddress = addr;
                 _assocParameters = new ServerAssociationParameters(AeTitle, new IPEndPoint(addr, ListenPort));
 
                 // Load our presentation contexts from all the extensions

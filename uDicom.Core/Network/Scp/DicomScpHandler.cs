@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UIH.Dicom.Common;
 using UIH.Dicom.Log;
 using UIH.Dicom.Network.Scu;
@@ -105,33 +106,8 @@ namespace UIH.Dicom.Network.Scp
 
         }
         #endregion
-        
-        public void OnAssociationRelease(DicomServer server, ServerAssociationParameters association)
-        {
-            foreach (IDicomScp<TContext> scp in _extensionList.Values.Distinct())
-            {
-                try { scp.AssociationRelease(server, association); }
-                catch{ }
-            }
-        }
 
-        public void OnAssociationAbort(DicomServer server, ServerAssociationParameters association)
-        {
-            foreach (IDicomScp<TContext> scp in _extensionList.Values.Distinct())
-            {
-                try{ scp.AssociationAbort(server, association); }
-                catch { }
-            }
-        }
-
-        public void OnNetworkError(DicomServer server, ServerAssociationParameters association)
-        {
-            foreach (IDicomScp<TContext> scp in _extensionList.Values.Distinct())
-            {
-                try { scp.OnNetworkError(server, association); }
-                catch { }
-            }
-        }
+        #region Private Methods
 
         public void Cleanup()
         {
@@ -141,10 +117,16 @@ namespace UIH.Dicom.Network.Scp
 
             foreach (IDicomScp<TContext> scp in _extensionList.Values)
             {
-                try { scp.Cleanup(); }
-                catch { }
+                try
+                {
+                    scp.Cleanup();
+                }
+                catch (Exception)
+                {}
             }
         }
+
+        #endregion
 
         #region IDicomServerHandler Members
 
@@ -195,28 +177,42 @@ namespace UIH.Dicom.Network.Scp
 
             server.SendAssociateAccept(association);
 
-            LogAdapter.Logger.Info("Received association:\r\n{0}", association.ToString());      
+			// Optimization to speed query performance
+	        Task.Factory.StartNew(() => LogAdapter.Logger.Info("Received association:\r\n{0}", association.ToString()));
         }
 
-        void IDicomServerHandler.OnReceiveRequestMessage(DicomServer server, ServerAssociationParameters association, byte presentationID, DicomMessage message)
-        {
-            IDicomScp<TContext> scp = _extensionList[presentationID];
+	    void IDicomServerHandler.OnReceiveRequestMessage(DicomServer server, ServerAssociationParameters association,
+	                                                     byte presentationId, DicomMessage message)
+	    {
+		    Task.Factory.StartNew(delegate
+			    {
+				    try
+				    {
+					    IDicomScp<TContext> scp = _extensionList[presentationId];
 
-            bool ok = scp.OnReceiveRequest(server, association, presentationID, message);
-            if (!ok)
-            {
-                LogAdapter.Logger.Error("Unexpected error processing message of type {0}.  Aborting association.", message.SopClass.Name);
+					    bool ok = scp.OnReceiveRequest(server, association, presentationId, message);
+					    if (!ok)
+					    {
+                            LogAdapter.Logger.Error("Unexpected error processing message of type {0}.  Aborting association.",
+						                 message.SopClass.Name);
 
-                server.SendAssociateAbort(DicomAbortSource.ServiceProvider, DicomAbortReason.NotSpecified);
+						    server.SendAssociateAbort(DicomAbortSource.ServiceProvider, DicomAbortReason.NotSpecified);
 
-            }
-			else if (_complete != null)
-            {
-				// Only save C-STORE-RQ messages
-				if (message.CommandField == DicomCommandField.CStoreRequest)
-            		_instances.Add(new StorageInstance(message));
-            }
-        }
+					    }
+					    else if (_complete != null)
+					    {
+						    // Only save C-STORE-RQ messages
+						    if (message.CommandField == DicomCommandField.CStoreRequest)
+							    _instances.Add(new StorageInstance(message));
+					    }
+				    }
+				    catch (Exception x)
+				    {
+                        LogAdapter.Logger.Error("Unexpected exception in OnReceiveImageLevelQuery.");
+						server.SendAssociateAbort(DicomAbortSource.ServiceProvider, DicomAbortReason.NotSpecified);
+				    }
+			    });
+	    }
 
         void IDicomServerHandler.OnReceiveResponseMessage(DicomServer server, ServerAssociationParameters association, byte presentationID, DicomMessage message)
         {
@@ -229,7 +225,6 @@ namespace UIH.Dicom.Network.Scp
             LogAdapter.Logger.Info("Received association release request from {0} to {1}.", association.CallingAE, association.CalledAE);
 			if (_complete != null)
 				_complete(_context, association, _instances);
-            OnAssociationRelease(server, association);
             Cleanup();
         }
 
@@ -238,7 +233,6 @@ namespace UIH.Dicom.Network.Scp
             LogAdapter.Logger.Error("Received association abort from {0} to {1}", association.CallingAE, association.CalledAE);
 			if (_complete != null)
 				_complete(_context, association, _instances);
-            OnAssociationAbort(server, association);
             Cleanup();
 		}
 
@@ -247,7 +241,6 @@ namespace UIH.Dicom.Network.Scp
             LogAdapter.Logger.Error("Unexpectedly received OnNetworkError callback from {0} to {1}.  Aborting association.", association.CallingAE, association.CalledAE);
 			if (_complete != null)
 				_complete(_context, association, _instances);
-            OnNetworkError(server, association);
             Cleanup();
         }
 
@@ -257,6 +250,25 @@ namespace UIH.Dicom.Network.Scp
             //LogAdapter.Logger.Info("Unexpected timeout waiting for activity on association from {0} to {1}.", association.CallingAE, association.CalledAE);
         }
 
+		void IDicomServerHandler.OnReceiveDimseCommand(DicomServer server, ServerAssociationParameters association, byte presentationId,
+		                           DicomDataset command)
+		{
+			IDicomScp<TContext> scp = _extensionList[presentationId];
+
+			scp.ReceiveMessageAsFileStream(server, association, presentationId,
+			                               new DicomMessage(command, new DicomDataset()));
+		}
+
+		IDicomFilestreamHandler IDicomServerHandler.OnStartFilestream(DicomServer server, ServerAssociationParameters association, byte presentationId, DicomMessage message)
+		{
+			IDicomScp<TContext> scp = _extensionList[presentationId];
+			
+			if (message.CommandField == DicomCommandField.CStoreRequest)
+				_instances.Add(new StorageInstance(message));
+
+			return scp.OnStartFilestream(server, association, presentationId, message);
+		}
+        
         #endregion
     }
 }

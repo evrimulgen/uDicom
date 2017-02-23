@@ -74,14 +74,17 @@ namespace UIH.Dicom.IO
         private DicomFragmentSequence _fragment;
         #endregion
 
-        #region Public Constructors
-        public DicomStreamReader(Stream stream)
-        {
-        	BytesNeeded = 0;
-        	_stream = stream;
-            TransferSyntax = TransferSyntax.ExplicitVrLittleEndian;
-        }
-        #endregion
+		#region Public Constructors
+
+		public DicomStreamReader(Stream stream)
+		{
+			BytesNeeded = 0;
+			_stream = stream;
+			TransferSyntax = TransferSyntax.ExplicitVrLittleEndian;
+			EncounteredStopTag = false;
+		}
+
+		#endregion
 
         #region Public Properties
         public TransferSyntax TransferSyntax
@@ -97,7 +100,7 @@ namespace UIH.Dicom.IO
 
     	public DicomDataset Dataset { get; set; }
 
-    	public string Filename { get; set; }
+		public DicomStreamOpener StreamOpener { get; set; }
 
     	public long BytesEstimated { get; private set; }
 
@@ -105,8 +108,15 @@ namespace UIH.Dicom.IO
 
     	public uint BytesNeeded { get; set; }
 
-    	public DicomTag LastTagRead { get; private set; }
-        public DicomTag SaveTagRead { get; private set; }
+		public DicomTag LastTagRead { get; private set; }
+		public DicomTag SaveTagRead { get; private set; }
+
+		public bool EncounteredStopTag { get; private set; }
+
+		public long EndGroupTwo
+		{
+			get { return _endGroup2; }
+		}
 
     	#endregion
 
@@ -178,9 +188,22 @@ namespace UIH.Dicom.IO
 					else
 						tagValue = LastTagRead.TagValue;
 
-                    if ((tagValue >= stopAtTag.TagValue) 
-						&& (_sqrs.Count == 0)) // only exit in root message when after stop tag
-                        return DicomReadStatus.Success;
+					if ((tagValue >= stopAtTag.TagValue)
+					    && (_sqrs.Count == 0)) // only exit in root message when after stop tag
+					{
+						if (_inGroup2 && tagValue > 0x0002FFFF)
+						{
+							if (_endGroup2 != BytesRead - 4)
+							{
+                                LogAdapter.Logger.Info("File Meta Info Length, {0}, not equal to actual bytes read in file, {1}, overwriting length.",
+								             EndGroupTwo, BytesRead - 4);
+								_endGroup2 = BytesRead - 4;
+							}
+							_inGroup2 = false;
+						}
+						EncounteredStopTag = true;
+						return DicomReadStatus.Success;
+					}
 
                 	bool twoByteLength;
                 	if (_vr == null)
@@ -354,11 +377,13 @@ namespace UIH.Dicom.IO
 							if (Flags.IsSet(options, DicomReadOptions.StorePixelDataReferences)
 							    && _fragment.HasOffsetTable)
 							{
-								FileReference reference = new FileReference(Filename, _stream.Position, _len, _endian, DicomVr.OBvr);
-								DicomFragment fragment =
-									new DicomFragment(reference);
+								FileReference reference = new FileReference(StreamOpener, _stream.Position, _len, _endian, DicomVr.OBvr);
+								DicomFragment fragment = new DicomFragment(reference);
 								_fragment.AddFragment(fragment);
-								_stream.Seek(_len, SeekOrigin.Current);
+								if (_stream.CanSeek)
+									_stream.Seek(_len, SeekOrigin.Current);
+								else
+									ConsumeStreamBytes(_stream, _len);
 							}
 							else
 							{
@@ -379,7 +404,27 @@ namespace UIH.Dicom.IO
 						}
 						else if (LastTagRead == DicomTag.SequenceDelimitationItem)
 						{
-							Dataset[_fragment.Tag] = _fragment;
+							if (_sqrs.Count > 0)
+							{
+								SequenceRecord rec = _sqrs.Peek();
+								DicomDataset ds = rec.Current;
+
+								ds[_fragment.Tag] = _fragment;
+
+								if (rec.Curlen != UndefinedLength)
+								{
+									long end = rec.Curpos + rec.Curlen;
+									if (_stream.Position >= end)
+									{
+										rec.Current = null;
+									}
+								}
+							}
+							else
+							{
+								Dataset[_fragment.Tag] = _fragment;
+							}
+
 							_fragment = null;
 						}
 						else
@@ -449,27 +494,25 @@ namespace UIH.Dicom.IO
                                 _remain -= _len;
                                 BytesRead += _len;
 
-                                DicomStreamReader idsr = new DicomStreamReader(data.Stream)
-                                                         	{
-                                                         		Dataset = ds,
-                                                         		TransferSyntax = rec.Tag.VR.Equals(DicomVr.UNvr)
-                                                         		                 	? TransferSyntax.ImplicitVrLittleEndian
-                                                         		                 	: _syntax,
-                                                         		Filename = Filename
-                                                         	};
-                            	DicomReadStatus stat = idsr.Read(null, options);
-                                if (stat != DicomReadStatus.Success)
-                                {
+								DicomStreamReader idsr = new DicomStreamReader(data.Stream)
+								                         {
+									                         Dataset = ds,
+									                         TransferSyntax = rec.Tag.VR.Equals(DicomVr.UNvr)
+										                         ? TransferSyntax.ImplicitVrLittleEndian
+										                         : _syntax,
+									                         StreamOpener = StreamOpener
+								                         };
+								DicomReadStatus stat = idsr.Read(null, options & ~DicomReadOptions.StorePixelDataReferences);
+								if (stat != DicomReadStatus.Success)
+								{
                                     LogAdapter.Logger.Error("Unexpected parsing error ({0}) when reading sequence attribute: {1}.", stat, rec.Tag.ToString());
-                                    return stat;
-                                }
-                            }
-                        }
-                        else if (LastTagRead == DicomTag.ItemDelimitationItem)
-                        {
-                        }
-                        else if (LastTagRead == DicomTag.SequenceDelimitationItem)
-                        {
+									return stat;
+								}
+							}
+						}
+						else if (LastTagRead == DicomTag.ItemDelimitationItem) {}
+						else if (LastTagRead == DicomTag.SequenceDelimitationItem)
+						{
 							SequenceRecord rec2 = _sqrs.Pop();
 							if (rec2.Current==null)
 								rec2.Parent[rec.Tag].SetNullValue();                      
@@ -522,17 +565,15 @@ namespace UIH.Dicom.IO
                                                      		Len = UndefinedLength
                                                      	};
 
-                            	_sqrs.Push(rec);
-                            }
-                            else
-                            {
-                                _fragment = new DicomFragmentSequence(LastTagRead);
-
-                                Dataset.LoadDicomFields(_fragment);
-                            }
-                        }
-                        else
-                        {
+								_sqrs.Push(rec);
+							}
+							else
+							{
+								_fragment = new DicomFragmentSequence(LastTagRead);
+							}
+						}
+						else
+						{
 							if (_vr.Equals(DicomVr.SQvr))
 							{
 								if (_len == 0)
@@ -572,31 +613,59 @@ namespace UIH.Dicom.IO
 								    && Flags.IsSet(options, DicomReadOptions.DoNotStorePixelDataInDataSet))
 								{
 									// Skip PixelData !!
-									_stream.Seek((int) _len, SeekOrigin.Current);
+									if (_stream.CanSeek)
+										_stream.Seek((int) _len, SeekOrigin.Current);
+									else
+										ConsumeStreamBytes(_stream, _len);
+
 									_remain -= _len;
 									BytesRead += _len;
 								}
 								else if ((LastTagRead.TagValue == DicomTags.PixelData) &&
 								         Flags.IsSet(options, DicomReadOptions.StorePixelDataReferences))
 								{
-									FileReference reference =
-										new FileReference(Filename, _stream.Position, _len, _endian,
-										                  LastTagRead.VR);
-									_stream.Seek((int) _len, SeekOrigin.Current);
+									var reference = new FileReference(StreamOpener, _stream.Position, _len, _endian, LastTagRead.VR);
+									if (_stream.CanSeek)
+										_stream.Seek((int) _len, SeekOrigin.Current);
+									else
+										ConsumeStreamBytes(_stream, _len);
 
+									DicomElement elem;
 									if (LastTagRead.VR.Equals(DicomVr.OWvr))
 									{
-										DicomElementOw elem = new DicomElementOw(LastTagRead, reference);
-										Dataset[LastTagRead] = elem;
+										elem = new DicomElementOw(LastTagRead, reference);
 									}
 									else if (LastTagRead.VR.Equals(DicomVr.OBvr))
 									{
-										DicomElementOb elem = new DicomElementOb(LastTagRead, reference);
-										Dataset[LastTagRead] = elem;
+										elem = new DicomElementOb(LastTagRead, reference);
+									}
+									else if (LastTagRead.VR.Equals(DicomVr.ODvr))
+									{
+										elem = new DicomElementOD(LastTagRead, reference);
 									}
 									else
 									{
-										DicomElementOf elem = new DicomElementOf(LastTagRead, reference);
+										elem = new DicomElementOf(LastTagRead, reference);
+									}
+
+									if (_sqrs.Count > 0)
+									{
+										SequenceRecord rec = _sqrs.Peek();
+										DicomDataset ds = rec.Current;
+
+										ds[LastTagRead] = elem;
+
+										if (rec.Curlen != UndefinedLength)
+										{
+											long end = rec.Curpos + rec.Curlen;
+											if (_stream.Position >= end)
+											{
+												rec.Current = null;
+											}
+										}
+									}
+									else
+									{
 										Dataset[LastTagRead] = elem;
 									}
 									_remain -= _len;
@@ -708,5 +777,16 @@ namespace UIH.Dicom.IO
                 return DicomReadStatus.UnknownError;
             }
         }
-    }
+		public static void ConsumeStreamBytes(Stream stream, long length)
+		{
+			const int bufferSize = 4096;
+			int bytesLeft = (int) length;
+			var buffer = new byte[bufferSize];
+			while (bytesLeft > 0)
+			{
+				int count = stream.Read(buffer, 0, Math.Min(buffer.Length, bytesLeft));
+				bytesLeft -= count;
+			}
+		}
+	}
 }
