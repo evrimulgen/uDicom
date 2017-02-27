@@ -71,12 +71,12 @@ namespace UIH.Dicom.PACS.Service
             }
             catch (DicomDataException ex)
             {
-                Log.Logger.TraceException(ex);
+                Log.Logger.Error(ex, "Error when import {0}", message.AffectedSopInstanceUid);
                 return false;  // caller will abort the association
             }
             catch (Exception ex)
             {
-                Log.Logger.TraceException(ex);
+                Log.Logger.Error(ex, "Error when import {0}", message.AffectedSopInstanceUid);
                 return false;  // caller will abort the association
             }
         }
@@ -146,8 +146,6 @@ namespace UIH.Dicom.PACS.Service
         {
             return new StorageFilestreamHandler(_context, association);
         }
-
-       
 
         #endregion
     }

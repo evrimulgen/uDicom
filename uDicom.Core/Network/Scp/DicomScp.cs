@@ -299,10 +299,10 @@ namespace UIH.Dicom.Network.Scp
             }
             catch (DicomException e)
             {
-                LogAdapter.Logger.TraceException(e);
-                LogAdapter.Logger.Error("Unexpected exception when stopping listening on port {0}", ListenPort);
+                LogAdapter.Logger.Error(e, "Unexpected exception when stopping listening on port {0}", ListenPort);
             }
         }
+
         #endregion
     }
 }

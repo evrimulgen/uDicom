@@ -350,7 +350,7 @@ namespace UIH.Dicom.Network.Scu
 			}
 			catch (Exception e)
 			{
-				LogAdapter.Logger.TraceException(e);
+				LogAdapter.Logger.Error(e, "Unexpected exception when sending send operation in StorageScu, ignoring");
 			}
 		}
 
@@ -608,7 +608,7 @@ namespace UIH.Dicom.Network.Scu
 			}
 			catch (DicomException e)
 			{
-				LogAdapter.Logger.TraceException(e);
+				LogAdapter.Logger.Error(e, "Unexpected exception when loading DICOM file {0}", fileToSend.ToString());
 
 				fileToSend.ExtendedFailureDescription = e.GetType().Name + " " + e.Message;
 				_failureSubOperations++;
@@ -662,7 +662,7 @@ namespace UIH.Dicom.Network.Scu
             } 
             catch (DicomCodecException e)
             {
-                LogAdapter.Logger.TraceException(e);
+                LogAdapter.Logger.Error(e, "Unexpected exception when compressing or decompressing file before send {0}", fileToSend.ToString());
 
                 fileToSend.SendStatus = DicomStatuses.ProcessingFailure;
                 fileToSend.ExtendedFailureDescription = string.Format("Error decompressing or compressing file before send: {0}", e.Message);
@@ -674,7 +674,7 @@ namespace UIH.Dicom.Network.Scu
             }
             catch (DicomException e)
             {
-                LogAdapter.Logger.TraceException(e);
+                LogAdapter.Logger.Error(e, "Unexpected exception while sending file {0}", fileToSend.ToString());
 
                 fileToSend.SendStatus = DicomStatuses.ProcessingFailure;
                 fileToSend.ExtendedFailureDescription = string.Format("Unexpected exception while sending file: {0}", e.Message);

@@ -773,7 +773,7 @@ namespace UIH.Dicom.IO
             catch (EndOfStreamException e)
             {
                 // should never happen
-				LogAdapter.Logger.TraceException(e);
+				LogAdapter.Logger.Error("Unexpected exception when reading file: {0}", e.ToString());
                 return DicomReadStatus.UnknownError;
             }
         }

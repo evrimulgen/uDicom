@@ -149,7 +149,8 @@ namespace UIH.Dicom.Network
                         }
                         catch (Exception e)
                         {
-							LogAdapter.Logger.TraceException(e);
+							LogAdapter.Logger.Error(e, "Unable to connect to remote host, attempting other addresses: {0}",
+                                         dnsAddr.ToString());
                         }
                     }
                 }
@@ -164,7 +165,8 @@ namespace UIH.Dicom.Network
                         }
                         catch (Exception e)
                         {
-							LogAdapter.Logger.TraceException(e);
+							LogAdapter.Logger.Error(e, "Unable to connection to remote host, attempting other addresses: {0}",
+                                         dnsAddr.ToString());
                         }
                     }
                 }
@@ -330,7 +332,7 @@ namespace UIH.Dicom.Network
             }
             catch (Exception ex) 
             {
-				LogAdapter.Logger.TraceException(ex);
+				LogAdapter.Logger.Error(ex, "Unexpected exception when calling IDicomClientHandler.OnNetworkError");
             }
 
 			_closedOnError = true;

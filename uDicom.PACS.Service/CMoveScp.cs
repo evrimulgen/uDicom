@@ -90,8 +90,7 @@ namespace UIH.Dicom.PACS.Service
 
             }catch(Exception e)
             {
-                Log.Logger.Error("Unexpected exception when processing C-MOVE-RQ");
-                Log.Logger.TraceException(e);
+                Log.Logger.Error(e, "Unexpected exception when processing C-MOVE-RQ");
 
                 if (finalResponseSent == false)
                 {
@@ -102,9 +101,8 @@ namespace UIH.Dicom.PACS.Service
                     }
                     catch (Exception x)
                     {
-                        Log.Logger.Error("Unable to send final C-MOVE-RSP message on association from {0} to {1}",
+                        Log.Logger.Error(x, "Unable to send final C-MOVE-RSP message on association from {0} to {1}",
                                      association.CallingAE, association.CalledAE);
-                        Log.Logger.TraceException(x);
                     }
                 }
             }

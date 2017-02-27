@@ -50,7 +50,7 @@ namespace App.PACS.Model
 
         #region Database initializer 
 
-        public class PacsServerInitializer : DropCreateDatabaseAlways<PacsContext>
+        public class PacsServerInitializer : DropCreateDatabaseIfModelChanges<PacsContext>
         {
             #region Private member
 

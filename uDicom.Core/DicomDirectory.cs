@@ -121,7 +121,7 @@ namespace UIH.Dicom
             }
             catch (Exception ex)
             {
-				LogAdapter.Logger.TraceException(ex);
+				LogAdapter.Logger.Error(ex, "Exception initializing DicomDirectory");
                 throw;
             }
         }
@@ -320,7 +320,7 @@ namespace UIH.Dicom
             }
             catch (Exception ex)
             {
-                LogAdapter.Logger.TraceException(ex);
+                LogAdapter.Logger.Error(ex, "Error saving dicom File {0}", fileName);
             	throw;
             }
         }
@@ -338,7 +338,7 @@ namespace UIH.Dicom
 			}
 			catch (Exception ex)
 			{
-				LogAdapter.Logger.TraceException(ex);
+				LogAdapter.Logger.Error(ex, "Error loading dicom File {0}", filename);
 				throw;
 			}
 
@@ -460,7 +460,7 @@ namespace UIH.Dicom
 			}
 			catch (Exception ex)
 			{
-				LogAdapter.Logger.TraceException(ex);
+				LogAdapter.Logger.Error(ex, "erorr when insert file {0} to DicomDir!", dicomFile.Filename);
 				throw;
 			}
 		}
@@ -718,7 +718,7 @@ namespace UIH.Dicom
                 }
                 catch (Exception ex)
                 {
-					LogAdapter.Logger.TraceException(ex);
+					LogAdapter.Logger.Error(ex, "Exception adding dicomTag {0} to directory record for record type {1}", dicomTag, recordType);
                 }
             }
 

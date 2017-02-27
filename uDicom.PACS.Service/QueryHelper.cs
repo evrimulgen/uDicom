@@ -14,6 +14,7 @@ namespace UIH.Dicom.PACS.Service
         public static string ReplacsWildcard(string dicomString)
         {
             string sqlString = null;
+
             if (dicomString.Contains("*") || dicomString.Contains("?"))
             {
                 sqlString = dicomString.Replace("%", "[%]").Replace("_", "[_]");

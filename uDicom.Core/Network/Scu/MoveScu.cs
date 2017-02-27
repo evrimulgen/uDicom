@@ -198,7 +198,7 @@ namespace UIH.Dicom.Network.Scu
             }
             catch (Exception e)
             {
-				LogAdapter.Logger.TraceException(e);
+				LogAdapter.Logger.Error(e, "Unexpected exception attempting to connect to { 0}",RemoteAE);
                 throw;
             }
         }
@@ -468,7 +468,7 @@ namespace UIH.Dicom.Network.Scu
 			}
 			catch (Exception ex)
 			{
-				LogAdapter.Logger.TraceException(ex);
+				LogAdapter.Logger.Error(ex, "Error aborting association");
 			}
 
             LogAdapter.Logger.Warn("Completed aborting connection (after DIMSE timeout) from {0} to {1}",

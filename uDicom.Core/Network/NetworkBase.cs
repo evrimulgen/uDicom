@@ -1691,7 +1691,7 @@ namespace UIH.Dicom.Network
                 if (NetworkError != null)
                     NetworkError(e);
 
-                LogAdapter.Logger.TraceException(e);
+                LogAdapter.Logger.Error(e, "Unexpected exception when processing PDU.");
                 return false;
             }
         }
@@ -1902,7 +1902,7 @@ namespace UIH.Dicom.Network
             catch (Exception e)
             {
                 //do something here!
-				LogAdapter.Logger.TraceException(e);
+				LogAdapter.Logger.Error(e, "Unexpected exception when ProcessPDataTF.");
                 return false;
             }
         }

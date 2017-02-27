@@ -237,14 +237,13 @@ namespace UIH.Dicom.Iod.Sequences
             {
                 try
                 {
-
                     DicomElement dicomElement;
                     if (dicomElements.TryGetAttribute(dicomTag, out dicomElement))
                         DicomElementProvider[dicomTag].Values = dicomElement.Values;
                 }
                 catch (Exception ex)
                 {
-                    LogAdapter.Logger.TraceException(ex);
+                    LogAdapter.Logger.Error(ex, "error add dicom filed tag {0}", dicomTag);
                     throw;
                 }
             }

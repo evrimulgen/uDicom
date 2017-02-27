@@ -280,7 +280,7 @@ namespace UIH.Dicom.Network
 	        }
 	        catch (Exception x)
 	        {
-                LogAdapter.Logger.Error("Unexpected exception when calling IDicomFilestreamHandler.CancelStream");
+                LogAdapter.Logger.Error(x, "Unexpected exception when calling IDicomFilestreamHandler.CancelStream");
 			}
 
             try
@@ -290,7 +290,7 @@ namespace UIH.Dicom.Network
             }
             catch (Exception x) 
             {
-				LogAdapter.Logger.TraceException(x);
+				LogAdapter.Logger.Error(x, "Unexpected exception when calling IDicomServerHandler.OnNetworkError") ;
             }
 
             _closedOnError = true;

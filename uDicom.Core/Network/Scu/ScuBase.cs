@@ -358,8 +358,7 @@ namespace UIH.Dicom.Network.Scu
             }
             catch (Exception e)
             {
-                LogAdapter.Logger.TraceException(e);
-                LogAdapter.Logger.Error("Unexpected exception trying to connect to Remote AE {0} on host {1} on port {2}", remoteAE, remoteHost, remotePort);
+                LogAdapter.Logger.Error(e, "Unexpected exception trying to connect to Remote AE {0} on host {1} on port {2}", remoteAE, remoteHost, remotePort);
                 throw;
             }
         }
@@ -548,7 +547,7 @@ namespace UIH.Dicom.Network.Scu
 			}
 			catch (Exception ex)
 			{
-				LogAdapter.Logger.TraceException(ex);
+				LogAdapter.Logger.Error(ex, "unexpected exception happen when send associate abort!");
 			}
 			StopRunningOperation(ScuOperationStatus.UnexpectedMessage);
 			throw new Exception("The method or operation is not implemented.");
@@ -631,7 +630,7 @@ namespace UIH.Dicom.Network.Scu
 			}
 			catch (Exception ex)
 			{
-				LogAdapter.Logger.TraceException(ex);
+				LogAdapter.Logger.Error(ex, "unexpected exception happened when send associate abort!");
 			}
 
             LogAdapter.Logger.Warn("Completed aborting connection (after DIMSE timeout) from {0} to {1}", association.CallingAE, association.CalledAE);

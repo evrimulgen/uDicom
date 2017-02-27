@@ -69,7 +69,7 @@ namespace UIH.Dicom.Common.Utilities
 				}
 				catch (Exception ex)
 				{
-                    LogAdapter.Logger.TraceException(ex);
+                    LogAdapter.Logger.Error(ex, "error happen when fire event!");
 					throw;
 				}
 			}

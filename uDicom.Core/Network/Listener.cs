@@ -105,8 +105,7 @@ namespace UIH.Dicom.Network
 			}
 			catch (SocketException e)
 			{
-                LogAdapter.Logger.TraceException(e);
-                LogAdapter.Logger.Error("Shutting down listener on {0}", _ipEndPoint.ToString());
+                LogAdapter.Logger.Error(e, "Shutting down listener on {0}", _ipEndPoint.ToString());
 				_tcpListener = null;
 				return false;
 			}
@@ -206,7 +205,7 @@ namespace UIH.Dicom.Network
             }
             catch (SocketException e)
             {
-				LogAdapter.Logger.TraceException(e);
+				LogAdapter.Logger.Error(e, "Unexpected exception when stoppinging TCP listener on {0}", _ipEndPoint, ToString());
             }
         }
 

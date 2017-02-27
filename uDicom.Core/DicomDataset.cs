@@ -840,7 +840,7 @@ namespace UIH.Dicom
             }
             catch (Exception e)
             {
-                LogAdapter.Logger.TraceException(e);
+                LogAdapter.Logger.Error(e, "Error in default value type! - {0}", vtype.ToString());
                 return null;
             }
         }
@@ -1040,7 +1040,7 @@ namespace UIH.Dicom
                     }
                     catch (Exception e)
                     {
-                        LogAdapter.Logger.TraceException(e);
+                        LogAdapter.Logger.Error(e, "Unable to bind field {0}", field.Name);
                     }
                 }
             }
@@ -1070,7 +1070,7 @@ namespace UIH.Dicom
                     }
                     catch (Exception e)
                     {
-                        LogAdapter.Logger.TraceException(e);
+                        LogAdapter.Logger.Error(e, "Unable to bind property {0}", property.Name);
                     }
                 }
             }

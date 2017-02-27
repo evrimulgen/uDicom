@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="DicomServiceManager.cs" />
     <Compile Include="Logic\DeviceManager.cs" />
+    <Compile Include="Logic\DicomQuery.cs" />
     <Compile Include="Logic\SopInstanceImporter.cs" />
     <Compile Include="Mapping\DeviceMap.cs" />
     <Compile Include="Mapping\FileMap.cs" />
@@ -88,9 +89,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Logging.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Log\uDicom.Log.Log4net\uDicom.Log.Log4net.csproj">
+      <Project>{14d40d31-3c08-4f32-8d29-0d50af02469d}</Project>
+      <Name>uDicom.Log.Log4net</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\uDicom.Core\uDicom.Core.csproj">
       <Project>{5F03C5DC-CDF9-406C-A6C1-611EA4B1C441}</Project>
       <Name>uDicom.Core</Name>

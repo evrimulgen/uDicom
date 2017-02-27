@@ -145,6 +145,7 @@ namespace UIH.Dicom.PACS.Service
                 return;
             }
 
+            SendBufferedResponses(server, presentationId, message);
             var finalResponse = new DicomMessage();
             server.SendCFindResponse(presentationId, message.MessageId, finalResponse, DicomStatuses.Success);
 
@@ -182,7 +183,7 @@ namespace UIH.Dicom.PACS.Service
                         SendBufferedResponses(server, presentationId, message);
                 });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 if (CancelReceived)
                 {
@@ -202,7 +203,7 @@ namespace UIH.Dicom.PACS.Service
                 }
                 else
                 {
-                    Log.Logger.Error("Unexpected exception when processing FIND request.");
+                    Log.Logger.Error(ex, "Unexpected exception when processing FIND request.");
                     var errorResponse = new DicomMessage();
                     server.SendCFindResponse(presentationId, message.MessageId, errorResponse,
                                              DicomStatuses.QueryRetrieveUnableToProcess);
@@ -211,6 +212,7 @@ namespace UIH.Dicom.PACS.Service
                 return;
             }
 
+            SendBufferedResponses(server, presentationId, message);
             var finalResponse = new DicomMessage();
             server.SendCFindResponse(presentationId, message.MessageId, finalResponse, DicomStatuses.Success);
 
@@ -277,6 +279,7 @@ namespace UIH.Dicom.PACS.Service
                 return;
             }
 
+            SendBufferedResponses(server, presentationId, message);
             var finalResponse = new DicomMessage();
             server.SendCFindResponse(presentationId, message.MessageId, finalResponse, DicomStatuses.Success);
 
@@ -385,9 +388,7 @@ namespace UIH.Dicom.PACS.Service
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.Warn("Unexpected error setting tag {0} in C-FIND-RSP",
-                                 dataSet[tag].Tag.ToString());
-                    Log.Logger.TraceException(e);
+                    Log.Logger.Error(e, "Unexpected error setting tag {0} in C-FIND-RSP", dataSet[tag].Tag.ToString());
                     if (!tag.IsPrivate)
                         dataSet[tag].SetNullValue();
                 }

@@ -19,7 +19,7 @@ namespace UIH.Dicom.PACS.Service.Interface
         bool GetStreamedFileStorageFolder(DicomMessage message, out string sourceFolder,
             out string filesystemStreamingFolder);
 
-        #endregion
+        #endregion-
 
     }
 }

@@ -101,7 +101,7 @@ namespace UIH.Dicom.Network.Scu
 			}
 			catch (Exception e)
 			{
-                LogAdapter.Logger.TraceException(e);
+                LogAdapter.Logger.Error(e, "unexpected exception happen when verify {0}", remoteAE);
 			}
 			if (base.Status == ScuOperationStatus.Canceled)
 				return VerificationResult.Canceled;

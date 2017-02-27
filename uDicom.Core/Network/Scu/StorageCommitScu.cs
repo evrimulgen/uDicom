@@ -257,7 +257,7 @@ namespace UIH.Dicom.Network.Scu
 				}
 				catch (Exception ex)
 				{
-					LogAdapter.Logger.TraceException(ex);
+					LogAdapter.Logger.Error(ex, "unexpected exception happened when send associate abort!");
 				}
 				StopRunningOperation(ScuOperationStatus.UnexpectedMessage);
 				throw new Exception("The method or operation is not implemented.");

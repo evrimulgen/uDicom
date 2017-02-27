@@ -61,7 +61,7 @@ namespace UIH.Dicom.Codec
 			}
 			catch(Exception e)
 			{
-                LogAdapter.Logger.TraceException(e);
+                LogAdapter.Logger.Error(e, "Error happen when search dicom codec");
 			}
         }
 

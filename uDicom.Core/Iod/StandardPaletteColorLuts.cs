@@ -112,7 +112,7 @@ namespace UIH.Dicom.Iod
 			}
 			catch (Exception ex)
 			{
-				LogAdapter.Logger.TraceException(ex);
+				LogAdapter.Logger.Error(ex, "erorr load resource {0}", resourceName);
 			}
 			return null;
 		}

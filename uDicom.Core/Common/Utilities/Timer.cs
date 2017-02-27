@@ -169,7 +169,7 @@ namespace UIH.Dicom.Common.Utilities
 			}
 			catch (Exception e)
 			{
-				LogAdapter.Logger.TraceException(e);
+				LogAdapter.Logger.Error(e, "Error when dispose object!");
 			}
 		}
 
