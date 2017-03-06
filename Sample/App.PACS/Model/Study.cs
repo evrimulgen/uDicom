@@ -26,9 +26,9 @@ namespace App.PACS.Model
 
         public string AccessionNumber { get; set; }
 
-        public string StudyDate { get; set; }
+        public DateTime StudyDate { get; set; }
 
-        public string StudyTime { get; set; }
+        public DateTime StudyTime { get; set; }
 
         public string ModaliyInStudy { get; set; }
 
@@ -42,7 +42,7 @@ namespace App.PACS.Model
 
         public string PatientName { get; set; }
 
-        public string PatientBirthday { get; set; }
+        public DateTime PatientBirthday { get; set; }
 
         public string PatientAge { get; set; }
 

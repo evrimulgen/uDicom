@@ -36,17 +36,17 @@ namespace App.PACS.Model
 
         public string PerfPhysician { get; set; }
 
-        public string SeriesDate { get; set; }
+        public DateTime SeriesDate { get; set; }
 
-        public string SeriesTime { get; set; }
+        public DateTime SeriesTime { get; set; }
 
         public string SourceAet { get; set; }
 
         public string SeriesDescription { get; set; }
 
-        public string PerformedProcedureStepStartDate { get; set; }
+        public DateTime PerformedProcedureStepStartDate { get; set; }
 
-        public string PerformedProcedureStepStartTime { get; set; }
+        public DateTime PerformedProcedureStepStartTime { get; set; }
 
         public DateTime InsertTime { get; set; }
 

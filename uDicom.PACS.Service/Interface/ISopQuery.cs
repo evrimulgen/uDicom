@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
+using UIH.Dicom.Network.Scu;
 using UIH.Dicom.PACS.Service.Model;
 
 namespace UIH.Dicom.PACS.Service.Interface
@@ -15,6 +13,14 @@ namespace UIH.Dicom.PACS.Service.Interface
         void OnStudyQuery(DicomMessage message, SelectCallback<IStudyData> callback);
 
         void OnSeriesQuery(DicomMessage message, SelectCallback<ISeriesData> callback );
+
+        List<StorageInstance> GetSopListForPatient(DicomMessage message);
+
+        List<StorageInstance> GetSopListForStudy(DicomMessage message);
+
+        List<StorageInstance> GetSopListForSeries(DicomMessage message);
+
+        List<StorageInstance> GetSopListForInstance(DicomMessage message);
 
     }
 }

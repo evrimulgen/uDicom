@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
-using System.Text;
 using App.PACS.Model;
 using UIH.Dicom.Network;
 using UIH.Dicom.PACS.Service.Interface;
@@ -41,7 +39,7 @@ namespace App.PACS.Logic
                             AeTitle = association.CallingAE,
                             Enabled = true,
                             Description = string.Format("AE: {0}", association.CallingAE),
-                            //TODO
+                            Hostname = association.RemoteEndPoint.Address.ToString(),
                             Port = 104,
                             AllowQuery = true,
                             AllowRetrieve = true,
@@ -71,6 +69,22 @@ namespace App.PACS.Logic
                         device.LastAccessTime = DateTime.Now;
                         ctx.SaveChanges();
                     }
+                }
+            }
+
+            return device;
+        }
+
+        public IDevice LookupDevice(IServerPartition partition, string aet)
+        {
+            Device device = null;
+
+            using (var ctx = new PacsContext())
+            {
+                var part = (from p in ctx.ServerPartitions select p).FirstOrDefault();
+                if (part != null)
+                {
+                    device = part.Devices.FirstOrDefault(d => d.AeTitle.Equals(aet));
                 }
             }
 

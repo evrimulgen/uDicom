@@ -15,5 +15,7 @@ namespace UIH.Dicom.PACS.Service.Interface
     public interface IDeviceManager
     {
         IDevice LookupDevice(IServerPartition partition, AssociationParameters association, out bool isNew);
+
+        IDevice LookupDevice(IServerPartition partition, string aet);
     }
 }

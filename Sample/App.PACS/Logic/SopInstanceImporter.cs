@@ -66,11 +66,13 @@ namespace App.PACS.Logic
                 result.Successful = false;
             }
 
+            DateTime dt = new DateTime();
+
             var patient = new Patient
             {
                 PatientId = dicomMessage.DataSet[DicomTags.PatientId].GetString(0, string.Empty),
                 PatientName = dicomMessage.DataSet[DicomTags.PatientsName].GetString(0, string.Empty),
-                PatientBirthDate = dicomMessage.DataSet[DicomTags.PatientsBirthDate].GetString(0, string.Empty),
+                PatientBirthDate = dicomMessage.DataSet[DicomTags.PatientsBirthDate].GetDateTime(0, dt),
                 IssuerOfPatientId = dicomMessage.DataSet[DicomTags.IssuerOfPatientId].GetString(0, string.Empty),
             };
 
@@ -79,8 +81,8 @@ namespace App.PACS.Logic
                 StudyId = dicomMessage.DataSet[DicomTags.StudyId].GetString(0, string.Empty),
                 StudyUid = dicomMessage.DataSet[DicomTags.StudyInstanceUid].GetString(0, string.Empty),
                 AccessionNumber = dicomMessage.DataSet[DicomTags.AccessionNumber].GetString(0, string.Empty),
-                StudyDate = dicomMessage.DataSet[DicomTags.StudyDate].GetString(0, string.Empty),
-                StudyTime = dicomMessage.DataSet[DicomTags.StudyTime].GetString(0, string.Empty),
+                StudyDate = dicomMessage.DataSet[DicomTags.StudyDate].GetDateTime(0, dt),
+                StudyTime = dicomMessage.DataSet[DicomTags.StudyTime].GetDateTime(0, dt),
                 RefPhysician = dicomMessage.DataSet[DicomTags.ReferringPhysiciansName].GetString(0, string.Empty),
                 StudyDescription = dicomMessage.DataSet[DicomTags.StudyDescription].GetString(0, string.Empty),
 
@@ -103,11 +105,11 @@ namespace App.PACS.Logic
                 StationName = dicomMessage.DataSet[DicomTags.StationName].GetString(0, string.Empty),
                 Department = dicomMessage.DataSet[DicomTags.InstitutionalDepartmentName].GetString(0, string.Empty),
                 PerfPhysician = dicomMessage.DataSet[DicomTags.PerformingPhysiciansName].GetString(0, string.Empty),
-                SeriesDate = dicomMessage.DataSet[DicomTags.SeriesDate].GetString(0, string.Empty),
-                SeriesTime = dicomMessage.DataSet[DicomTags.SeriesTime].GetString(0, string.Empty),
+                SeriesDate = dicomMessage.DataSet[DicomTags.SeriesDate].GetDateTime(0, dt),
+                SeriesTime = dicomMessage.DataSet[DicomTags.SeriesTime].GetDateTime(0, dt),
                 SeriesDescription = dicomMessage.DataSet[DicomTags.SeriesDescription].GetString(0, string.Empty),
-                PerformedProcedureStepStartDate = dicomMessage.DataSet[DicomTags.PerformedProcedureStepStartDate].GetString(0, string.Empty),
-                PerformedProcedureStepStartTime = dicomMessage.DataSet[DicomTags.PerformedProcedureStepStartTime].GetString(0, string.Empty),
+                PerformedProcedureStepStartDate = dicomMessage.DataSet[DicomTags.PerformedProcedureStepStartDate].GetDateTime(0, dt),
+                PerformedProcedureStepStartTime = dicomMessage.DataSet[DicomTags.PerformedProcedureStepStartTime].GetDateTime(0, dt),
             };
 
             var instance = new Instance()
@@ -115,8 +117,8 @@ namespace App.PACS.Logic
                 SopInstanceUid = dicomMessage.DataSet[DicomTags.SopInstanceUid].GetString(0, string.Empty),
                 SopClassUid = dicomMessage.DataSet[DicomTags.SopClassUid].GetString(0, string.Empty),
                 InstanceNumber = dicomMessage.DataSet[DicomTags.InstanceNumber].GetString(0, string.Empty),
-                ContentDate = dicomMessage.DataSet[DicomTags.ContentDate].GetString(0, string.Empty),
-                ContentTime = dicomMessage.DataSet[DicomTags.ContentTime].GetString(0, string.Empty)
+                ContentDate = dicomMessage.DataSet[DicomTags.ContentDate].GetDateTime(0, dt),
+                ContentTime = dicomMessage.DataSet[DicomTags.ContentTime].GetDateTime(0, dt)
             };
 
             if (string.IsNullOrEmpty(study.StudyUid)

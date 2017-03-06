@@ -18,6 +18,8 @@ namespace UIH.Dicom.PACS.Service.Model
 
         bool Enabled { get; set; }
 
+        bool Dhcp { get; set; }
+
         string Description { get; set; }
     }
 }

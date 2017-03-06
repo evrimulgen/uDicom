@@ -17,7 +17,7 @@ namespace App.PACS.Model
 
         public string IssuerOfPatientId { get; set; }
         
-        public string PatientBirthDate { get; set; }
+        public DateTime PatientBirthDate { get; set; }
 
         public int NumberOfRelatedStudies { get; set; }
 

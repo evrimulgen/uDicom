@@ -24,9 +24,9 @@ namespace App.PACS.Model
 
         public string InstanceNumber { get; set; }
 
-        public string ContentDate { get; set; }
+        public DateTime ContentDate { get; set; }
 
-        public string ContentTime { get; set; }
+        public DateTime ContentTime { get; set; }
 
         public DateTime InsertTime { get; set;}
 

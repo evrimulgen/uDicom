@@ -13,9 +13,9 @@ namespace UIH.Dicom.PACS.Service.Model
 
         Int32 NumberOfRelatedImage { get; set; }
 
-        string PerformedProcedureStepStartDate { get; set; }
+        DateTime PerformedProcedureStepStartDate { get; set; }
 
-        string PerformedProcedureStepStartTime { get; set; }
+        DateTime PerformedProcedureStepStartTime { get; set; }
 
         string SourceAet { get; set; }
 

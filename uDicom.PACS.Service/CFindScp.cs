@@ -370,7 +370,7 @@ namespace UIH.Dicom.PACS.Service
                             if (studyData == null)
                                 dataSet[DicomTags.PatientsBirthDate].SetNullValue();
                             else
-                                dataSet[DicomTags.PatientsBirthDate].SetStringValue(studyData.PatientBirthday);
+                                dataSet[DicomTags.PatientsBirthDate].SetDateTime(0, studyData.PatientBirthday);
                             break;
 
                         // Meta tags that should have not been in the RQ, but we've already set
@@ -427,7 +427,7 @@ namespace UIH.Dicom.PACS.Service
                             dataSet[DicomTags.PatientId].SetStringValue(row.PatientId);
                             break;
                         case DicomTags.PatientsBirthDate:
-                            dataSet[DicomTags.PatientsBirthDate].SetStringValue(row.PatientBirthday);
+                            dataSet[DicomTags.PatientsBirthDate].SetDateTime(0, row.PatientBirthday);
                             break;
                         case DicomTags.PatientsAge:
                             dataSet[DicomTags.PatientsAge].SetStringValue(row.PatientAge);
@@ -436,10 +436,10 @@ namespace UIH.Dicom.PACS.Service
                             dataSet[DicomTags.PatientsSex].SetStringValue(row.PatientSex);
                             break;
                         case DicomTags.StudyDate:
-                            dataSet[DicomTags.StudyDate].SetStringValue(row.StudyDate);
+                            dataSet[DicomTags.StudyDate].SetDateTime(0, row.StudyDate);
                             break;
                         case DicomTags.StudyTime:
-                            dataSet[DicomTags.StudyTime].SetStringValue(row.StudyTime);
+                            dataSet[DicomTags.StudyTime].SetDateTime(0, row.StudyTime);
                             break;
                         case DicomTags.AccessionNumber:
                             dataSet[DicomTags.AccessionNumber].SetStringValue(row.AccessionNumber);
@@ -529,11 +529,11 @@ namespace UIH.Dicom.PACS.Service
                             dataSet[DicomTags.SeriesDescription].SetStringValue(row.SeriesDescription);
                             break;
                         case DicomTags.PerformedProcedureStepStartDate:
-                            dataSet[DicomTags.PerformedProcedureStepStartDate].SetStringValue(
+                            dataSet[DicomTags.PerformedProcedureStepStartDate].SetDateTime(0,
                                 row.PerformedProcedureStepStartDate);
                             break;
                         case DicomTags.PerformedProcedureStepStartTime:
-                            dataSet[DicomTags.PerformedProcedureStepStartTime].SetStringValue(
+                            dataSet[DicomTags.PerformedProcedureStepStartTime].SetDateTime(0,
                                 row.PerformedProcedureStepStartTime);
                             break;
                         case DicomTags.NumberOfSeriesRelatedInstances:

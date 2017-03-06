@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
-using App.PACS.Model;
-using UIH.Dicom.Common;
-using UIH.Dicom.Log;
+using uDicom.Common;
 using UIH.Dicom.Network.Scp;
 using UIH.Dicom.PACS.Service;
 using UIH.Dicom.PACS.Service.Model;

@@ -14,15 +14,15 @@ namespace UIH.Dicom.PACS.Service.Model
 
         string PatientId { get; set; }
 
-        string PatientBirthday { get; set; }
+        DateTime PatientBirthday { get; set; }
 
         string PatientAge { get; set; }
 
         string PatientSex { get; set; }
 
-        string StudyDate { get; set; }
+        DateTime StudyDate { get; set; }
 
-        string StudyTime { get; set; }
+        DateTime StudyTime { get; set; }
 
         string AccessionNumber { get; set; }
 
