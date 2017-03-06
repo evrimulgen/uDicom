@@ -22,7 +22,7 @@
 using System;
 using System.IO;
 using System.Text;
-using UIH.Dicom.Common.Utilities;
+using uDicom.Common.Utilities;
 
 namespace UIH.Dicom.IO
 {

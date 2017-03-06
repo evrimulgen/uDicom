@@ -21,7 +21,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using UIH.Dicom.Common;
+using uDicom.Common;
 
 namespace UIH.Dicom.Iod.Modules
 {

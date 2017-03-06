@@ -25,6 +25,8 @@ namespace uDicom.WorkItemService.Interface
         private const int MaxRetryCount = 10;
         private const int PostponeSecond = 30;
 
+        private WorkItem _workItem; 
+
         #endregion
 
         #region Public Properties
@@ -32,7 +34,17 @@ namespace uDicom.WorkItemService.Interface
         // Hard-coded log level for proxy
         public LogLevel LogLevel = LogLevel.Debug;
 
-        public WorkItem Item { get; set; }
+        public WorkItem Item
+        {
+            get { return _workItem; }
+
+            set
+            {
+                _workItem = value;
+                Progress = _workItem.Progress;
+                Request = _workItem.Request;
+            }
+        }
         public WorkItemProgress Progress { get; set; }
         public WorkItemRequest Request { get; set; }
 

@@ -22,7 +22,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using UIH.Dicom.Common;
+using uDicom.Common;
 using UIH.Dicom.Log;
 using UIH.Dicom.Network.Scu;
 

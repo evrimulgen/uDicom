@@ -99,6 +99,10 @@
       <Project>{14d40d31-3c08-4f32-8d29-0d50af02469d}</Project>
       <Name>uDicom.Log.Log4net</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\uDicom.Common\uDicom.Common.csproj">
+      <Project>{375CDBA6-54FA-4D85-87EB-D6FEC5DE5551}</Project>
+      <Name>uDicom.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\uDicom.Core\uDicom.Core.csproj">
       <Project>{5F03C5DC-CDF9-406C-A6C1-611EA4B1C441}</Project>
       <Name>uDicom.Core</Name>

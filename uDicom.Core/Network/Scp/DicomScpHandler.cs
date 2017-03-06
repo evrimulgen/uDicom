@@ -23,7 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using UIH.Dicom.Common;
+using uDicom.Common;
 using UIH.Dicom.Log;
 using UIH.Dicom.Network.Scu;
 

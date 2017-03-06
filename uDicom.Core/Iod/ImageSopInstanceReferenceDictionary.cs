@@ -20,7 +20,7 @@
 #endregion
 
 using System.Collections.Generic;
-using UIH.Dicom.Common;
+using uDicom.Common;
 using UIH.Dicom.Iod.Macros;
 
 namespace UIH.Dicom.Iod

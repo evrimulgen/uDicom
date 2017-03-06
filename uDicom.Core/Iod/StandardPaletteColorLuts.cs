@@ -21,7 +21,7 @@
 
 using System;
 using System.Reflection;
-using UIH.Dicom.Common.Utilities;
+using uDicom.Common.Utilities;
 using UIH.Dicom.Log;
 
 namespace UIH.Dicom.Iod

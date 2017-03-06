@@ -26,7 +26,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
-using UIH.Dicom.Common.Utilities;
+using uDicom.Common.Utilities;
 using UIH.Dicom.Iod.Sequences;
 using UIH.Dicom.Network;
 

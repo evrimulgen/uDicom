@@ -22,7 +22,7 @@
 using System;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
-using UIH.Dicom.Common.Utilities;
+using uDicom.Common.Utilities;
 using UIH.Dicom.Iod;
 using UIH.Dicom.Iod.Modules;
 using UIH.Dicom.Iod.Sequences;

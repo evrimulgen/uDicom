@@ -65,6 +65,10 @@
     <Compile Include="ThreadService.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\uDicom.Common\uDicom.Common.csproj">
+      <Project>{375CDBA6-54FA-4D85-87EB-D6FEC5DE5551}</Project>
+      <Name>uDicom.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\uDicom.Core\uDicom.Core.csproj">
       <Project>{5f03c5dc-cdf9-406c-a6c1-611ea4b1c441}</Project>
       <Name>uDicom.Core</Name>

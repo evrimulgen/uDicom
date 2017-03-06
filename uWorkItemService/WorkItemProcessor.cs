@@ -7,6 +7,12 @@ using uDicom.WorkItemService.Interface;
 
 namespace uDicom.WorkItemService
 {
+    /// <summary>
+    /// 业务场景 
+    /// 1. 用户创建了m+n个优先级是Normal 任务，处理单元容许同时有 m个（ 优先级为normal的任务执行
+    /// 容许n个 Stat & High优先级的任务执行，当用户将一个任务的优先级提高后，被提高优先级的任务可以 
+    /// 立即被调度到可以运行高优先任务的预留线程中，直到 m + n 线程都处于运行状态。
+    /// </summary>
     public sealed class WorkItemProcessor : QueueProcessor
     {
         private readonly Dictionary<string, IWorkItemProcessorFactory> _extensions =
@@ -145,8 +151,8 @@ namespace uDicom.WorkItemService
         /// <summary>
         ///     Initialize the singleton <see cref="WorkItemProcessor" />.
         /// </summary>
-        /// <param name="numberStatThreads"></param>
-        /// <param name="numberNormalThreads"></param>
+        /// <param name="numberStatThreads">The number of thread to process stat and high priority work item.</param>
+        /// <param name="numberNormalThreads">The number of thread to process normal priority work item.</param>
         /// <param name="name"></param>
         public static void CreateProcessor(int numberStatThreads, int numberNormalThreads, string name)
         {

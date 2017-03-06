@@ -21,7 +21,7 @@
 
 using System;
 using System.Drawing;
-using UIH.Dicom.Common;
+using uDicom.Common;
 
 namespace UIH.Dicom.Iod
 {

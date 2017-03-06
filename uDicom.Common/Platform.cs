@@ -122,7 +122,7 @@ namespace uDicom.Common
             //        return log.IsFatalEnabled;
             //}
 
-            return false;
+            return true;
         }
 
         /// <summary>

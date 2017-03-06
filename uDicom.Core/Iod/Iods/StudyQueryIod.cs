@@ -21,7 +21,7 @@
 
 using System;
 using UIH.Dicom.Utilities;
-using UIH.Dicom.Common;
+using uDicom.Common;
 
 namespace UIH.Dicom.Iod.Iods
 {

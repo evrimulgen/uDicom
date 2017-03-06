@@ -26,7 +26,7 @@ using System.Drawing;
 using UIH.Dicom.Iod;
 using UIH.Dicom.Iod.Modules;
 using UIH.Dicom.Iod.Sequences;
-using UIH.Dicom.Common;
+using uDicom.Common;
 
 namespace UIH.Dicom.Network.Scu
 {

@@ -8,6 +8,8 @@ namespace uDicom.WorkItemService.Interface
 
         public DateTime ScheduledTime { get; set; }
 
+        public DateTime ProcessTime { get; set; }
+
         public DateTime ExpirationTime { get; set; }
 
         public DateTime DeleteTime { get; set; }
@@ -16,7 +18,7 @@ namespace uDicom.WorkItemService.Interface
 
         public string Type { get; set; }
 
-        public int Priority { get; set; }
+        public WorkItemPriorityEnum Priority { get; set; }
 
         public string StudyInstanceUid { get; set; }
 

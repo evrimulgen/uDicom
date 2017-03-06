@@ -23,9 +23,9 @@ using System;
 using System.IO;
 using System.Threading;
 using UIH.Dicom;
-using UIH.Dicom.Common;
+using uDicom.Common;
 using UIH.Dicom.Codec;
-using UIH.Dicom.Common.Utilities;
+using uDicom.Common.Utilities;
 using UIH.Dicom.IO;
 using UIH.Dicom.Log;
 

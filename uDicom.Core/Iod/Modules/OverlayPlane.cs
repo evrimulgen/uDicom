@@ -23,7 +23,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
-using UIH.Dicom.Common;
+using uDicom.Common;
 using UIH.Dicom.IO;
 using UIH.Dicom.Log;
 

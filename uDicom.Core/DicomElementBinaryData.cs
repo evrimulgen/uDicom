@@ -23,7 +23,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using UIH.Dicom.Common.Utilities;
+using uDicom.Common.Utilities;
 using UIH.Dicom.IO;
 
 namespace UIH.Dicom

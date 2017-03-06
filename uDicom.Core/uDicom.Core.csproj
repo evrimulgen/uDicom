@@ -48,35 +48,6 @@
     <Compile Include="Codec\Tests\AbstractCodecTest.cs" />
     <Compile Include="Codec\Tests\GZipDicomCodec.cs" />
     <Compile Include="Codec\Tests\NullDicomCodec.cs" />
-    <Compile Include="Common\Platform.cs" />
-    <Compile Include="Common\SR.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>SR.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Common\Utilities\BackgroundTask.cs" />
-    <Compile Include="Common\Utilities\BlockingQueue.cs" />
-    <Compile Include="Common\Utilities\BlockingThreadPool.cs" />
-    <Compile Include="Common\Utilities\CloneBuilder.cs" />
-    <Compile Include="Common\Utilities\CollectionSynchronizeHelper.cs" />
-    <Compile Include="Common\Utilities\DateTimeUtils.cs" />
-    <Compile Include="Common\Utilities\DelayedEventPublisher.cs" />
-    <Compile Include="Common\Utilities\EventsHelper.cs" />
-    <Compile Include="Common\Utilities\ExclusiveLock.cs" />
-    <Compile Include="Common\Utilities\FileProcessor.cs" />
-    <Compile Include="Common\Utilities\FileSize.cs" />
-    <Compile Include="Common\Utilities\FileStreamOpener.cs" />
-    <Compile Include="Common\Utilities\FileUtils.cs" />
-    <Compile Include="Common\Utilities\IResourceResolver.cs" />
-    <Compile Include="Common\Utilities\ItemEventArgs.cs" />
-    <Compile Include="Common\Utilities\LargeMemoryStream.cs" />
-    <Compile Include="Common\Utilities\ListEventArgs.cs" />
-    <Compile Include="Common\Utilities\ObjectWalker.cs" />
-    <Compile Include="Common\Utilities\ResourceResolver.cs" />
-    <Compile Include="Common\Utilities\StringUtilities.cs" />
-    <Compile Include="Common\Utilities\SystemResources.cs" />
-    <Compile Include="Common\Utilities\ThreadPoolBase.cs" />
-    <Compile Include="Common\Utilities\Timer.cs" />
     <Compile Include="ComparisonResultType.cs" />
     <Compile Include="DicomCompressedPixelData.cs" />
     <Compile Include="DicomDataException.cs" />
@@ -327,10 +298,7 @@
     <Compile Include="IO\StreamMethods.cs" />
     <Compile Include="IO\StreamReader.cs" />
     <Compile Include="IO\StreamWriter.cs" />
-    <Compile Include="Log\ILog.cs" />
-    <Compile Include="Log\Logger.cs" />
     <Compile Include="Log\LoggerAdatper.cs" />
-    <Compile Include="Log\LogManager.cs" />
     <Compile Include="Network\AssociationParameters.cs" />
     <Compile Include="Network\DicomClient.cs" />
     <Compile Include="Network\DicomNetworkException.cs" />
@@ -415,10 +383,6 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Common\SR.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>SR.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
     <EmbeddedResource Include="Network\SR.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>SR.Designer.cs</LastGenOutput>
@@ -433,6 +397,12 @@
     <Content Include="Iod\Resources\HotMetalBlueStandardColorPalette.xml" />
     <Content Include="Iod\Resources\PET20StepStandardColorPalette.xml" />
     <Content Include="Iod\Resources\PETStandardColorPalette.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\uDicom.Common\uDicom.Common.csproj">
+      <Project>{375CDBA6-54FA-4D85-87EB-D6FEC5DE5551}</Project>
+      <Name>uDicom.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

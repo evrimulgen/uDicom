@@ -21,7 +21,7 @@
 
 using System;
 using System.Collections.Generic;
-using UIH.Dicom.Common.Utilities;
+using uDicom.Common.Utilities;
 using UIH.Dicom.Iod;
 
 namespace UIH.Dicom.Utilities

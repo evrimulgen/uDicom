@@ -23,7 +23,7 @@ using System;
 using System.IO;
 using System.Text;
 using ClearCanvas.Dicom.IO;
-using UIH.Dicom.Common;
+using uDicom.Common;
 using UIH.Dicom.IO;
 using UIH.Dicom.Log;
 

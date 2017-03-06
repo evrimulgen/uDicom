@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using UIH.Dicom.Common;
-using UIH.Dicom.Common.Utilities;
-using UIH.Dicom.Log;
+using uDicom.Common;
+using uDicom.Common.Utilities;
 using UIH.Dicom.Network;
 using UIH.Dicom.PACS.Service.Interface;
 using UIH.Pacs.Services.Dicom;
@@ -47,7 +43,7 @@ namespace UIH.Dicom.PACS.Service
             {
                 if (!importer.GetStreamedFileStorageFolder(message, out _sourceFolder, out _filesystemStreamingFolder))
                 {
-                    //Platform.Log(LogLevel.Warn, "Unable to create a folder to save SOP Instance, rejecting: {0}", sopInstanceUid);
+                    Platform.Log(LogLevel.Warn, "Unable to create a folder to save SOP Instance, rejecting: {0}", sopInstanceUid);
                     return false;
                 }
 
@@ -59,7 +55,7 @@ namespace UIH.Dicom.PACS.Service
                 }
                 catch (Exception x)
                 {
-                    //Platform.Log(LogLevel.Warn, x, "Unable to open file for saving filestream: {0}", _sourceFilename);
+                    Platform.Log(LogLevel.Warn, x, "Unable to open file for saving filestream: {0}", _sourceFilename);
                     return false;
                 }
             }
@@ -118,14 +114,14 @@ namespace UIH.Dicom.PACS.Service
 
                 if (result.Successful)
                 {
-                    //if (!String.IsNullOrEmpty(result.AccessionNumber))
-                    //    Platform.Log(LogLevel.Info, "Received SOP Instance {0} from {1} to {2} (A#:{3} StudyUid:{4})",
-                    //                 result.SopInstanceUid, assoc.CallingAE, assoc.CalledAE, result.AccessionNumber,
-                    //                 result.StudyInstanceUid);
-                    //else
-                    //    Platform.Log(LogLevel.Info, "Received SOP Instance {0} from {1} to {2} (StudyUid:{3})",
-                    //                 result.SopInstanceUid, assoc.CallingAE, assoc.CalledAE,
-                    //                 result.StudyInstanceUid);
+                    if (!String.IsNullOrEmpty(result.AccessionNumber))
+                        Platform.Log(LogLevel.Info, "Received SOP Instance {0} from {1} to {2} (A#:{3} StudyUid:{4})",
+                                     result.SopInstanceUid, assoc.CallingAE, assoc.CalledAE, result.AccessionNumber,
+                                     result.StudyInstanceUid);
+                    else
+                        Platform.Log(LogLevel.Info, "Received SOP Instance {0} from {1} to {2} (StudyUid:{3})",
+                                     result.SopInstanceUid, assoc.CallingAE, assoc.CalledAE,
+                                     result.StudyInstanceUid);
                 }
             }
             catch (Exception e)
@@ -135,7 +131,7 @@ namespace UIH.Dicom.PACS.Service
 
             if (!result.Successful)
             {
-                //Platform.Log(LogLevel.Warn, "Failure importing sop: {0}", result.ErrorMessage);
+                Platform.Log(LogLevel.Warn, "Failure importing sop: {0}", result.ErrorMessage);
             }
 
             CleanupDirectory();
@@ -154,7 +150,7 @@ namespace UIH.Dicom.PACS.Service
                 }
                 catch (Exception x)
                 {
-                    //Platform.Log(LogLevel.Warn, x, "Unexpected error cleaning up streaming SOP Instance file.");
+                    Platform.Log(LogLevel.Warn, x, "Unexpected error cleaning up streaming SOP Instance file.");
                 }
 
             //try

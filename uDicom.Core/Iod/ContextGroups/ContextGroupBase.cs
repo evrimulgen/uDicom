@@ -23,7 +23,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UIH.Dicom.Common;
+using uDicom.Common;
 using UIH.Dicom.Iod.Macros;
 
 namespace UIH.Dicom.Iod.ContextGroups

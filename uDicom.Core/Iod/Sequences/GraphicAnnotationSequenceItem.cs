@@ -21,7 +21,7 @@
 
 using System;
 using System.Drawing;
-using UIH.Dicom.Common;
+using uDicom.Common;
 using UIH.Dicom.Iod.Macros;
 
 namespace UIH.Dicom.Iod.Sequences

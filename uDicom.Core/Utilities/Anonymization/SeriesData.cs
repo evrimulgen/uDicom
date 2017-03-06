@@ -19,7 +19,7 @@
 
 #endregion
 
-using UIH.Dicom.Common.Utilities;
+using uDicom.Common.Utilities;
 
 namespace UIH.Dicom.Utilities.Anonymization
 {

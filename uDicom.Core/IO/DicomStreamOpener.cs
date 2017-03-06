@@ -24,7 +24,7 @@
 
 using System;
 using System.IO;
-using UIH.Dicom.Common;
+using uDicom.Common;
 
 namespace UIH.Dicom.IO
 {

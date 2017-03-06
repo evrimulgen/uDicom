@@ -23,7 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using UIH.Dicom.Common.Utilities;
+using uDicom.Common.Utilities;
 
 namespace UIH.Dicom.Utilities.Anonymization
 {

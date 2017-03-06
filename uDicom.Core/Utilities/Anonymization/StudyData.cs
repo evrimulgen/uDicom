@@ -20,7 +20,7 @@
 #endregion
 
 using System;
-using UIH.Dicom.Common.Utilities;
+using uDicom.Common.Utilities;
 using UIH.Dicom.Iod;
 
 namespace UIH.Dicom.Utilities.Anonymization

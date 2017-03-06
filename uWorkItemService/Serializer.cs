@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Xml;
@@ -10,11 +11,11 @@ namespace uDicom.WorkItemService
 {
     internal class Serializer
     {
-        private static readonly DataContractJsonSerializer WorkItemRequestSerializer =
-             new DataContractJsonSerializer(typeof(WorkItemRequest));
+        private static readonly DataContractSerializer WorkItemRequestSerializer =
+             CreateDataContractSerializer<WorkItemRequest>();
 
-        private static readonly DataContractJsonSerializer WorkItemProgressSerializer =
-            new DataContractJsonSerializer(typeof(WorkItemProgress));
+        private static readonly DataContractSerializer WorkItemProgressSerializer =
+            CreateDataContractSerializer<WorkItemProgress>();
 
         public static string SerializeWorkItemRequest(WorkItemRequest data)
         {
@@ -74,6 +75,13 @@ namespace uDicom.WorkItemService
             }
 
             return null;
+        }
+
+        private static DataContractSerializer CreateDataContractSerializer<TObject>()
+           where TObject: class 
+        {
+            return new DataContractSerializer(typeof(TObject), null, int.MaxValue, false, false, null, 
+                new PolymorphicDataContractResolver<TObject>());
         }
     }
 }
