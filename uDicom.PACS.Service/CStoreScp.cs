@@ -9,15 +9,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using UIH.Dicom.Network;
-using UIH.Dicom.Network.Scp;
 using UIH.Dicom.PACS.Service.Interface;
 using UIH.Pacs.Services.Dicom;
 
 namespace UIH.Dicom.PACS.Service
 {
-    [Export(typeof(IDicomScp<DicomScpContext>)), PartCreationPolicy(CreationPolicy.NonShared)]
     public class CStoreScp : BaseScp
     {
         #region Private Members

@@ -9,6 +9,7 @@
 
 using System;
 using System.Threading;
+using uDicom.Common;
 
 namespace UIH.Dicom.PACS.Service
 {
@@ -89,7 +90,7 @@ namespace UIH.Dicom.PACS.Service
                                                 }
                                                 catch (Exception ex)
                                                 {
-                                                    Log.Logger.Warn("Unexpected exception initializing {0} service",
+                                                    Platform.Log(LogLevel.Error, ex, "Unexpected exception initializing {0} service",
                                                             Name);
                                                 }
 
@@ -109,7 +110,7 @@ namespace UIH.Dicom.PACS.Service
                                             }
                                             catch (Exception e)
                                             {
-                                                Log.Logger.Error("Unexpected exception running service {0}",
+                                                Platform.Log(LogLevel.Error, e, "Unexpected exception running service {0}",
                                                     Name);
                                             }
                                         });

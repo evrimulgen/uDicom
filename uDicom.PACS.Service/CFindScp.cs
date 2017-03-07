@@ -9,17 +9,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Linq;
 using System.Threading;
 using UIH.Dicom.Network;
-using UIH.Dicom.Network.Scp;
 using UIH.Dicom.PACS.Service.Interface;
 using UIH.Dicom.PACS.Service.Model;
 
 namespace UIH.Dicom.PACS.Service
 {
-    [Export(typeof (IDicomScp<DicomScpContext>)), PartCreationPolicy(CreationPolicy.NonShared)]
     public class CFindScp : BaseScp
     {
         #region Private members

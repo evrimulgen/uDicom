@@ -9,7 +9,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using uDicom.Common;
 using UIH.Dicom.Network;
 using UIH.Dicom.Network.Scp;
@@ -18,7 +17,7 @@ using UIH.Dicom.PACS.Service.Interface;
 
 namespace UIH.Dicom.PACS.Service
 {
-    [Export(typeof(IDicomScp<DicomScpContext>)), PartCreationPolicy(CreationPolicy.NonShared)]
+    
     public class CMoveScp : BaseScp
     {
         #region Private members

@@ -86,6 +86,10 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerPartitionMonitor.cs" />
+    <Compile Include="Service\CEchoScpService.cs" />
+    <Compile Include="Service\CFindScpService.cs" />
+    <Compile Include="Service\CMoveScpService.cs" />
+    <Compile Include="Service\CStoreScpService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -95,10 +99,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Log\uDicom.Log.Log4net\uDicom.Log.Log4net.csproj">
-      <Project>{14d40d31-3c08-4f32-8d29-0d50af02469d}</Project>
-      <Name>uDicom.Log.Log4net</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\uDicom.Common\uDicom.Common.csproj">
       <Project>{375CDBA6-54FA-4D85-87EB-D6FEC5DE5551}</Project>
       <Name>uDicom.Common</Name>
@@ -106,6 +106,10 @@
     <ProjectReference Include="..\..\uDicom.Core\uDicom.Core.csproj">
       <Project>{5F03C5DC-CDF9-406C-A6C1-611EA4B1C441}</Project>
       <Name>uDicom.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\uDicom.Log\uDicom.Log.Log4net\uDicom.Log.Log4net.csproj">
+      <Project>{14D40D31-3C08-4F32-8D29-0D50AF02469D}</Project>
+      <Name>uDicom.Log.Log4net</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\uDicom.PACS.Service\uDicom.PACS.Service.csproj">
       <Project>{2ebd1cb0-1813-4005-83db-b12fe2e222b5}</Project>
