@@ -5,6 +5,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Xml;
 using uDicom.Common;
+using uDicom.WorkItemService.Common;
 using uDicom.WorkItemService.Interface;
 
 namespace uDicom.WorkItemService

@@ -17,5 +17,8 @@ namespace uDicom.WorkItemService.Interface
 
         [DataMember(IsRequired = true)]
         public bool IsCancelable { get; set; }
+
+        [DataMember(IsRequired = true)]
+        public bool IsPauseable { get; set; }
     }
 }

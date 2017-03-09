@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using uDicom.Common;
+using uDicom.WorkItemService.Common;
 using uDicom.WorkItemService.Interface;
+using uDicom.WorkItemService.WorkItemService;
 
 namespace uDicom.WorkItemService
 {
@@ -123,7 +125,7 @@ namespace uDicom.WorkItemService
 
         internal static List<WorkItem> GetWorkItems(int statThreadsAvailable, int normalThreadsAvailable)
         {
-            var query = IoC.Get<IWorkItemQuery>();
+            var query = IoC.Get<IWorkItemOperation>();
             List<WorkItem> list = null;
 
             if (statThreadsAvailable > 0)
@@ -321,13 +323,13 @@ namespace uDicom.WorkItemService
         {
             try
             {
-                var query = IoC.Get<IWorkItemQuery>();
+                var query = IoC.Get<IWorkItemOperation>();
 
                 return query.GetWorkItemsToDelete(count);
             }
             catch (Exception e)
             {
-                Platform.Log(LogLevel.Error, e, "Can't find IWorkItemQuery from IoC container");
+                Platform.Log(LogLevel.Error, e, "Can't find IWorkItemOperation from IoC container");
             }
 
             return null;
@@ -340,13 +342,13 @@ namespace uDicom.WorkItemService
         {
             try
             {
-                var query = IoC.Get<IWorkItemQuery>();
+                var query = IoC.Get<IWorkItemOperation>();
 
                 query.ResetInProgressWorkItems();
             }
             catch (ArgumentNullException ex)
             {
-                Platform.Log(LogLevel.Error, ex, "Can't find IWorkItemQuery from Ioc Container");
+                Platform.Log(LogLevel.Error, ex, "Can't find IWorkItemOperation from Ioc Container");
             }
             
         }

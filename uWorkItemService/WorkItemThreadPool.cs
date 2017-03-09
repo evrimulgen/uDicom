@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using uDicom.Common;
 using uDicom.Common.Utilities;
+using uDicom.WorkItemService.Common;
 using uDicom.WorkItemService.Interface;
+using uDicom.WorkItemService.WorkItemService;
 
 namespace uDicom.WorkItemService
 {
@@ -11,7 +13,7 @@ namespace uDicom.WorkItemService
     /// </summary>
     /// <param name="processor">The WorkItem processor.</param>
     /// <param name="queueItem">The actual WorkItem item.</param>
-    internal delegate void WorkItemThreadDelegate(IWorkItemProcessor processor, Interface.WorkItem queueItem);
+    internal delegate void WorkItemThreadDelegate(IWorkItemProcessor processor, WorkItem queueItem);
 
     /// <summary>
     /// Class used to pass parameters to threads in the <see cref="WorkItemThreadPool"/>.
@@ -19,10 +21,10 @@ namespace uDicom.WorkItemService
     internal class WorkItemThreadParameter
     {
         private readonly IWorkItemProcessor _processor;
-        private readonly Interface.WorkItem _item;
+        private readonly WorkItem _item;
         private readonly WorkItemThreadDelegate _del;
 
-        public WorkItemThreadParameter(IWorkItemProcessor processor, Interface.WorkItem item, WorkItemThreadDelegate del)
+        public WorkItemThreadParameter(IWorkItemProcessor processor, WorkItem item, WorkItemThreadDelegate del)
         {
             _item = item;
             _processor = processor;
@@ -34,7 +36,7 @@ namespace uDicom.WorkItemService
             get { return _processor; }
         }
 
-        public Interface.WorkItem Item
+        public WorkItem Item
         {
             get { return _item; }
         }

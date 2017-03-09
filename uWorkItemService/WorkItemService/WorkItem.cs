@@ -1,6 +1,8 @@
 ﻿using System;
+using uDicom.WorkItemService.Common;
+using uDicom.WorkItemService.Interface;
 
-namespace uDicom.WorkItemService.Interface
+namespace uDicom.WorkItemService.WorkItemService
 {
     public class WorkItem
     {
@@ -13,6 +15,8 @@ namespace uDicom.WorkItemService.Interface
         public DateTime ExpirationTime { get; set; }
 
         public DateTime DeleteTime { get; set; }
+
+        public DateTime RequestedTime { get; set; }
 
         public WorkItemStatusEnum Status { get; set; }
 

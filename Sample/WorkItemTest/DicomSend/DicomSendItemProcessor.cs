@@ -7,7 +7,9 @@ using System.Text;
 using System.Threading;
 using uDicom.Common;
 using uDicom.WorkItemService;
+using uDicom.WorkItemService.Common;
 using uDicom.WorkItemService.Interface;
+using WorkItemPriorityEnum = uDicom.WorkItemService.Interface.WorkItemPriorityEnum;
 
 namespace WorkItemTest.DicomSend
 {

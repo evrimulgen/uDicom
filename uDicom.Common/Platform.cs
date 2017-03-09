@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using UIH.Dicom.Common;
 
@@ -55,11 +56,21 @@ namespace uDicom.Common
         Fatal
     }
 
+    public interface IDuplexServiceProvider
+    {
+        object GetService(Type type, object callback);
+    }
+
     public class Platform
     {
+        private static object _syncRoot = new Object();
+
         private static readonly ILog _log = LogManager.GetLog(typeof(Platform).ToString());
         private static readonly object _namedLogLock = new object();
         private static readonly Dictionary<string, ILog> _namedLogs = new Dictionary<string, ILog>();
+
+        private static volatile IServiceProvider[] _serviceProviders;
+        private static volatile IDuplexServiceProvider[] _duplexServiceProviders;
 
         protected static Platform _instance;
         public static Platform Instance 
@@ -80,6 +91,197 @@ namespace uDicom.Common
                     throw new ArgumentOutOfRangeException("PlatformInstance can be set only once.");
             }
         }
+
+        #region Service Provision
+
+        /// <summary>
+        /// Obtains an instance of the specified service for use by the application.
+        /// </summary>
+        /// <remarks>
+        /// This method is thread-safe.
+        /// </remarks>
+        /// <typeparam name="TService">The type of service to obtain.</typeparam>
+        /// <returns>An instance of the specified service.</returns>
+        /// <exception cref="UnknownServiceException">The requested service cannot be provided.</exception>
+        public static TService GetService<TService>()
+        {
+            return (TService)GetService(typeof(TService));
+        }
+
+        /// <summary>
+        /// For use with the <see cref="GetService{TService}(WithServiceDelegate{TService})"/> method.
+        /// </summary>
+        public delegate void WithServiceDelegate<T>(T service);
+
+        /// <summary>
+        /// Obtains an instance of the specified service for use by the application.  
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Instead of returning the service directly, this overload passes the service to the specified delegate for use.
+        /// When the delegate returns, this method automatically takes care of determing whether the service implements <see cref="IDisposable"/>
+        /// and calling <see cref="IDisposable.Dispose"/> if it does.  The delegate must not cache the returned service
+        /// because it may be disposed as soon as the delegate returns.  For the single-use scenario, this overload is preferred
+        /// to the other overloads because it automatically manages the lifecycle of the service object.
+        /// </para>
+        /// <para>
+        /// This method is thread-safe.
+        /// </para>
+        /// </remarks>
+        /// <typeparam name="TService">The service to obtain.</typeparam>
+        /// <param name="proc">A delegate that will receive the service for one-time use.</param>
+        public static void GetService<TService>(WithServiceDelegate<TService> proc)
+        {
+            var service = GetService<TService>();
+
+            try
+            {
+                proc(service);
+            }
+            finally
+            {
+                if (service is IDisposable)
+                {
+                    try
+                    {
+                        (service as IDisposable).Dispose();
+                    }
+                    catch (Exception e)
+                    {
+                        // do not allow exceptions thrown from Dispose() because it may have the effect of
+                        // hiding an exception that was thrown from the service itself
+                        // if the service fails to dispose properly, we don't care, just log it and move on
+                        Log(LogLevel.Error, e);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtains an instance of the specified service for use by the application.  
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Instead of returning the service directly, this overload passes the service to the specified delegate for use.
+        /// When the delegate returns, this method automatically takes care of determing whether the service implements <see cref="IDisposable"/>
+        /// and calling <see cref="IDisposable.Dispose"/> if it does.  The delegate must not cache the returned service
+        /// because it may be disposed as soon as the delegate returns.  For the single-use scenario, this overload is preferred
+        /// to the other overloads because it automatically manages the lifecycle of the service object.
+        /// </para>
+        /// <para>
+        /// This method is thread-safe.
+        /// </para>
+        /// </remarks>
+        /// <typeparam name="TService">The service to obtain.</typeparam>
+        /// <typeparam name="TResult">The type of the function result.</typeparam>
+        /// <param name="func">A delegate that will receive the service for one-time use.</param>
+        public static TResult GetService<TService, TResult>(Func<TService, TResult> func)
+        {
+            TResult result = default(TResult);
+            GetService<TService>(svc => result = func.Invoke(svc));
+            return result;
+        }
+
+        /// <summary>
+        /// Obtains an instance of the specified service for use by the application.
+        /// </summary>
+        /// <remarks>
+        /// This method is thread-safe.
+        /// </remarks>
+        /// <param name="service">The type of service to obtain.</param>
+        /// <returns>An instance of the specified service.</returns>
+        /// <exception cref="UnknownServiceException">The requested service cannot be provided.</exception>
+        public static object GetService(Type service)
+        {
+            // load all service providers if not yet loaded
+            if (_serviceProviders == null)
+            {
+                lock (_syncRoot)
+                {
+                    if (_serviceProviders == null)
+                    {
+                        _serviceProviders = IoC.GetAll<IServiceProvider>().ToArray();
+                    }
+                }
+            }
+
+            // attempt to instantiate the requested service
+            foreach (IServiceProvider sp in _serviceProviders)
+            {
+                // the service provider itself may not be thread-safe, so we need to ensure only one thread will access it
+                // at a time
+                lock (sp)
+                {
+                    object impl = sp.GetService(service);
+                    if (impl != null)
+                        return impl;
+                }
+            }
+
+            var message = string.Format("No service provider was found that can provide the service {0}.", service.FullName);
+            throw new Exception(message);
+        }
+
+        /// <summary>
+        /// Obtains an instance of the specified duplex service for use by the application.
+        /// </summary>
+        /// <remarks>
+        /// This method is thread-safe.
+        /// </remarks>
+        /// <typeparam name="TService">The type of service to obtain.</typeparam>
+        /// <typeparam name="TCallback">The type of the callback contract.</typeparam>
+        /// <param name="callback">An object that implements the callback contract.</param>
+        /// <returns>An instance of the specified service.</returns>
+        /// <exception cref="UnknownServiceException">The requested service cannot be provided.</exception>
+        public static TService GetDuplexService<TService, TCallback>(TCallback callback)
+        {
+            return (TService)GetDuplexService(typeof(TService), callback);
+        }
+
+        /// <summary>
+        /// Obtains an instance of the specified duplex service for use by the application.
+        /// </summary>
+        /// <remarks>
+        /// This method is thread-safe.
+        /// </remarks>
+        /// <param name="service">The type of service to obtain.</param>
+        /// <param name="callback">An object implementing the callback service contract.</param>
+        /// <returns>An instance of the specified service.</returns>
+        /// <exception cref="UnknownServiceException">The requested service cannot be provided.</exception>
+        public static object GetDuplexService(Type service, object callback)
+        {
+            CheckForNullReference(callback, "callback");
+
+            // load all service providers if not yet loaded
+            if (_duplexServiceProviders == null)
+            {
+                lock (_syncRoot)
+                {
+                    if (_duplexServiceProviders == null)
+                    {
+                        _duplexServiceProviders = IoC.GetAll<IDuplexServiceProvider>().ToArray();
+                    }
+                }
+            }
+
+            // attempt to instantiate the requested service
+            foreach (IDuplexServiceProvider sp in _duplexServiceProviders)
+            {
+                // the service provider itself may not be thread-safe, so we need to ensure only one thread will access it
+                // at a time
+                lock (sp)
+                {
+                    object impl = sp.GetService(service, callback);
+                    if (impl != null)
+                        return impl;
+                }
+            }
+
+            var message = string.Format("No duplex service provider was found that can provide the service {0}.", service.FullName);
+            throw new Exception(message);
+        }
+
+        #endregion
 
 
         #region Logging

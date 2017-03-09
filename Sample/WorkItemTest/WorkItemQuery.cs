@@ -4,13 +4,15 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using System.Text;
 using log4net.Appender;
+using uDicom.WorkItemService.Common;
 using uDicom.WorkItemService.Interface;
+using uDicom.WorkItemService.WorkItemService;
 using WorkItemTest.Model;
 
 namespace WorkItemTest
 {
-    [Export(typeof(IWorkItemQuery))]
-    public class WorkItemQuery : IWorkItemQuery
+    [Export(typeof(IWorkItemOperation))]
+    public class WorkItemOperation : IWorkItemOperation
     {
         private readonly List<WorkItem> _nowRunningWorkItems = new List<WorkItem>();
         

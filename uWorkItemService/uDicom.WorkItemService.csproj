@@ -33,6 +33,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -41,8 +42,26 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseItemProcessor.cs" />
+    <Compile Include="Common\PublishManager.cs" />
+    <Compile Include="Common\SR.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SR.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Common\SubscriptionManager.cs" />
+    <Compile Include="Common\WorkItemActivityMonitor.cs" />
+    <Compile Include="Common\WorkItemActivityMonitorProxy.cs" />
+    <Compile Include="Common\WorkItemActivityMonitorReal.cs" />
+    <Compile Include="Common\WorkItemPublishSubscribeHelper.cs" />
+    <Compile Include="Common\DataContractBase.cs" />
+    <Compile Include="Common\WorkItemRequestAttribute.cs" />
+    <Compile Include="Common\WorkItemServiceClient.cs" />
+    <Compile Include="Common\WorkItemServiceProvider.cs" />
+    <Compile Include="Interface\IWorkItemService.cs" />
+    <Compile Include="Common\WorkItemActivityCallback.cs" />
+    <Compile Include="Common\WorkItemBridge.cs" />
     <Compile Include="Interface\WorkItemKnownTypeAttribute.cs" />
-    <Compile Include="Interface\WorkItemPriorityEnum.cs" />
+    <Compile Include="Common\WorkItemsChangedEventArgs.cs" />
     <Compile Include="Interface\WorkItemStatusProxy.cs" />
     <Compile Include="Interface\IWorkItemProcessorFactory.cs" />
     <Compile Include="PolymorphicDataContractAttribute.cs" />
@@ -52,10 +71,18 @@
     <Compile Include="Interface\IWorkItemProcessor.cs" />
     <Compile Include="QueueProcessor.cs" />
     <Compile Include="Serializer.cs" />
-    <Compile Include="Interface\WorkItem.cs" />
+    <Compile Include="Common\WorkItem.cs" />
     <Compile Include="WorkItemProcessor.cs" />
     <Compile Include="Interface\WorkItemProgress.cs" />
-    <Compile Include="Interface\WorkItemRequest.cs" />
+    <Compile Include="Common\WorkItemRequest.cs" />
+    <Compile Include="WorkItemService\WorkItem.cs" />
+    <Compile Include="WorkItemService\WorkItemDataHelper.cs" />
+    <Compile Include="WorkItemService\WorkItemService.cs" />
+    <Compile Include="WorkItemService\WorkItemServiceSettings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>WorkItemServiceSettings.settings</DependentUpon>
+    </Compile>
     <Compile Include="WorkItemThreadPool.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -63,6 +90,18 @@
       <Project>{375cdba6-54fa-4d85-87eb-d6fec5de5551}</Project>
       <Name>uDicom.Common</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Common\SR.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>SR.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="WorkItemService\WorkItemServiceSettings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>WorkItemServiceSettings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
