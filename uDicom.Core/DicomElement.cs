@@ -613,6 +613,29 @@ namespace UIH.Dicom
         {
             throw new DicomException(SR.InvalidType);
         }
+		/// <summary>
+		/// Gets the specified sequence item from the attribute (applicable only to SQ attributes).
+		/// </summary>
+		/// <param name="i">The index of the item to retrieve.</param>
+		/// <returns>The sequence item, or null if there is no item at the specified index.</returns>
+		/// <exception cref="DicomException">The attribute is not a sequence.</exception>
+		//[CanBeNull]
+		public virtual DicomSequenceItem GetSequenceItem(int i)
+	    {
+			throw new DicomException(SR.InvalidType);
+		}
+
+		/// <summary>
+		/// Gets the specified sequence item from the attribute, if it exists.
+		/// </summary>
+		/// <remarks>
+		/// For non-sequence attributes, this method always returns false.
+		/// </remarks>
+		public virtual bool TryGetSequenceItem(int i, out DicomSequenceItem item)
+		{
+			item = null;
+			return false;
+		}
         
         #endregion
 

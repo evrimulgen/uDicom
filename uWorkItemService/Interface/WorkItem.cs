@@ -1,8 +1,7 @@
 ﻿using System;
 using uDicom.WorkItemService.Common;
-using uDicom.WorkItemService.Interface;
 
-namespace uDicom.WorkItemService.WorkItemService
+namespace uDicom.WorkItemService.Interface
 {
     public class WorkItem
     {

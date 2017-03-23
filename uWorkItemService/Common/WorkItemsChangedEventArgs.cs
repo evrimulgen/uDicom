@@ -19,7 +19,7 @@ namespace uDicom.WorkItemService.Common
 
     public class WorkItemsChangedEventArgs : EventArgs
     {
-        public WorkItemsChangedEventArgs(WorkItemsChangedEventType eventType, List<WorkItem> items)
+        public WorkItemsChangedEventArgs(WorkItemsChangedEventType eventType, List<WorkItemData> items)
         {
             Platform.CheckForNullReference(items, "items");
 
@@ -29,6 +29,6 @@ namespace uDicom.WorkItemService.Common
 
         public WorkItemsChangedEventType EventType { get; private set; }
 
-        public List<WorkItem> ChangedItems { get; private set; }
+        public List<WorkItemData> ChangedItems { get; private set; }
     }
 }

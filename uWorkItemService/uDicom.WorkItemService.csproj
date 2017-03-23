@@ -31,6 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
@@ -72,17 +73,32 @@
     <Compile Include="QueueProcessor.cs" />
     <Compile Include="Serializer.cs" />
     <Compile Include="Common\WorkItem.cs" />
+    <Compile Include="ShredHost\IShred.cs" />
+    <Compile Include="ShredHost\IWcfShred.cs" />
+    <Compile Include="ShredHost\QueueProcessorShred.cs" />
+    <Compile Include="ShredHost\ServiceEndpointDescription.cs" />
+    <Compile Include="ShredHost\Shred.cs" />
+    <Compile Include="ShredHost\ShredController.cs" />
+    <Compile Include="ShredHost\ShredHost.cs" />
+    <Compile Include="ShredHost\ShredIsolationAttribute.cs" />
+    <Compile Include="ShredHost\ShredStartupInfo.cs" />
+    <Compile Include="ShredHost\WcfHelper.cs" />
+    <Compile Include="ShredHost\WcfShred.cs" />
+    <Compile Include="WorkItemActivityMonitorServiceType.cs" />
     <Compile Include="WorkItemProcessor.cs" />
     <Compile Include="Interface\WorkItemProgress.cs" />
     <Compile Include="Common\WorkItemRequest.cs" />
-    <Compile Include="WorkItemService\WorkItem.cs" />
-    <Compile Include="WorkItemService\WorkItemDataHelper.cs" />
-    <Compile Include="WorkItemService\WorkItemService.cs" />
-    <Compile Include="WorkItemService\WorkItemServiceSettings.Designer.cs">
+    <Compile Include="WorkItemProcessorExtension.cs" />
+    <Compile Include="WorkItemServiceExtension.cs" />
+    <Compile Include="Interface\WorkItem.cs" />
+    <Compile Include="WorkItemDataHelper.cs" />
+    <Compile Include="WorkItemService.cs" />
+    <Compile Include="WorkItemServiceSettings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>WorkItemServiceSettings.settings</DependentUpon>
     </Compile>
+    <Compile Include="WorkItemServiceType.cs" />
     <Compile Include="WorkItemThreadPool.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -95,10 +111,11 @@
     <EmbeddedResource Include="Common\SR.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>SR.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="WorkItemService\WorkItemServiceSettings.settings">
+    <None Include="WorkItemServiceSettings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>WorkItemServiceSettings.Designer.cs</LastGenOutput>
     </None>

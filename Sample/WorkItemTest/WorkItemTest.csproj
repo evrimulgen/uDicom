@@ -86,6 +86,10 @@
       <Project>{375cdba6-54fa-4d85-87eb-d6fec5de5551}</Project>
       <Name>uDicom.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\uDicom.Log\uDicom.Log.Log4net\uDicom.Log.Log4net.csproj">
+      <Project>{14D40D31-3C08-4F32-8D29-0D50AF02469D}</Project>
+      <Name>uDicom.Log.Log4net</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\uWorkItemService\uDicom.WorkItemService.csproj">
       <Project>{863acb58-9d21-4338-93cc-108bead9ace2}</Project>
       <Name>uDicom.WorkItemService</Name>

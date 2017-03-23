@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using uDicom.Common;
 using uDicom.WorkItemService.Common;
 using uDicom.WorkItemService.Interface;
 
-namespace uDicom.WorkItemService.WorkItemService
+namespace uDicom.WorkItemService
 {
     /// <summary>
     /// Implementation of <see cref="IWorkItemService"/> for processing requests to manipulate WorkItems.
@@ -64,7 +62,7 @@ namespace uDicom.WorkItemService.WorkItemService
 
             var now = DateTime.Now;
 
-            var item = new WorkItem
+            var item = new Interface.WorkItem
             {
                 Request = request.Request,
                 Progress = request.Progress,
@@ -171,11 +169,12 @@ namespace uDicom.WorkItemService.WorkItemService
                         else if (workItem.Status.Equals(WorkItemStatusEnum.InProgress))
                         {
                             // Pause the WorkItem 
-                            
+                            WorkItemProcessor.Instance.Pause(workItem.Oid);
                         }
                     }
                 }
-               
+
+                IoC.Get<IWorkItemOperation>().SaveWorkItem(workItem);
 
                 response.Item = WorkItemDataHelper.FromWorkItem(workItem);
             }

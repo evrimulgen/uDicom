@@ -4,7 +4,6 @@ using uDicom.Common;
 using uDicom.Common.Utilities;
 using uDicom.WorkItemService.Common;
 using uDicom.WorkItemService.Interface;
-using uDicom.WorkItemService.WorkItemService;
 
 namespace uDicom.WorkItemService
 {
@@ -211,6 +210,23 @@ namespace uDicom.WorkItemService
                 }
             }
         }
+
+        public void Pause(long workQueueOid)
+        {
+            foreach (WorkItemThreadParameter queuedItem in _queuedItems)
+            {
+                if (queuedItem.Item.Oid.Equals(workQueueOid))
+                {
+                    Platform.Log(LogLevel.Info, "Pause {0} WorkItem with oid {1}", 
+                        queuedItem.Item.Type, workQueueOid);
+
+                    queuedItem.Processor.Pause();
+                    return;
+                }
+            }    
+        }
+
+
         #endregion
     }
 }

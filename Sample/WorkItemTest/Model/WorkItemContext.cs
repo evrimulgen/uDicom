@@ -1,6 +1,6 @@
 ﻿using System.Data.Entity;
 using MySql.Data.Entity;
-using uDicom.WorkItemService.WorkItemService;
+using uDicom.WorkItemService.Interface;
 
 namespace WorkItemTest.Model
 {

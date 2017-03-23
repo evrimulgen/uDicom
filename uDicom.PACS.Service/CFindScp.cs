@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using uDicom.Common;
 using UIH.Dicom.Network;
 using UIH.Dicom.PACS.Service.Interface;
 using UIH.Dicom.PACS.Service.Model;

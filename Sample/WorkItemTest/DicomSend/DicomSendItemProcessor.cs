@@ -9,7 +9,6 @@ using uDicom.Common;
 using uDicom.WorkItemService;
 using uDicom.WorkItemService.Common;
 using uDicom.WorkItemService.Interface;
-using WorkItemPriorityEnum = uDicom.WorkItemService.Interface.WorkItemPriorityEnum;
 
 namespace WorkItemTest.DicomSend
 {
@@ -23,6 +22,15 @@ namespace WorkItemTest.DicomSend
 
             Priority = WorkItemPriorityEnum.Normal;
         }
+
+        public override WorkItemConcurrency ConcurrencyType
+        {
+            get
+            {
+                return WorkItemConcurrency.NonExclusive;
+            }
+        }
+       
     }
 
     [Export(typeof(WorkItemProgress))]

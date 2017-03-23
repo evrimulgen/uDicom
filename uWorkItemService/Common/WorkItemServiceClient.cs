@@ -1,4 +1,5 @@
 ﻿using System.ServiceModel;
+using System.ServiceModel.Channels;
 using uDicom.WorkItemService.Interface;
 
 namespace uDicom.WorkItemService.Common
@@ -6,8 +7,9 @@ namespace uDicom.WorkItemService.Common
     internal class WorkItemActivityMonitorServiceClient : DuplexClientBase<IWorkItemActivityMonitorService>,
         IWorkItemActivityMonitorService
     {
-        public WorkItemActivityMonitorServiceClient(InstanceContext callbackInstance)
-            : base(callbackInstance)
+        public WorkItemActivityMonitorServiceClient(InstanceContext callbackInstance,
+            Binding binding, EndpointAddress address)
+            : base(callbackInstance, binding, address)
         {
         }
 
@@ -34,6 +36,12 @@ namespace uDicom.WorkItemService.Common
 
     internal class WorkItemServiceClient : ClientBase<IWorkItemService>, IWorkItemService
     {
+        public WorkItemServiceClient(Binding binding, EndpointAddress remoteAddress) :
+            base(binding, remoteAddress)
+        {
+            
+        }
+
         public WorkItemInsertResponse Insert(WorkItemInsertRequest request)
         {
             return Channel.Insert(request);

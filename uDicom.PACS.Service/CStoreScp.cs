@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using uDicom.Common;
 using UIH.Dicom.Network;
 using UIH.Dicom.PACS.Service.Interface;
 using UIH.Pacs.Services.Dicom;

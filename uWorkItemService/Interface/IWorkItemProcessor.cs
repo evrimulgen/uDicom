@@ -23,6 +23,8 @@ namespace uDicom.WorkItemService.Interface
 
         void Cancel();
 
+        void Pause();
+
         void Stop();
 
         void Delete();

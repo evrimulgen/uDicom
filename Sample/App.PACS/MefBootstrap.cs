@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using uDicom.Common;
 using UIH.Dicom;
 
 namespace App.PACS

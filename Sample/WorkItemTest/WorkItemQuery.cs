@@ -6,7 +6,6 @@ using System.Text;
 using log4net.Appender;
 using uDicom.WorkItemService.Common;
 using uDicom.WorkItemService.Interface;
-using uDicom.WorkItemService.WorkItemService;
 using WorkItemTest.Model;
 
 namespace WorkItemTest
@@ -15,7 +14,27 @@ namespace WorkItemTest
     public class WorkItemOperation : IWorkItemOperation
     {
         private readonly List<WorkItem> _nowRunningWorkItems = new List<WorkItem>();
-        
+
+        public bool AddWorkItem(WorkItem item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public WorkItem GetWorkItem(long oid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SaveWorkItem(WorkItem item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<WorkItem> GetWorkItems(string type, WorkItemStatusEnum? status, string uid, long? oid)
+        {
+            throw new NotImplementedException();
+        }
+
         public List<WorkItem> GetWorkItems(int count, WorkItemPriorityEnum priority)
         {
             _nowRunningWorkItems.Clear();

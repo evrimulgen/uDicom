@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using uDicom.WorkItemService.Common;
+﻿using uDicom.WorkItemService.Common;
 
-namespace uDicom.WorkItemService.WorkItemService
+namespace uDicom.WorkItemService
 {
     public static class WorkItemDataHelper
     {
-        public static WorkItemData FromWorkItem(WorkItem item)
+        public static WorkItemData FromWorkItem(Interface.WorkItem item)
         {
             return new WorkItemData
             {

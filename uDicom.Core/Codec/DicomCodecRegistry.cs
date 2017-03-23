@@ -22,6 +22,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using uDicom.Common;
 using UIH.Dicom.Log;
 
 namespace UIH.Dicom.Codec

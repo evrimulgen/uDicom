@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using uDicom.Common;
 using UIH.Dicom.Log;
 using UIH.Dicom.Network;
 using UIH.Dicom.Network.Scp;

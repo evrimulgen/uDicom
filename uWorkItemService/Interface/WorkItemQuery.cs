@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using uDicom.WorkItemService.Common;
-using uDicom.WorkItemService.WorkItemService;
 
 namespace uDicom.WorkItemService.Interface
 {
@@ -10,7 +9,10 @@ namespace uDicom.WorkItemService.Interface
 
         WorkItem GetWorkItem(long oid);
 
+        void SaveWorkItem(WorkItem item);
+
         List<WorkItem> GetWorkItems(string type, WorkItemStatusEnum? status, string uid, long? oid );
+
         List<WorkItem> GetWorkItems(int count, WorkItemPriorityEnum priority);
 
         /// <summary>

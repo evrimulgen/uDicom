@@ -5,6 +5,7 @@
 // http://www.united-imaging.com
 #endregion
 
+using uDicom.Common;
 using UIH.Dicom.Network;
 using UIH.Dicom.PACS.Service.Interface;
 using UIH.Dicom.PACS.Service.Model;

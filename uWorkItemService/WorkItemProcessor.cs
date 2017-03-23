@@ -5,7 +5,6 @@ using System.Threading;
 using uDicom.Common;
 using uDicom.WorkItemService.Common;
 using uDicom.WorkItemService.Interface;
-using uDicom.WorkItemService.WorkItemService;
 
 namespace uDicom.WorkItemService
 {
@@ -196,6 +195,11 @@ namespace uDicom.WorkItemService
         public void Cancel(long workItemOid)
         {
             _threadPool.Cancel(workItemOid);
+        }
+
+        public void Pause(long workItemOid)
+        {
+            _threadPool.Pause(workItemOid);
         }
 
         #endregion

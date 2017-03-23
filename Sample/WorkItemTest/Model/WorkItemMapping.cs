@@ -1,5 +1,5 @@
 ﻿using System.Data.Entity.ModelConfiguration;
-using uDicom.WorkItemService.WorkItemService;
+using uDicom.WorkItemService.Interface;
 
 namespace WorkItemTest.Model
 {

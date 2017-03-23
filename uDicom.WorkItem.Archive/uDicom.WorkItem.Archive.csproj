@@ -41,15 +41,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DicomRetrieve\DicomRetrieveFactory.cs" />
+    <Compile Include="DicomRetrieve\DicomRetrieveItemProcessor.cs" />
+    <Compile Include="DicomRetrieve\DicomRetrieveRequest.cs" />
     <Compile Include="DicomSend\DicomSendFactory.cs" />
     <Compile Include="DicomSend\DicomSendItemProcessor.cs" />
     <Compile Include="DicomSend\DicomSendRequest.cs" />
+    <Compile Include="Import\ImportFactory.cs" />
+    <Compile Include="Import\ImportFilesRequest.cs" />
+    <Compile Include="Import\ImportItemProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Request.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\uDicom.Common\uDicom.Common.csproj">
       <Project>{375cdba6-54fa-4d85-87eb-d6fec5de5551}</Project>
       <Name>uDicom.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\uDicom.Core\uDicom.Core.csproj">
+      <Project>{5F03C5DC-CDF9-406C-A6C1-611EA4B1C441}</Project>
+      <Name>uDicom.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\uWorkItemService\uDicom.WorkItemService.csproj">
       <Project>{863acb58-9d21-4338-93cc-108bead9ace2}</Project>
@@ -57,7 +68,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="DicomRetrieve\" />
+    <Folder Include="DvDBurn\" />
+    <Folder Include="Export\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

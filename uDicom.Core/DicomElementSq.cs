@@ -143,6 +143,17 @@ namespace UIH.Dicom
             base.StreamLength = (uint)base.Count;
         }
 
+	    public override DicomSequenceItem GetSequenceItem(int i)
+	    {
+		    return this[i];
+	    }
+
+	    public override bool TryGetSequenceItem(int i, out DicomSequenceItem item)
+	    {
+		    item = this[i];
+		    return item != null;
+	    }
+
         #endregion
 
         #region Abstract Method Implementation

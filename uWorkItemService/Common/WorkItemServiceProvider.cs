@@ -1,18 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.ComponentModel.Composition;
 using System.ServiceModel;
-using System.Text;
 using uDicom.Common;
 using uDicom.WorkItemService.Interface;
 
 namespace uDicom.WorkItemService.Common
 {
-    public interface IDuplexServiceProvider
-    {
-        object GetService(Type type, object callback);
-    }
-
+    [Export(typeof(IServiceProvider))]
+    [Export(typeof(IDuplexServiceProvider))]
     internal class WorkItemServiceProvider : IServiceProvider, IDuplexServiceProvider
     {
         #region Implementation of IDuplexServiceProvider
@@ -25,7 +20,14 @@ namespace uDicom.WorkItemService.Common
 
             Platform.CheckExpectedType(callback, typeof(IWorkItemActivityCallback));
 
-            var client = new WorkItemActivityMonitorServiceClient(new InstanceContext(callback));
+            // 将binding的协议地址写死在代码中，这样就不需要配置文件了，缺点就是代码和服务端紧耦合
+            // 优点，也不是优点，就是不用考虑B/R 那些烦人的东西了
+            NetNamedPipeBinding binding = new NetNamedPipeBinding();
+            EndpointAddress address = new EndpointAddress("net.pipe://localhost/DICOMViewer/WorkItemService");
+
+
+            var client = new WorkItemActivityMonitorServiceClient(new InstanceContext(callback),
+                binding, address);
             if (client.State != CommunicationState.Opened)
                 client.Open();
 
@@ -41,7 +43,11 @@ namespace uDicom.WorkItemService.Common
             Platform.CheckForNullReference(serviceType, "serviceType");
             if (serviceType == typeof(IWorkItemService))
             {
-                var client = new WorkItemServiceClient();
+                // 将binding的协议地址写死在代码中，这样就不需要配置文件了
+                NetNamedPipeBinding binding = new NetNamedPipeBinding();
+                EndpointAddress address = new EndpointAddress("net.pipe://localhost/DICOMViewer/WorkItemService");
+
+                var client = new WorkItemServiceClient(binding, address);
                 if (client.State != CommunicationState.Opened)
                     client.Open();
 

@@ -11,13 +11,12 @@ using System;
 using System.Collections.Generic;
 using uDicom.Common;
 using UIH.Dicom.Network;
-using UIH.Dicom.Network.Scp;
 using UIH.Dicom.Network.Scu;
 using UIH.Dicom.PACS.Service.Interface;
 
 namespace UIH.Dicom.PACS.Service
 {
-    
+
     public class CMoveScp : BaseScp
     {
         #region Private members

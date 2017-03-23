@@ -59,6 +59,7 @@ namespace uDicom.WorkItemService.Common
         NonExclusive
     }
 
+    [DataContract(Namespace = ImageViewerWorkItemNamespace.Value)]
     public abstract class WorkItemRequest : DataContractBase
     {
         protected WorkItemRequest()
@@ -77,9 +78,9 @@ namespace uDicom.WorkItemService.Common
         [DataMember]
         public string UserName { get; set; }
 
-        public abstract string ActivityDescription { get; }
+        //public abstract string ActivityDescription { get; }
 
-        public abstract string ActivityTypeString { get; }
+        //public abstract string ActivityTypeString { get; }
 
         [DataMember]
         public bool CancellationCanResultInPartialStudy { get; protected set; }

@@ -23,6 +23,7 @@ namespace uDicom.WorkItemService
         private string _name = "Work Item";
         private volatile bool _cancelPending;
         private volatile bool _stopPending;
+        private volatile bool _pausePending;
         private readonly object _syncRoot = new object();
         #endregion
 
@@ -91,6 +92,14 @@ namespace uDicom.WorkItemService
 
             lock (_syncRoot)
                 _cancelPending = true;
+        }
+
+        public virtual void Pause()
+        {
+            lock (_syncRoot)
+            {
+                _pausePending = true;
+            }
         }
 
         public virtual void Stop()

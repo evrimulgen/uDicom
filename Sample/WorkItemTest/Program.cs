@@ -3,7 +3,7 @@ using uDicom.Common;
 using uDicom.Log.Log4net;
 using uDicom.WorkItemService;
 using uDicom.WorkItemService.Common;
-using uDicom.WorkItemService.WorkItemService;
+using uDicom.WorkItemService.Interface;
 using WorkItemTest.DicomSend;
 using WorkItemTest.Model;
 

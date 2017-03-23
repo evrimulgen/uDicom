@@ -10,12 +10,12 @@ namespace uDicom.WorkItemService.Interface
 {
     public static class ImageViewerNamespace
     {
-        public const string Value = "http://www.clearcanvas.ca/imageviewer";
+        public const string Value = "http://www.united-imaging.com/MCSF";
     }
 
     public static class ImageViewerWorkItemNamespace
     {
-        public const string Value = ImageViewerNamespace.Value + "/workitem";
+        public const string Value = ImageViewerNamespace.Value + "/WorkItem";
     }
 
     [DataContract(Namespace = ImageViewerWorkItemNamespace.Value)]
@@ -153,7 +153,7 @@ namespace uDicom.WorkItemService.Interface
         [OperationContract(IsOneWay = true)]
         void Refresh(WorkItemRefreshRequest request);
 
-        // TODO (CR Jun 2012): this should be renamed "PublishWorkedItemChanged". Still wish we could get rid of it.
+        // TODO this should be renamed "PublishWorkedItemChanged". Still wish we could get rid of it.
         [OperationContract]
         WorkItemPublishResponse Publish(WorkItemPublishRequest request);
     }

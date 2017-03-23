@@ -97,7 +97,6 @@
     <Compile Include="IDicomCharacterSetParser.cs" />
     <Compile Include="IDicomElementProvider.cs" />
     <Compile Include="Interfaces.cs" />
-    <Compile Include="IoC.cs" />
     <Compile Include="Iod\AnatomicalOrientationType.cs" />
     <Compile Include="Iod\CIELabColor.cs" />
     <Compile Include="Iod\ComponentGroup.cs" />
@@ -403,6 +402,9 @@
       <Project>{375CDBA6-54FA-4D85-87EB-D6FEC5DE5551}</Project>
       <Name>uDicom.Common</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ServiceModel\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
